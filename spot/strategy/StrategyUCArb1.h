@@ -10,13 +10,13 @@ using namespace std;
 using namespace spot::risk;
 namespace spot {
     namespace strategy {
-		enum TriggerSource {
-			Unknown = 1,
-    		BestPrice,
-			Trade,
-    		TPrice		
+		enum TriggerSource1 {
+			Unknown1 = 1,
+    		BestPrice1,
+			Trade1,
+    		TPrice1		
 		};
-		struct SyInfo
+		struct SyInfo1
 		{
 			char symbol[InstrumentIDLen+1];
 			uint64_t mp_update_t; // mark price updatetime
@@ -66,18 +66,19 @@ namespace spot {
 				bid_price = bid_p;
 				ask_price = ask_p;
 				mid_price = (bid_p + ask_p) / 2.0;
-				sy_avg_midprice = (sy_avg_midprice + mid_price) / (++mid_num);
+				sy_avg_midprice = sy_avg_midprice + mid_price;
+				mid_num = mid_num + 1;
 				recv_ts = ts;
 				trigger_source = tp;
 			}
 			void resetTriggerSource()
 			{
-				trigger_source = TriggerSource::Unknown;
+				trigger_source = TriggerSource1::Unknown1;
 			}
 
-			SyInfo()
+			SyInfo1()
 			{
-				memset(this, 0, sizeof(SyInfo));
+				memset(this, 0, sizeof(SyInfo1));
 			}
 		};
 		
@@ -99,8 +100,8 @@ namespace spot {
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument);
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval();
-			int getSellPendingLen(SyInfo& sy);
-			int getBuyPendingLen(SyInfo& sy);
+			int getSellPendingLen(SyInfo1& sy);
+			int getBuyPendingLen(SyInfo1& sy);
 
         private:
             StrategyUCArb1(int strategyID, StrategyParameter *params);
@@ -109,7 +110,7 @@ namespace spot {
 			void resetRcSize();
 			int taker_action();
 			int maker_action();
-			int getIocOrdPendingLen(SyInfo& sy);
+			int getIocOrdPendingLen(SyInfo1& sy);
 			double get_tol_delay();
 			double po_best_price(OrderByPriceMap*  priceMap, int side);
 			void over_max_delta_limit();
@@ -117,7 +118,7 @@ namespace spot {
 			void update_thresh();
 			void log_delay(string s, string exch);
 			void initInstrument();
-			bool vaildPrice(SyInfo& sy);
+			bool vaildPrice(SyInfo1& sy);
 			bool VaildCancelTime(Order& order, uint8_t loc);
 
 		private:
@@ -159,8 +160,8 @@ namespace spot {
 			int flag_send_order; 
 			uint64_t last_hedge_time;
 			uint64_t last_taker_time;
-			SyInfo sy1;
-			SyInfo sy2;
+			SyInfo1 sy1;
+			SyInfo1 sy2;
 			bool ready;
 			double buy_thresh;
 			double sell_thresh;
@@ -187,6 +188,8 @@ namespace spot {
 			atomic<double> step_thresh;
 
 			uint64_t last_time_stamp;
+			int sell_open_flag;
+			int buy_open_flag;
 
 		public:
 			uint32_t cSize_;
@@ -195,6 +198,7 @@ namespace spot {
 			//ioc: ( sy1: hedge , sy2:take_action)
 			spotRisk* risk_; // taker_action maker_action only exchange2 ,hedge only exchange1.
 			uint64_t on_time_60;
+			int time_gap;
 
 
 		};

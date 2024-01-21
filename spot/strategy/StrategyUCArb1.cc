@@ -1,4 +1,4 @@
-#include "StrategyUCArb.h"
+#include "StrategyUCArb1.h"
 #include "spot/strategy/MarketDataManager.h"
 #include "spot/utility/Utility.h"
 #include "spot/utility/Measure.h"
@@ -9,15 +9,15 @@
 using namespace spot::strategy;
 // using namespace spot::risk;
 
-Strategy *StrategyUCArb::Create(int strategyID, StrategyParameter *params) {
-    char *buff = CacheAllocator::instance()->allocate(sizeof(StrategyUCArb));
-    return new(buff) StrategyUCArb(strategyID, params);
+Strategy *StrategyUCArb1::Create(int strategyID, StrategyParameter *params) {
+    char *buff = CacheAllocator::instance()->allocate(sizeof(StrategyUCArb1));
+    return new(buff) StrategyUCArb1(strategyID, params);
 }
 
-StrategyUCArb::StrategyUCArb(int strategyID, StrategyParameter *params)
+StrategyUCArb1::StrategyUCArb1(int strategyID, StrategyParameter *params)
         : StrategyCircuit(strategyID, params) {
-    memset(&sy1, 0, sizeof(SyInfo));
-    memset(&sy2, 0, sizeof(SyInfo));
+    memset(&sy1, 0, sizeof(SyInfo1));
+    memset(&sy2, 0, sizeof(SyInfo1));
     on_time_60 = CURR_MSTIME_POINT;
     risk_ = new spotRisk(this);
     last_taker_time = 0;
@@ -61,6 +61,10 @@ StrategyUCArb::StrategyUCArb(int strategyID, StrategyParameter *params)
     delay_plus = *parameters()->getDouble("delay_plus");
     pos_adj_amount = *parameters()->getDouble("pos_adj_amount");
     step_thresh = *parameters()->getDouble("step_thresh");
+    time_gap = *parameters()->getInt("time_gap");
+
+    buy_open_flag = *parameters()->getInt("buy_open_flag");
+    sell_open_flag = *parameters()->getInt("sell_open_flag");
 
     last_time_stamp = CURR_STIME_POINT;
 
@@ -146,13 +150,17 @@ StrategyUCArb::StrategyUCArb(int strategyID, StrategyParameter *params)
         << ", special_trade_tolerance_seconds: " << special_trade_tolerance_seconds
         << ", tolerance_delay: " << tolerance_delay
         << ", delay_plus: " << delay_plus
-        << ", pos_adj_amount: " << pos_adj_amount;
+        << ", pos_adj_amount: " << pos_adj_amount
+        << ", step_thresh: " << step_thresh
+        << ", buy_open_flag: " << buy_open_flag
+        << ", sell_open_flag: " << sell_open_flag
+        << ", time_gap: " << time_gap;
 
     cSize_ = 1;
 	rSize_ = 1;
 }
 
-void StrategyUCArb::initInstrument() {
+void StrategyUCArb1::initInstrument() {
     for (auto it : strategyInstrumentList())
 	{
 		it->tradeable(true);
@@ -170,12 +178,12 @@ void StrategyUCArb::initInstrument() {
         }
     }
 }
-void StrategyUCArb::resetRcSize() {
+void StrategyUCArb1::resetRcSize() {
 	cSize_ = 1;
 	rSize_ = 1;
 }
 
-void StrategyUCArb::qryPosition() {
+void StrategyUCArb1::qryPosition() {
     for (auto iter : strategyInstrumentList()) {
         if (iter->instrument()->getInstrumentID() == sy1.symbol) {
             sy1.multiple = iter->instrument()->getMultiplier();
@@ -237,12 +245,12 @@ void StrategyUCArb::qryPosition() {
     }
 }
 
-void StrategyUCArb::init() {
+void StrategyUCArb1::init() {
     initInstrument();
     qryPosition();
 }
 
-int StrategyUCArb::getBuyPendingLen(SyInfo& sy) {
+int StrategyUCArb1::getBuyPendingLen(SyInfo1& sy) {
     int pendNum = 0;
     for (auto it : (*sy.strategyInstrument->buyOrders())) {
         for (auto iter : it.second->OrderList) {
@@ -253,7 +261,7 @@ int StrategyUCArb::getBuyPendingLen(SyInfo& sy) {
     return pendNum;
 }
 
-int StrategyUCArb::getSellPendingLen(SyInfo& sy) {
+int StrategyUCArb1::getSellPendingLen(SyInfo1& sy) {
     int pendNum = 0;
     for (auto it : (*sy.strategyInstrument->sellOrders())) {
         for (auto iter : it.second->OrderList) {
@@ -264,7 +272,7 @@ int StrategyUCArb::getSellPendingLen(SyInfo& sy) {
     return pendNum;
 }
 
-int StrategyUCArb::getIocOrdPendingLen(SyInfo& sy) {
+int StrategyUCArb1::getIocOrdPendingLen(SyInfo1& sy) {
     int pendNum = 0;
     for (auto it : (*sy.strategyInstrument->sellOrders())) {
         for (auto iter : it.second->OrderList) {
@@ -298,18 +306,18 @@ int StrategyUCArb::getIocOrdPendingLen(SyInfo& sy) {
     return pendNum;
 }
 
-double StrategyUCArb::get_tol_delay() {
-    if (sy1.trigger_source == TriggerSource::Trade)
+double StrategyUCArb1::get_tol_delay() {
+    if (sy1.trigger_source == TriggerSource1::Trade1)
         return trade_tolerance_seconds;
-    else if (sy1.trigger_source == TriggerSource::BestPrice)
+    else if (sy1.trigger_source == TriggerSource1::BestPrice1)
         return ob_tolerance_seconds;
-    else if (sy1.trigger_source == TriggerSource::TPrice)
+    else if (sy1.trigger_source == TriggerSource1::TPrice1)
         return special_trade_tolerance_seconds;
     else
         return ob_tolerance_seconds;
 }
 
-bool StrategyUCArb::VaildCancelTime(Order& order, uint8_t loc)
+bool StrategyUCArb1::VaildCancelTime(Order& order, uint8_t loc)
 {
     uint64_t now_ns= CURR_NSTIME_POINT;
     if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
@@ -325,7 +333,7 @@ bool StrategyUCArb::VaildCancelTime(Order& order, uint8_t loc)
     return true;
 }
 
-int StrategyUCArb::getPoPriceLevel(OrderByPriceMap*  priceMap) {
+int StrategyUCArb1::getPoPriceLevel(OrderByPriceMap*  priceMap) {
     int level = 0;
     for (auto it : (*priceMap)) {
         for (auto iter : it.second->OrderList) {
@@ -339,7 +347,7 @@ int StrategyUCArb::getPoPriceLevel(OrderByPriceMap*  priceMap) {
 }
 
 // GTX pending orders
-double StrategyUCArb::po_best_price(OrderByPriceMap*  priceMap, int side) {
+double StrategyUCArb1::po_best_price(OrderByPriceMap*  priceMap, int side) {
     if (side == 0) {
         if (priceMap->size() != 0) {
             auto it = priceMap->rbegin();
@@ -382,7 +390,7 @@ double StrategyUCArb::po_best_price(OrderByPriceMap*  priceMap, int side) {
     return 0;
 }
 
-bool StrategyUCArb::vaildPrice(SyInfo& sy) {
+bool StrategyUCArb1::vaildPrice(SyInfo1& sy) {
     if (!IS_DOUBLE_NORMAL(sy.mid_price) 
         || !IS_DOUBLE_NORMAL(sy.ask_price)
         || !IS_DOUBLE_NORMAL(sy.bid_price)) {
@@ -395,7 +403,7 @@ bool StrategyUCArb::vaildPrice(SyInfo& sy) {
 
 }
 
-int StrategyUCArb::maker_action() {
+int StrategyUCArb1::maker_action() {
     if (!vaildPrice(sy1) || !vaildPrice(sy2)) return 0;
     flag_send_order = 0;
     // if (!risk_->VaildByLimitOrdersSlidePers(cSize_)) {
@@ -410,7 +418,7 @@ int StrategyUCArb::maker_action() {
     int64_t timeGap = now_ns - sy1.exch_ts;
     if (timeGap < tolerance_delay * 1e9) {
         double tol_sec = get_tol_delay();
-        // # 有延迟，需要放宽
+        // # 有延迟，霢�要放宄1�7
         if (now_ns - sy1.exch_ts >= tol_sec * 1e9) {
             sy2.ask_place_price *= (1 + delay_plus);
             sy2.bid_place_price *= (1 - delay_plus);
@@ -420,7 +428,7 @@ int StrategyUCArb::maker_action() {
                 << sy2.bid_place_price;
         }
     } else {
-        //  需要避险
+        //  霢�要避附1�7
         sy2.ask_place_price *= (1 + disaster_tol_thresh);
         sy2.bid_place_price *= (1 - disaster_tol_thresh);
         LOG_WARN << "maker_action 2 now_ns: " << now_ns << ", exch_ts: " << sy1.exch_ts
@@ -437,7 +445,7 @@ int StrategyUCArb::maker_action() {
     sy2.ask_last_place_price = sy2.ask_place_price;
     sy2.bid_last_place_price = sy2.bid_place_price;
 
-    bool bid_continue = true; //# best_price buy 取最高 sell 取最低
+    bool bid_continue = true; //# best_price buy 取最髄1�7 sell 取最佄1�7
     if (IS_DOUBLE_GREATER(po_best_price(buyPriceMap2, 0), sy2.bid_place_price * (1 + batch_sensitivity))) {  // 头部撤单 部分撤单，只撤无利可图单
         for(auto it = buyPriceMap2->rbegin(); it != buyPriceMap2->rend(); it++) {
             if (IS_DOUBLE_GREATER(it->first, sy2.bid_place_price * (1 + batch_sensitivity))) {
@@ -450,7 +458,7 @@ int StrategyUCArb::maker_action() {
         }
     }
     if (getBuyPendingLen(sy2) != 0)
-        bid_continue = false; //#有挂单
+        bid_continue = false; //#有挂卄1�7
 
     bool ask_continue = true;
     // # ask order
@@ -467,7 +475,7 @@ int StrategyUCArb::maker_action() {
         }
     }
     if (getSellPendingLen(sy2) != 0)
-        ask_continue = false; //#有挂单
+        ask_continue = false; //#有挂卄1�7
 
     double prc_tick_size = sy2.prc_tick_size;
 
@@ -477,18 +485,18 @@ int StrategyUCArb::maker_action() {
     // }
     double temp_maker_qty = round1(symbol2_maker_notional / sy2.mid_price, sy2.qty_tick_size, sy2.qty_decimal);
 
-    // # 5 -> bybit po 版本，这个需要改？
+    // # 5 -> bybit po 版本，这个需要改＄1�7
     double maker_qty = min(temp_maker_qty, 5 * sy2.max_qty);
 
     
-    if (bid_continue) {
+    if (bid_continue && !(!buy_open_flag && IS_DOUBLE_GREATER(step_thresh, 0) && IS_DOUBLE_ZERO(sy2.strategyInstrument->position().getNetPosition()))) {
         double ord_distance = max(prc_tick_size, round_up(sy2.bid_place_price * order_distance, prc_tick_size, sy2.prx_decimal));
         double worst_bid = sy2.bid_place_price - (order_level + level_tolerance) * ord_distance;
         double temp_bid1 = sy2.bid_place_price - ord_distance;
         int current_level = getPoPriceLevel(buyPriceMap2);
         if (IS_DOUBLE_GREATER(po_best_price(buyPriceMap2, 0), temp_bid1 + epsilon) && current_level < order_level) {  //# 尾部挂单
             auto it = buyPriceMap2->begin();
-            double last_order_px = it->first; //# bid: 高->低   ask： 低->高
+            double last_order_px = it->first; //# bid: 髄1�7->佄1�7   ask＄1�7 佄1�7->髄1�7
             for (int i = 1; (i < order_level - current_level + 1); i++) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -632,14 +640,15 @@ int StrategyUCArb::maker_action() {
         }
     }
 
-    if (ask_continue) {
+    if (ask_continue && !(!sell_open_flag && IS_DOUBLE_LESS(step_thresh, 0) && IS_DOUBLE_ZERO(sy2.strategyInstrument->position().getNetPosition()))) {
+
         double ord_distance = max(prc_tick_size, round_up(sy2.ask_place_price * order_distance, prc_tick_size, sy2.prx_decimal));
         double worst_ask = sy2.ask_place_price + ( order_level + level_tolerance) * ord_distance;
         double temp_ask1 = sy2.ask_place_price + ord_distance;
         int current_level = getPoPriceLevel(sellPriceMap2);
         if (IS_DOUBLE_LESS(po_best_price(sellPriceMap2, 1), temp_ask1 - epsilon) && current_level < order_level) { //# 尾部挂单
             auto it = sellPriceMap2->rbegin();
-            double last_order_px = it->first; //# bid: 高->低   ask： 低->高
+            double last_order_px = it->first; //# bid: 髄1�7->佄1�7   ask＄1�7 佄1�7->髄1�7
             for (int i = 1; (i < order_level - current_level + 1); i++) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -746,7 +755,7 @@ int StrategyUCArb::maker_action() {
     return flag_send_order;
 }
 // taker_action maker_action only exchange2 ,hedge only exchange1.
-int StrategyUCArb::taker_action() {
+int StrategyUCArb1::taker_action() {
     if (!vaildPrice(sy1) || !vaildPrice(sy2)) return 0;
     // risk check
     // if (!risk_->VaildByLimitOrdersSlidePers(rSize_)) {
@@ -766,7 +775,7 @@ int StrategyUCArb::taker_action() {
     double temp_trade_qty = symbol2_taker_notional / sy2.mid_price;
     double trade_qty = min(round1(temp_trade_qty, sy2.qty_tick_size, sy2.qty_decimal), sy2.max_qty);
 
-    // 有延迟，需要放宽
+    // 有延迟，霢�要放宄1�7
     double tol_sec = get_tol_delay();
     double delay = 0;
     if (now_ns - sy1.exch_ts >= tol_sec * 1e9)
@@ -866,7 +875,7 @@ int StrategyUCArb::taker_action() {
      return flag_send_order;
 }
 
-void StrategyUCArb::over_max_delta_limit() {
+void StrategyUCArb1::over_max_delta_limit() {
     sy1.real_pos = sy1.strategyInstrument->position().getNetPosition();
     sy2.real_pos = sy2.strategyInstrument->position().getNetPosition();
     sy2.entry_price = sy2.strategyInstrument->position().PublicPnlDaily().EntryPrice;
@@ -882,10 +891,10 @@ void StrategyUCArb::over_max_delta_limit() {
     }
 }
 // taker_action maker_action only exchange2 ,hedge only exchange1.
-void StrategyUCArb::hedge() {
+void StrategyUCArb1::hedge() {
     // uint64_t now_ns= CURR_NSTIME_POINT;
     // if (now_ns - last_hedge_time < hedge_time_gap * 1e9) return;
-    // LOG_INFO << "StrategyUCArb::hedge(): " << delta_pos_notional << ", hedge_pos_thresh2: " << hedge_pos_thresh2;
+    // LOG_INFO << "StrategyUCArb1::hedge(): " << delta_pos_notional << ", hedge_pos_thresh2: " << hedge_pos_thresh2;
     if (IS_DOUBLE_GREATER(abs(delta_pos_notional), hedge_pos_thresh2)) {
         //if sy1.ioc_pending: return
         if (getIocOrdPendingLen(sy1) != 0) {
@@ -957,7 +966,7 @@ void StrategyUCArb::hedge() {
     }
 }
 
-void StrategyUCArb::update_thresh() 
+void StrategyUCArb1::update_thresh() 
 {
     // if (IS_DOUBLE_LESS_EQUAL(pos_adj_amount * symbol2_pos_adj, 0)) {
     //     LOG_FATAL << "pos_adj_amount: " << pos_adj_amount << ", symbol2_pos_adj: " << symbol2_pos_adj;
@@ -992,16 +1001,16 @@ void StrategyUCArb::update_thresh()
         << ", delta_pos_notional: " << delta_pos_notional;
 }
 
-// 强平检查
-void StrategyUCArb::OnForceCloseTimerInterval() {
+// 强平棢�柄1�7
+void StrategyUCArb1::OnForceCloseTimerInterval() {
     if (enable_hedge > 0) {
         LOG_DEBUG << "OnForceCloseTimerInterval: " << enable_hedge;
         hedge();
     }
 }
 
-//# qry_position_bal 查询保证金 # 60s
-void StrategyUCArb::OnTimerTradingLogic()
+//# qry_position_bal 查询保证釄1�7 # 60s
+void StrategyUCArb1::OnTimerTradingLogic()
 {
     if (CURR_MSTIME_POINT - on_time_60 < 60000) return;
     on_time_60 = CURR_MSTIME_POINT;
@@ -1039,7 +1048,7 @@ void StrategyUCArb::OnTimerTradingLogic()
             << ", symbol1_ask: " << sy1.ask_price
             << ", symbol2_bid: " << sy2.bid_price
             << ", symbol2_ask: " << sy2.ask_price
-            << ", buy_thresh: " << -round_p(10000 * buy_thresh, 1)
+            << ", buy_thresh: " << round_p(10000 * buy_thresh, 1)
             << ", sell_thresh: " <<  round_p(10000 * sell_thresh, 1)
             << ", delta_adj: " << 0
             << ", pos_adj: " <<  round_p(10000 * pos_adj, 1)
@@ -1117,7 +1126,7 @@ void StrategyUCArb::OnTimerTradingLogic()
     }
 }
 
-void StrategyUCArb::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
+void StrategyUCArb1::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     over_max_delta_limit();
     if (enable_hedge > 0)
@@ -1130,7 +1139,7 @@ void StrategyUCArb::OnPartiallyFilledTradingLogic(const Order &rtnOrder, Strateg
         << ", sy2.real_pos: " << sy2.real_pos;
 }
 
-void StrategyUCArb::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
+void StrategyUCArb1::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     over_max_delta_limit();
     if (enable_hedge > 0)
@@ -1144,7 +1153,7 @@ void StrategyUCArb::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrume
         << ", sy2.real_pos: " << sy2.real_pos;
 }
 
-void StrategyUCArb::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument)
+void StrategyUCArb1::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument)
 {
 try {
     uint64_t now_ns = CURR_NSTIME_POINT;
@@ -1156,7 +1165,7 @@ try {
     if (news == 0) return;
     double ask = kMaxPrice;
     double bid = kMinPrice;
-    // to do log side 是买的话打印 ob ask(没改之前)， 反之ob buy; exch(只收bybit的trade), 
+    // to do log side 是买的话打印 ob ask(没改之前)＄1�7 反之ob buy; exch(只收bybit的trade), 
     if (marketTrade.Direction == INNER_DIRECTION_Buy) {
         LOG_INFO << "trade logic before: " << marketTrade.ExchangeID
             << ", InstrumentID: " << marketTrade.InstrumentID
@@ -1183,7 +1192,7 @@ try {
             ask = max(ask, sy1.ask_price);
         else if (2 == news)
             ask = max(ask, min(round1(marketTrade.Price * (1 + news_thresh/10000), sy1.prx_decimal, sy1.prc_tick_size), sy1.ask_price));
-        sy1.update_price(bid, ask, now_ns, TriggerSource::Trade);
+        sy1.update_price(bid, ask, now_ns, TriggerSource1::Trade1);
     }
     else if (marketTrade.Direction == INNER_DIRECTION_Buy) {
         ask = marketTrade.Price;
@@ -1192,9 +1201,9 @@ try {
             bid = min(bid, sy1.bid_price);
         else if (2 == news)
             bid = min(bid, max(round1(marketTrade.Price * (1 - news_thresh/10000), sy1.prx_decimal, sy1.prc_tick_size), sy1.bid_price));
-        sy1.update_price(bid, ask, now_ns, TriggerSource::Trade);
+        sy1.update_price(bid, ask, now_ns, TriggerSource1::Trade1);
     }
-    // to do log side 是买的话打印 ob ask（改了之后）， 反之ob buy; exch(只收bybit的trade), 
+    // to do log side 是买的话打印 ob ask（改了之后）＄1�7 反之ob buy; exch(只收bybit的trade), 
 
     LOG_INFO << "trade logic after: " << marketTrade.ExchangeID
         << ", InstrumentID: " << marketTrade.InstrumentID
@@ -1224,7 +1233,7 @@ catch (std::exception ex) {
 
 }
 
-void StrategyUCArb::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
+void StrategyUCArb1::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     uint64_t now_ns = CURR_NSTIME_POINT;
     if (strcmp(sy2.symbol, marketData.InstrumentID) == 0) {
@@ -1240,7 +1249,7 @@ void StrategyUCArb::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mark
             << ", bid1: " << marketData.BidPrice1 
             << ", EpochTime: " << marketData.EpochTime * 1000000
             << ", marketdelay: " << (now_ns - marketData.EpochTime * 1000000);
-        sy2.update_price(marketData.BidPrice1, marketData.AskPrice1, now_ns, TriggerSource::BestPrice);
+        sy2.update_price(marketData.BidPrice1, marketData.AskPrice1, now_ns, TriggerSource1::BestPrice1);
     }
 
     if (strcmp(sy1.symbol, marketData.InstrumentID) == 0) {
@@ -1264,23 +1273,26 @@ void StrategyUCArb::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mark
             << ", bid1: " << marketData.BidPrice1 
             << ", EpochTime: " << marketData.EpochTime * 1000000
             << ", marketdelay: " << (now_ns - marketData.EpochTime * 1000000);
-        sy1.update_price(marketData.BidPrice1, marketData.AskPrice1, now_ns, TriggerSource::BestPrice);
+        sy1.update_price(marketData.BidPrice1, marketData.AskPrice1, now_ns, TriggerSource1::BestPrice1);
     }
 
-    if (CURR_STIME_POINT - last_time_stamp > 3600) {
-        step_thresh = (sy2.sy_avg_midprice - sy1.sy_avg_midprice) / (sy1.sy_avg_midprice * 2);
-        LOG_INFO << "update step thresh: " << step_thresh 
-            << ", sy2.sy_avg_midprice: " << sy2.sy_avg_midprice
-            << ", sy1.sy_avg_midprice: " << sy1.sy_avg_midprice
-            << ", sy2.mid_num: " << sy2.mid_num
-            << ", sy1.mid_num: " << sy1.mid_num
-            << ", last_time_stamp: " << last_time_stamp;
-        last_time_stamp = CURR_STIME_POINT;
-        sy2.sy_avg_midprice = 0;
-        sy1.sy_avg_midprice = 0;
-        sy2.mid_num = 0;
-        sy1.mid_num = 0;
-    }
+    // if (CURR_STIME_POINT - last_time_stamp > time_gap) {
+    //     sy2.sy_avg_midprice = sy2.sy_avg_midprice / sy2.mid_num;
+    //     sy1.sy_avg_midprice = sy1.sy_avg_midprice / sy1.mid_num;
+
+    //     double step_thresh_update = (sy2.sy_avg_midprice - sy1.sy_avg_midprice) / (sy1.sy_avg_midprice * 2);
+    //     LOG_INFO << "update step_thresh_update: " << step_thresh_update 
+    //         << ", sy2.sy_avg_midprice: " << sy2.sy_avg_midprice
+    //         << ", sy1.sy_avg_midprice: " << sy1.sy_avg_midprice
+    //         << ", sy2.mid_num: " << sy2.mid_num
+    //         << ", sy1.mid_num: " << sy1.mid_num
+    //         << ", last_time_stamp: " << last_time_stamp;
+    //     last_time_stamp = CURR_STIME_POINT;
+    //     sy2.sy_avg_midprice = 0;
+    //     sy1.sy_avg_midprice = 0;
+    //     sy2.mid_num = 0;
+    //     sy1.mid_num = 0;
+    // }
 
     if (stop_trade) return;
     if (enable_taker > 0 && (now_ns - sy1.exch_ts) < tolerance_delay * 1e9) {
@@ -1296,7 +1308,7 @@ void StrategyUCArb::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mark
     sy2.resetTriggerSource();
 }
 
-void StrategyUCArb::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
+void StrategyUCArb1::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     if (rtnOrder.InstrumentID == symbol1) {
         LOG_INFO << "OnCanceledTradingLogic symbol: " << rtnOrder.InstrumentID << ", orderRef: "
@@ -1306,7 +1318,7 @@ void StrategyUCArb::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstru
 }
 
 
-void StrategyUCArb::log_delay(string s, string exch)
+void StrategyUCArb1::log_delay(string s, string exch)
 {
     uint64_t now_ns = CURR_NSTIME_POINT;
     double delay_ts = now_ns - sy1.exch_ts;
@@ -1318,6 +1330,7 @@ void StrategyUCArb::log_delay(string s, string exch)
             << ", stop_trade: " << stop_trade
             << ", buy_thresh: " << buy_thresh
             << ", sell_thresh: " << sell_thresh
+            << ", step_thresh: " << step_thresh
             <<", ask1: " << sy1.ask_price
             <<  ", bid1: " << sy1.bid_price
             << ", sy2 midPrice: " << sy2.mid_price

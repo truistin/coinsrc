@@ -160,15 +160,15 @@ void Position::updateCPnlInfo(const Order &rtnOrder)
 	}
 	if (rtnOrder.Direction == INNER_DIRECTION_Buy)
 	{
-		double temVol = rtnOrder.Volume * coinSize / rtnOrder.Price;
+		double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
 		pnlDaily_.AvgBuyPrice = avgPrice(pnlDaily_.BuyQuantity, pnlDaily_.AvgBuyPrice, temVol, rtnOrder.Price);
-		pnlDaily_.BuyQuantity += rtnOrder.Volume * coinSize / rtnOrder.Price;
+		pnlDaily_.BuyQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
 	}
 	else if (rtnOrder.Direction == INNER_DIRECTION_Sell)
 	{
-		double temVol = rtnOrder.Volume * coinSize / rtnOrder.Price;
+		double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
 		pnlDaily_.AvgSellPrice = avgPrice(pnlDaily_.SellQuantity, pnlDaily_.AvgSellPrice, temVol, rtnOrder.Price);
-		pnlDaily_.SellQuantity += rtnOrder.Volume * coinSize / rtnOrder.Price;
+		pnlDaily_.SellQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
 	}
 	calcAggregateFee(rtnOrder);
 	pnlDaily_.Profit = (instrument_->orderBook()->midPrice() - pnlDaily_.AvgBuyPrice) * pnlDaily_.BuyQuantity
@@ -191,6 +191,7 @@ void Position::updatePnlInfo(const Order &rtnOrder)
 		<< ", TradePrice: " << rtnOrder.Price
 		<< ", MdPirce: " << instrument_->orderBook()->midPrice()
 		<< ", TradeVolume: " << rtnOrder.Volume
+		<< ", Category: " << rtnOrder.Category
 		<< ", AvgBuyPrice: " << pnlDaily_.AvgBuyPrice
 		<< ", AvgSellPrice: " << pnlDaily_.AvgSellPrice
 		<< ", BuyQuantity: " << pnlDaily_.BuyQuantity
