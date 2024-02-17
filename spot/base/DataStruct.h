@@ -74,6 +74,7 @@
 
 static const std::string LINEAR = "linear";
 static const std::string INVERSE = "inverse";
+static const std::string LEVERAGE = "leverage";
 
 static const std::string Crypto_Future_This_Week = "this_week";
 static const std::string Crypto_Future_Next_Week = "next_week";

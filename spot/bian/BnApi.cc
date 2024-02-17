@@ -648,7 +648,7 @@ uint64_t BnApi::ReqOrderInsert(const Order& order) {
         ret = ReqOrderInsert_swap(order);
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         ret = ReqOrderInsert_perp(order);
-    }  else if (strcmp(order.Category, SPOT.c_str()) == 0) {
+    }  else if (strcmp(order.Category, LEVERAGE.c_str()) == 0) {
         ret = ReqOrderInsert_lever(order);
     } else {
         // ReqOrderInsert_spot(order);
