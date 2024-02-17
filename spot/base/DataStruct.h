@@ -879,6 +879,15 @@ namespace spot
 
 	extern double eth_cm_mmr[11][5];
 
+	struct TableInfo {  
+		char* data;
+		char table_name[15];
+		int rows;  
+		int cols;  
+	};  
+
+	extern vector<TableInfo> mmr_table;
+	//mmr_table.push_back({reinterpret_cast<double*>(btc_mmr), 10, 5});  
 	//cancel order attempts before send command
 	extern int maxCancelOrderAttempts;
 

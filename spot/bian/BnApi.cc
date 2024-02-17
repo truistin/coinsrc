@@ -47,6 +47,10 @@ using namespace spot::utility;
 
 #define BN_LEVERAGE_ORDER_API "/papi/v1/margin/order"
 
+#define BN_UM_BRACKET_API "/papi/v1/um/leverageBracket"
+#define BN_CM_BRACKET_API "/papi/v1/cm/leverageBracket"
+#define BN_COLLATERALRATE_API "/sapi/v1/portfolio/collateralRate"
+
 using namespace std;
 using namespace std::chrono;
 using namespace spot::base;
@@ -179,6 +183,63 @@ bool BnApi::GetServerTime(int type) {
     m_timeLagency = (serverTime - currentTime);
     return true;
 
+}
+
+void BnApi::GetCollateralRate()
+{
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = "www.binancezh.info";
+    m_uri.api = "/bapi/margin/v1/public/margin/portfolio/collateral-rate";
+
+    m_uri.Request();
+    string &res = m_uri.result;
+    if (res.empty()) {
+        LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
+        return -1;
+    }
+
+    Document doc;
+    doc.Parse(res.c_str(), res.size());
+    if (doc.HasParseError())
+    {
+        LOG_WARN << "BianApi::CancelOrder Parse error. result:" << res;
+        return -1;
+    }
+
+    if (doc.HasMember("code"))
+    {
+        if (doc["code"].IsString())
+        {
+            int errorCode = doc["code"].GetString();
+            if (errorCode != "000000")
+            {
+                LOG_FATAL << " BnApi::GetCollateralRate result:" << res;
+            }
+        }
+    }
+
+    spotrapidjson::Value &dataNodes = doc["data"];
+
+    if (!dataNodes.IsArray()) {
+        cout << "GetCollateralRate decode failed: " << endl;
+        LOG_FATAL << "GetCollateralRate decode failed: " << res;
+    }
+
+    if (dataNodes.Size() == 0) {
+        cout << "GetCollateralRate decode failed: " << endl;
+        LOG_FATAL << "GetCollateralRate decode failed: " << res;
+    }
+/*
+{"code":"000000","message":null,"messageDetail":null,"data":[{"asset":"USDC","collateralRate":"0.9999"},{"asset":"USDT","collateralRate":"0.9999"},{"asset":"BTC","collateralRate":"0.9500"},{"asset":"ETH","collateralRate":"0.9500"},{"asset":"BNB","collateralRate":"0.9500"},{"asset":"DOGE","collateralRate":"0.9500"}]
+
+*/
+    for (int i = 0; i < dataNodes.Size(); i++) {
+
+        spotrapidjson::Value& dataNode = dataNodes[i];
+        spotrapidjson::Value& vsymbol = doc["asset"];
+        string str = dataNode["asset"].GetString();
+    }
 }
 
 void BnApi::uriQryMarkPCallbackOnHttp(char* result, uint64_t clientId)
@@ -793,6 +854,26 @@ void BnApi::AddInstrument(const char *instrument) {
     transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     originSymbolToSpotSymbol_[cp] = string(instrument);
 
+    assetVec.push_back("USDC");
+    assetVec.push_back("USDT");
+    assetVec.push_back("BUSD");
+    assetVec.push_back("BTC");
+    assetVec.push_back("ETH");
+    assetVec.push_back("ADA");
+    assetVec.push_back("FIL");
+    assetVec.push_back("ETC");
+    assetVec.push_back("AVAX");
+    assetVec.push_back("BCH");
+    assetVec.push_back("LINK");
+    assetVec.push_back("OP");
+    assetVec.push_back("SOL");
+    assetVec.push_back("BNB");
+    assetVec.push_back("DOT");
+    assetVec.push_back("MATIC");
+    assetVec.push_back("DOGE");
+    assetVec.push_back("LTC");
+    assetVec.push_back("XRP");
+    
     // for (auto it : originSymbolToSpotSymbol_) {
     //     cout << "origin symbol: " << it.first << ", spot symbol: " << it.second;
     // }
