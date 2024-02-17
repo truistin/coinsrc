@@ -45,6 +45,8 @@ using namespace spot::utility;
 #define BN_CM_CANCEL_ALL_ORDER_API "/papi/v1/cm/allOpenOrders"
 #define BN_CM_POSITION_RISK_API "/papi/v1/cm/positionRisk"
 
+#define BN_LEVERAGE_ORDER_API "/papi/v1/margin/order"
+
 using namespace std;
 using namespace std::chrono;
 using namespace spot::base;
@@ -540,6 +542,53 @@ uint64_t BnApi::ReqOrderInsert_swap(const Order& order) { // u swap
     return 0;
 }
 
+uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
+    std::shared_ptr<Uri> uri = make_shared<Uri>();
+    uri->protocol = HTTP_PROTOCOL_HTTPS;
+    uri->urlprotocolstr = URL_PROTOCOL_HTTPS;
+
+    uri->domain = Bn_DOMAIN;
+    uri->api = BN_LEVERAGE_ORDER_API;
+    uri->exchangeCode = Exchange_BINANCE;
+
+    string cp = GetUMCurrencyPair(order.InstrumentID);
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
+    uri->AddParam(("symbol"), (cp));
+
+    uri->AddParam(("newClientOrderId"), std::to_string(order.OrderRef));
+    uri->setUriClientOrdId(order.OrderRef);
+    if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_LIMIT_CROSS) {
+        uri->AddParam(("type"), ("LIMIT"));
+        uri->AddParam(("side"), ("BUY"));
+        ConvertPrice(order, *(uri.get()));
+        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+    } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_LIMIT_CROSS) {
+        uri->AddParam(("type"), ("LIMIT"));
+        uri->AddParam(("side"), ("SELL"));
+        ConvertPrice(order, *(uri.get()));
+        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+    } else if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_MARKET) {
+        uri->AddParam(("type"), ("MARKET"));
+        uri->AddParam(("side"), ("BUY"));
+    } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_MARKET) {
+        uri->AddParam(("type"), ("MARKET"));
+        uri->AddParam(("side"), ("SELL"));
+    }
+
+    uri->AddParam(("recvWindow"), ("3000"));
+    ConvertQuantity(order, *(uri.get()));
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    uri->AddParam(("timestamp"), (std::to_string(EpochTime)));
+
+    SetPrivateParams(HTTP_POST, *(uri.get()), ENCODING_GZIP);
+
+    uri->setResponseCallback(std::bind(&BnApi::uriReqCallbackOnHttp,this,std::placeholders::_1,std::placeholders::_2));
+    CurlMultiCurl::instance().addUri(uri);
+
+    return 0;
+}
+
 uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 币 swap
 
     std::shared_ptr<Uri> uri = make_shared<Uri>();
@@ -599,6 +648,8 @@ uint64_t BnApi::ReqOrderInsert(const Order& order) {
         ret = ReqOrderInsert_swap(order);
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         ret = ReqOrderInsert_perp(order);
+    }  else if (strcmp(order.Category, SPOT.c_str()) == 0) {
+        ret = ReqOrderInsert_lever(order);
     } else {
         // ReqOrderInsert_spot(order);
         // ReqOrderInsert_cm_spot(order);
