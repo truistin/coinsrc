@@ -205,8 +205,10 @@ void BnApi::GetLeverageBracket()
         m_uri.Request();
         
         string &res = m_uri.result;
+        LOG_INFO << "GetLeverageBracket res: " << res;
+
         if (res.empty()) {
-            LOG_FATAL << "BnApi::QryPosiBySymbol decode failed res: " << res;
+            LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res;
             return -1;
         }
 
@@ -214,15 +216,47 @@ void BnApi::GetLeverageBracket()
         doc.Parse(res.c_str(), res.size());
         if (doc.HasParseError())
         {
-            LOG_WARN << "BianApi::CancelOrder Parse error. result:" << res;
+            LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res;
             return -1;
         }
 
         spotrapidjson::Value dataNodes = doc.GetArray();
         for (int i = 0; i < dataNodes.Capacity(); ++i) {
             spotrapidjson::Value &dataNode = dataNodes[i];
-            for () {
-                
+            for (auto it : mmr_table) {
+                if (dataNode["symbol"].GetString() == it.table_name) {
+                    size = stod(dataNode["notionalCoef"].GetString());
+                    if (size != it.rows) {
+                        LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
+                    }
+                    spotrapidjson::Value bracketsArray = dataNode["brackets"].GetArray();
+                    for (int j = 0; j < bracketsArray.Capacity(); j++) {
+                        spotrapidjson::Value &Node = bracketsArray[j];
+                        LOG_INFO << "mmr table symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
+                            << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
+                            << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
+
+                        int64_t initialLeverage = Node["initialLeverage"].GetInt64();
+                        it.data[j][2] = initialLeverage;
+
+                        int64_t  notionalCap = Node["notionalCap"].GetInt64();
+                        it.data[j][1] = notionalCap;
+
+                        int64_t notionalFloor = Node["notionalFloor"].GetInt64();
+                        it.data[j][0] = notionalFloor;
+
+                        double maintMarginRatio = Node["maintMarginRatio"].GetDouble();
+                        it.data[j][3] = maintMarginRatio;
+
+                        double cum = Node["cum"].GetDouble();
+                        it.data[j][4] = cum;
+
+                        LOG_INFO << "GetLeverageBracket symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
+                            << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
+                            << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
+                    }
+                }
+                continue;
             }
         }
 
@@ -389,7 +423,7 @@ int BnApi::QryAsynOrder(const Order& order) {
     uri->exchangeCode = Exchange_BINANCE;
 
     string symbol;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本位
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
         uri->api = BN_UM_ORDER_API;
         symbol = GetUMCurrencyPair((order.InstrumentID));
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
@@ -466,7 +500,7 @@ int BnApi::QryPosiBySymbol(const Order &order) {
     // m_uri.AddParam(UrlEncode("recvWindow"), UrlEncode("3000"));
 
     string symbol;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本位
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
         m_uri.api = BN_UM_POSITION_RISK_API;
         symbol = GetUMCurrencyPair((order.InstrumentID));
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
@@ -701,7 +735,7 @@ uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
     return 0;
 }
 
-uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 币 swap
+uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 帄1�7 swap
 
     std::shared_ptr<Uri> uri = make_shared<Uri>();
     uri->protocol = HTTP_PROTOCOL_HTTPS;
@@ -756,7 +790,7 @@ uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 币 swap
  */
 uint64_t BnApi::ReqOrderInsert(const Order& order) {
     int ret;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本位
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
         ret = ReqOrderInsert_swap(order);
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         ret = ReqOrderInsert_perp(order);
@@ -781,7 +815,7 @@ int BnApi::CancelOrder(const Order& order, int type) {
       //  uri->isinit = true;
 
         string cp;
-        if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本位
+        if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
             cp = GetUMCurrencyPair(order.InstrumentID);
             uri->api = BN_UM_ORDER_API;
         } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
