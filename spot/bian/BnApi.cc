@@ -185,6 +185,51 @@ bool BnApi::GetServerTime(int type) {
 
 }
 
+void BnApi::GetLeverageBracket()
+{
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = Bn_DOMAIN;
+
+    for (auto it : originSymbolToSpotSymbol_) {
+        if (it.first.find("PERP") != std::string::npos) {
+            m_uri.api = BN_CM_BRACKET_API;
+        } else {
+            m_uri.api = BN_UM_BRACKET_API;
+        }
+        
+        uint64_t EpochTime = CURR_MSTIME_POINT;
+        m_uri.AddParam(("symbol"), (symbol));
+        m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+        SetPrivateParams(HTTP_GET, m_uri);
+        m_uri.Request();
+        
+        string &res = m_uri.result;
+        if (res.empty()) {
+            LOG_FATAL << "BnApi::QryPosiBySymbol decode failed res: " << res;
+            return -1;
+        }
+
+        Document doc;
+        doc.Parse(res.c_str(), res.size());
+        if (doc.HasParseError())
+        {
+            LOG_WARN << "BianApi::CancelOrder Parse error. result:" << res;
+            return -1;
+        }
+
+        spotrapidjson::Value dataNodes = doc.GetArray();
+        for (int i = 0; i < dataNodes.Capacity(); ++i) {
+            spotrapidjson::Value &dataNode = dataNodes[i];
+            for () {
+                
+            }
+        }
+
+    }
+
+}
+
 void BnApi::GetCollateralRate()
 {
     m_uri.clear();
@@ -194,6 +239,7 @@ void BnApi::GetCollateralRate()
 
     m_uri.Request();
     string &res = m_uri.result;
+    LOG_INFO << "GetCollateralRate res: " << res;
     if (res.empty()) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
         return -1;
@@ -235,10 +281,15 @@ void BnApi::GetCollateralRate()
 
 */
     for (int i = 0; i < dataNodes.Size(); i++) {
-
         spotrapidjson::Value& dataNode = dataNodes[i];
-        spotrapidjson::Value& vsymbol = doc["asset"];
         string str = dataNode["asset"].GetString();
+        double d = stod(dataNode["collateralRate"].GetString());
+        auto it = collateralRateMap.find(str);
+        if (it == collateralRateMap.end()) {
+            collateralRateMap.insert({str, d});
+        } else {
+            it->second = d;
+        }
     }
 }
 
@@ -853,26 +904,6 @@ void BnApi::AddInstrument(const char *instrument) {
     }
     transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     originSymbolToSpotSymbol_[cp] = string(instrument);
-
-    assetVec.push_back("USDC");
-    assetVec.push_back("USDT");
-    assetVec.push_back("BUSD");
-    assetVec.push_back("BTC");
-    assetVec.push_back("ETH");
-    assetVec.push_back("ADA");
-    assetVec.push_back("FIL");
-    assetVec.push_back("ETC");
-    assetVec.push_back("AVAX");
-    assetVec.push_back("BCH");
-    assetVec.push_back("LINK");
-    assetVec.push_back("OP");
-    assetVec.push_back("SOL");
-    assetVec.push_back("BNB");
-    assetVec.push_back("DOT");
-    assetVec.push_back("MATIC");
-    assetVec.push_back("DOGE");
-    assetVec.push_back("LTC");
-    assetVec.push_back("XRP");
     
     // for (auto it : originSymbolToSpotSymbol_) {
     //     cout << "origin symbol: " << it.first << ", spot symbol: " << it.second;

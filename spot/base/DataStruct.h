@@ -887,6 +887,8 @@ namespace spot
 	};  
 
 	extern vector<TableInfo> mmr_table;
+
+	extern map<string, double> collateralRateMap;
 	//mmr_table.push_back({reinterpret_cast<double*>(btc_mmr), 10, 5});  
 	//cancel order attempts before send command
 	extern int maxCancelOrderAttempts;

@@ -75,6 +75,7 @@ private:
 	uint64_t ReqOrderInsert_perp(const Order& order);
 	uint64_t ReqOrderInsert_swap(const Order& order);
 	uint64_t ReqOrderInsert_lever(const Order& order);
+	void GetCollateralRate();
 
 private:
 	string m_api_key;
