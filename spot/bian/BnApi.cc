@@ -26,6 +26,7 @@
 using namespace boost::asio;
 using namespace spot;
 using namespace spot::utility;
+using namespace std;
 
 #define BN_MARKPRICE_FUNDRATE_API "/fapi/v1/premiumIndex"
 #define BN_SERVER_TIME_API "/api/v1/time"
@@ -94,7 +95,6 @@ void BnApi::SetPrivateParams(int http_mode, Uri& m_uri, int encode_mode) {
     // if (encode_mode == ENCODING_GZIP) {
     //     m_uri.encoding = GZIP_ENCODING;
     // }
-    // 服务端目前支持的是urlencoded格式，所以头部content-type进行了格式的限定，目前m_body_format不支持json
     if (http_mode == HTTP_GET) {
         m_uri.method = METHOD_GET;
         // m_uri.m_body_format = FORM_TYPE;
@@ -102,14 +102,14 @@ void BnApi::SetPrivateParams(int http_mode, Uri& m_uri, int encode_mode) {
         m_uri.AddHeader("Content-Type: application/x-www-form-urlencoded");
         m_uri.m_body_format = FORM_TYPE; 
         m_uri.method = METHOD_POST;
-        // m_uri.AddHeader("Content-Type: application/json");// CreateSignature用的是param set,这里不能用json
+        // m_uri.AddHeader("Content-Type: application/json");
         // m_uri.m_body_format = JSON_TYPE;     
     } else if (http_mode == HTTP_DELETE) {
         m_uri.AddHeader("Content-Type: application/x-www-form-urlencoded");
         m_uri.m_body_format = FORM_TYPE;  
         m_uri.method = METHOD_DELETE;
-        // m_uri.AddHeader("Content-Type: application/json"); // CreateSignature用的是param set,这里不能用json
-        // m_uri.m_body_format = JSON_TYPE;    // 实盘用json
+        // m_uri.AddHeader("Content-Type: application/json"); 
+        // m_uri.m_body_format = JSON_TYPE;    // 瀹炵洏鐢╦son
     }
     string header = "X-MBX-APIKEY: " + m_api_key;
     m_uri.AddHeader(header.c_str());
@@ -118,8 +118,6 @@ void BnApi::SetPrivateParams(int http_mode, Uri& m_uri, int encode_mode) {
 string BnApi::CreateSignature(int http_mode, string secret_key, Uri& m_uri, const char *encode_mode) {
     string message = m_uri.GetParamSet();
     //cout << message << endl;
-    /********************************ǩ�� begin**********************************/
-    ////����HMAC_SHA256����
     unsigned char *output = (unsigned char *) malloc(EVP_MAX_MD_SIZE);
     unsigned int output_length = 0;
     HmacEncode(encode_mode, secret_key.c_str(), message.c_str(), output, &output_length);
@@ -133,12 +131,10 @@ string BnApi::CreateSignature(int http_mode, string secret_key, Uri& m_uri, cons
         dst = dst + buf;
     }
 
-    //�Լ��ܽ������url����
     string sig_url = UrlEncode(dst.c_str());
     if (output) {
         free(output);
     }
-    /********************************ǩ�� end**********************************/
     return sig_url;
 }
 
@@ -199,7 +195,7 @@ void BnApi::GetLeverageBracket()
         }
         
         uint64_t EpochTime = CURR_MSTIME_POINT;
-        m_uri.AddParam(("symbol"), (symbol));
+        m_uri.AddParam(("symbol"), (it.first));
         m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
         SetPrivateParams(HTTP_GET, m_uri);
         m_uri.Request();
@@ -225,7 +221,7 @@ void BnApi::GetLeverageBracket()
             spotrapidjson::Value &dataNode = dataNodes[i];
             for (auto it : mmr_table) {
                 if (dataNode["symbol"].GetString() == it.table_name) {
-                    size = stod(dataNode["notionalCoef"].GetString());
+                    int size = stoi(dataNode["notionalCoef"].GetString());
                     if (size != it.rows) {
                         LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
                     }
@@ -423,7 +419,7 @@ int BnApi::QryAsynOrder(const Order& order) {
     uri->exchangeCode = Exchange_BINANCE;
 
     string symbol;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) {
         uri->api = BN_UM_ORDER_API;
         symbol = GetUMCurrencyPair((order.InstrumentID));
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
@@ -500,7 +496,7 @@ int BnApi::QryPosiBySymbol(const Order &order) {
     // m_uri.AddParam(UrlEncode("recvWindow"), UrlEncode("3000"));
 
     string symbol;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) {
         m_uri.api = BN_UM_POSITION_RISK_API;
         symbol = GetUMCurrencyPair((order.InstrumentID));
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
@@ -735,7 +731,7 @@ uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
     return 0;
 }
 
-uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 帄1�7 swap
+uint64_t BnApi::ReqOrderInsert_perp(const Order& order) {
 
     std::shared_ptr<Uri> uri = make_shared<Uri>();
     uri->protocol = HTTP_PROTOCOL_HTTPS;
@@ -790,7 +786,7 @@ uint64_t BnApi::ReqOrderInsert_perp(const Order& order) { // 帄1�7 swap
  */
 uint64_t BnApi::ReqOrderInsert(const Order& order) {
     int ret;
-    if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
+    if (strcmp(order.Category, LINEAR.c_str()) == 0) {
         ret = ReqOrderInsert_swap(order);
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         ret = ReqOrderInsert_perp(order);
@@ -815,7 +811,7 @@ int BnApi::CancelOrder(const Order& order, int type) {
       //  uri->isinit = true;
 
         string cp;
-        if (strcmp(order.Category, LINEAR.c_str()) == 0) { // linear u本位 inverse 币本佄1�7
+        if (strcmp(order.Category, LINEAR.c_str()) == 0) {
             cp = GetUMCurrencyPair(order.InstrumentID);
             uri->api = BN_UM_ORDER_API;
         } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
