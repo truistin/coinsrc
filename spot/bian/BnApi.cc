@@ -205,7 +205,7 @@ void BnApi::GetLeverageBracket()
 
         if (res.empty()) {
             LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res;
-            return -1;
+            return;
         }
 
         Document doc;
@@ -213,7 +213,7 @@ void BnApi::GetLeverageBracket()
         if (doc.HasParseError())
         {
             LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res;
-            return -1;
+            return;
         }
 
         spotrapidjson::Value dataNodes = doc.GetArray();
@@ -280,7 +280,7 @@ void BnApi::GetCollateralRate()
     if (doc.HasParseError())
     {
         LOG_WARN << "BianApi::CancelOrder Parse error. result:" << res;
-        return -1;
+        return;
     }
 
     if (doc.HasMember("code"))
