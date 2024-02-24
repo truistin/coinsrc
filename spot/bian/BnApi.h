@@ -77,6 +77,8 @@ private:
 	uint64_t ReqOrderInsert_lever(const Order& order);
 	void GetCollateralRate();
 	void GetLeverageBracket();
+	void GetSpotAsset();
+	void GetUm_Cm_Account();
 
 private:
 	string m_api_key;
