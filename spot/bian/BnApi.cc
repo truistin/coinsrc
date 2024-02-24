@@ -241,7 +241,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.domain = Bn_DOMAIN;
     m_uri.api = BN_CM_ACCOUNT;
 
-    uint64_t EpochTime = CURR_MSTIME_POINT;
+    EpochTime = CURR_MSTIME_POINT;
 
     m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
     SetPrivateParams(HTTP_GET, m_uri);
@@ -254,7 +254,7 @@ void BnApi::GetUm_Cm_Account()
     }
 
     BnCmAccount cmAccInfo;
-    int ret = cmAccInfo.decode(res1.c_str());
+    ret = cmAccInfo.decode(res1.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res1;
         return;
