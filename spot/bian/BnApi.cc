@@ -52,6 +52,10 @@ using namespace std;
 #define BN_CM_BRACKET_API "/papi/v1/cm/leverageBracket"
 #define BN_COLLATERALRATE_API "/sapi/v1/portfolio/collateralRate"
 
+#define BN_CM_ACCOUNT "/papi/v1/cm/account"
+#define BN_UM_ACCOUNT "/papi/v1/um/account"
+#define BN_SPOT_BALANCE "/papi/v1/balance"
+
 using namespace std;
 using namespace std::chrono;
 using namespace spot::base;
@@ -179,6 +183,82 @@ bool BnApi::GetServerTime(int type) {
     m_timeLagency = (serverTime - currentTime);
     return true;
 
+}
+
+void BnApi::GetSpotAsset()
+{
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = Bn_DOMAIN;
+    m_uri.api = BN_UM_ACCOUNT;
+
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    SetPrivateParams(HTTP_GET, m_uri);
+    m_uri.Request();
+
+    string &res = m_uri.result;
+    if (res.empty()) {
+        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
+        return;
+    }
+
+    BnSpotAsset assetInfo;
+    int ret = assetInfo.decode(res.c_str());
+    if (ret != 0) {
+        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+    }
+}
+
+void BnApi::GetUm_Cm_Account()
+{
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = Bn_DOMAIN;
+    m_uri.api = BN_UM_ACCOUNT;
+
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    SetPrivateParams(HTTP_GET, m_uri);
+    m_uri.Request();
+
+    string &res = m_uri.result;
+    if (res.empty()) {
+        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
+        return;
+    }
+
+    BnUmAccount umAccInfo;
+    int ret = umAccInfo.decode(res.c_str());
+    if (ret != 0) {
+        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+    }
+
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = Bn_DOMAIN;
+    m_uri.api = BN_CM_ACCOUNT;
+
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    SetPrivateParams(HTTP_GET, m_uri);
+    m_uri.Request();
+
+    string &res1 = m_uri.result;
+    if (res1.empty()) {
+        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res1;
+        return;
+    }
+
+    BnCmAccount cmAccInfo;
+    int ret = cmAccInfo.decode(res1.c_str());
+    if (ret != 0) {
+        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res1;
+        return;
+    }
 }
 
 void BnApi::GetLeverageBracket()

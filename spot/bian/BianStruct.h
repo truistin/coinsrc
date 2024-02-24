@@ -57,6 +57,115 @@ enum BianOrderStatus
 	NEW_ADL, //�Զ���������(ǿƽ)
 };
 
+class BnCmAccount
+{
+public:
+	BnCmAccount()
+	{
+		memset(this, 0, sizeof(BnCmAccount));
+	}
+public:
+	double		crossWalletBalance;
+	double 		crossUnPnl;
+
+	int decode(const char* json) {
+		Document doc;
+        doc.Parse(json, strlen(json));
+
+        if (doc.HasParseError())
+        {
+            LOG_WARN << "BnSpotAsset Parse error. result:" << json;
+            return -1;
+        }
+		spotrapidjson::Value& walletBalance = doc["crossWalletBalance"];
+		spotrapidjson::Value& unPnl = doc["crossUnPnl"];
+
+		if (walletBalance.IsString()){
+			std::string s = walletBalance.GetString();
+			crossWalletBalance = stod(s);
+		}
+
+		if (crossUnPnl.IsString()){
+			std::string s = crossUnPnl.GetString();
+			unPnl = stod(s);
+		}
+		return 0;
+	}
+}
+
+class BnUmAccount
+{
+public:
+	BnUmAccount()
+	{
+		memset(this, 0, sizeof(BnUmAccount));
+	}
+public:
+	double		crossWalletBalance;
+	double 		crossUnPnl;
+
+	int decode(const char* json) {
+		Document doc;
+        doc.Parse(json, strlen(json));
+
+        if (doc.HasParseError())
+        {
+            LOG_WARN << "BnSpotAsset Parse error. result:" << json;
+            return -1;
+        }
+		spotrapidjson::Value& walletBalance = doc["crossWalletBalance"];
+		spotrapidjson::Value& unPnl = doc["crossUnPnl"];
+
+		if (walletBalance.IsString()){
+			std::string s = walletBalance.GetString();
+			crossWalletBalance = stod(s);
+		}
+
+		if (crossUnPnl.IsString()){
+			std::string s = crossUnPnl.GetString();
+			unPnl = stod(s);
+		}
+		return 0;
+	}
+}
+
+class BnSpotAsset
+{
+public:
+	BnSpotAsset()
+	{
+		memset(this, 0, sizeof(BnSpotAsset));
+	}
+public:
+	double		crossMarginFree;
+	double 		crossMarginLocked;
+
+	int decode(const char* json) {
+		Document doc;
+        doc.Parse(json, strlen(json));
+
+        if (doc.HasParseError())
+        {
+            LOG_WARN << "BnSpotAsset Parse error. result:" << json;
+            return -1;
+        }
+		spotrapidjson::Value& crossFree = doc["crossMarginFree"];
+		spotrapidjson::Value& crossLocked = doc["crossMarginLocked"];
+
+		if (crossFree.IsString()){
+			std::string s = crossFree.GetString();
+			crossMarginFree = stod(s);
+		}
+
+		if (crossLocked.IsString()){
+			std::string s = crossLocked.GetString();
+			crossMarginLocked = stod(s);
+		}
+		return 0;
+
+	}
+}
+
 class BianQueryOrder
 {
 public:
