@@ -212,7 +212,11 @@ void BnApi::GetSpotAsset()
     int ret = assetInfo.decode(res.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+        return;
     }
+
+    BalMap_["crossMarginFree"] = assetInfo.crossMarginFree;
+    BalMap_["crossMarginLocked"] = assetInfo.crossMarginLocked;
 }
 
 void BnApi::GetUm_Cm_Account()
@@ -240,6 +244,9 @@ void BnApi::GetUm_Cm_Account()
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
     }
 
+    UmMap_["crossWalletBalance"] = assetInfo.crossWalletBalance;
+    UmMap_["crossUnPnl"] = assetInfo.crossUnPnl;
+
     m_uri.clear();
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
     m_uri.domain = Bn_DOMAIN;
@@ -263,6 +270,10 @@ void BnApi::GetUm_Cm_Account()
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res1;
         return;
     }
+
+    CmMap_["crossWalletBalance"] = assetInfo.crossWalletBalance;
+    CmMap_["crossUnPnl"] = assetInfo.crossUnPnl;
+
 }
 
 void BnApi::GetLeverageBracket()
