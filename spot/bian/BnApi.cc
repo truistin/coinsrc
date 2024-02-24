@@ -65,6 +65,10 @@ std::map<string, string> BnApi::tradeToInstrumentMap_;
 std::map<string, string> BnApi::tickerToInstrumentMap_;
 std::map<string, string> BnApi::originSymbolToSpotSymbol_;
 
+std::map<string, double> BnApi::BalMap_;
+std::map<string, double> BnApi::UmMap_;
+std::map<string, double> BnApi::CmMap_;
+
 
 BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto* adapt) {
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;

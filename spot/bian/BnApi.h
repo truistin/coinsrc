@@ -97,6 +97,10 @@ private:
 
 	static std::map<string, string> originSymbolToSpotSymbol_;
 
+	static std::map<string, double> BalMap_;
+	static std::map<string, double> UmMap_;
+	static std::map<string, double> CmMap_;
+
 	bool cancelAll;
 
 	AdapterCrypto *adapter_;
