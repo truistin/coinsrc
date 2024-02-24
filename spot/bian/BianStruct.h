@@ -85,13 +85,13 @@ public:
 			crossWalletBalance = stod(s);
 		}
 
-		if (crossUnPnl.IsString()){
-			std::string s = crossUnPnl.GetString();
-			unPnl = stod(s);
+		if (unPnl.IsString()){
+			std::string s = unPnl.GetString();
+			crossUnPnl = stod(s);
 		}
 		return 0;
 	}
-}
+};
 
 class BnUmAccount
 {
@@ -121,13 +121,13 @@ public:
 			crossWalletBalance = stod(s);
 		}
 
-		if (crossUnPnl.IsString()){
-			std::string s = crossUnPnl.GetString();
-			unPnl = stod(s);
+		if (unPnl.IsString()){
+			std::string s = unPnl.GetString();
+			crossUnPnl = stod(s);
 		}
 		return 0;
 	}
-}
+};
 
 class BnSpotAsset
 {
@@ -164,7 +164,7 @@ public:
 		return 0;
 
 	}
-}
+};
 
 class BianQueryOrder
 {
