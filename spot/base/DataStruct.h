@@ -879,8 +879,14 @@ namespace spot
 
 	extern double eth_cm_mmr[11][5];
 
-	struct TableInfo {  
-		char* data;
+	struct TableInfo {
+		TableInfo(string str, int r, int c) {
+			memset(table_name, 0, 15);
+			memcpy(table_name, str.c_str(), min(str.size(), sizeof(table_name)));
+			rows = r;
+			cols = c;
+		}
+		double** data;
 		char table_name[15];
 		int rows;  
 		int cols;  
