@@ -272,7 +272,7 @@ void BnApi::GetCollateralRate()
     LOG_INFO << "GetCollateralRate res: " << res;
     if (res.empty()) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
-        return -1;
+        return;
     }
 
     Document doc;
@@ -287,7 +287,7 @@ void BnApi::GetCollateralRate()
     {
         if (doc["code"].IsString())
         {
-            int errorCode = doc["code"].GetString();
+            string errorCode = doc["code"].GetString();
             if (errorCode != "000000")
             {
                 LOG_FATAL << " BnApi::GetCollateralRate result:" << res;
