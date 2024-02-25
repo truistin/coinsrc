@@ -363,8 +363,8 @@ void BnApi::GetCollateralRate()
 
     m_uri.Request();
     string &res = m_uri.result;
-    LOG_INFO << "GetCollateralRate res: " << res << ", GetParamSet: " << m_uri.GetParamSet();
-    if (res.empty()) {
+    LOG_INFO << "GetCollateralRate res: " << res << ", url: " << m_uri.GetUrl();
+    if (res.size() < 10) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
         return;
     }
