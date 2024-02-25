@@ -365,6 +365,7 @@ void BnApi::GetCollateralRate()
 
     m_uri.Request();
     string &res = m_uri.result;
+    cout << "GetCollateralRate res: " << res;
     LOG_INFO << "GetCollateralRate res: " << res.c_str() << ", url: " << m_uri.GetUrl() << ", errorcode: " << m_uri.errcode 
         << ", res size: " << res.size();
     if (res.size() < 10) {
