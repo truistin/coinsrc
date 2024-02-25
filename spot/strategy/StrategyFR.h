@@ -10,73 +10,6 @@ using namespace std;
 using namespace spot::risk;
 namespace spot {
     namespace strategy {
-		enum TriggerSource {
-			Unknown = 1,
-    		BestPrice,
-			Trade,
-    		TPrice		
-		};
-		struct SyInfo
-		{
-			char symbol[InstrumentIDLen+1];
-			uint64_t mp_update_t; // mark price updatetime
-			uint64_t update_ts; // liq price
-			double entry_price;
-			double real_pos;
-			double bid_price;
-			double ask_price;
-			double mid_price;
-
-			double mark_price;
-			double liq_price;
-
-			double max_qty;
-			double min_qty;
-        	uint64_t last_taker_time;
-        	double prx_decimal;
-        	double qty_decimal;
-			double prc_tick_size;
-			double qty_tick_size;
-
-			double bid_place_price;
-			double ask_place_price;
-			double bid_fair_price;
-			double ask_fair_price;
-			double bid_last_place_price;
-			double ask_last_place_price;
-
-			// double pos_notional;
-			// double realizedpnl;
-			// double coin_pos;
-			// double avg_entry_price;
-
-			uint64_t recv_ts;
-			uint64_t exch_ts;
-			double multiple;
-			int trigger_source;
-
-			StrategyInstrument *strategyInstrument;
-			
-			void update_price(double bid_p, double ask_p, uint64_t ts, int tp)
-			{
-				// LOG_INFO << "update_price: " << symbol << ", trigger_source: " << trigger_source;
-				bid_price = bid_p;
-				ask_price = ask_p;
-				mid_price = (bid_p + ask_p) / 2.0;
-				recv_ts = ts;
-				trigger_source = tp;
-			}
-			void resetTriggerSource()
-			{
-				trigger_source = TriggerSource::Unknown;
-			}
-
-			SyInfo()
-			{
-				memset(this, 0, sizeof(SyInfo));
-			}
-		};
-		
         class StrategyFR : public StrategyCircuit {
         public:
             static Strategy *Create(int strategyID, StrategyParameter *params);
@@ -95,26 +28,8 @@ namespace spot {
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument);
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval();
-			int getSellPendingLen(SyInfo& sy);
-			int getBuyPendingLen(SyInfo& sy);
-
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
-			int getPoPriceLevel(OrderByPriceMap*  priceMap);
-			void qryPosition();
-			void resetRcSize();
-			int taker_action();
-			int maker_action();
-			int getIocOrdPendingLen(SyInfo& sy);
-			double get_tol_delay();
-			double po_best_price(OrderByPriceMap*  priceMap, int side);
-			void over_max_delta_limit();
-			void hedge();
-			void update_thresh();
-			void log_delay(string s, string exch);
-			void initInstrument();
-			bool vaildPrice(SyInfo& sy);
-			bool VaildCancelTime(Order& order, uint8_t loc);
 
 		private:
 			bool first_time60;
@@ -155,8 +70,6 @@ namespace spot {
 			int flag_send_order; 
 			uint64_t last_hedge_time;
 			uint64_t last_taker_time;
-			SyInfo sy1;
-			SyInfo sy2;
 			bool ready;
 			double buy_thresh;
 			double sell_thresh;
