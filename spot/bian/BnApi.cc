@@ -358,6 +358,7 @@ void BnApi::GetCollateralRate()
 {
     m_uri.clear();
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
     m_uri.method = METHOD_GET;
     m_uri.domain = "www.binancezh.info";
     m_uri.api = "/bapi/margin/v1/public/margin/portfolio/collateral-rate";
