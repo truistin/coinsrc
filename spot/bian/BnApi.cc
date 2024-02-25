@@ -278,11 +278,10 @@ void BnApi::GetUm_Cm_Account()
 
 void BnApi::GetLeverageBracket()
 {
-    m_uri.clear();
-    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
-    m_uri.domain = Bn_DOMAIN;
-
     for (auto it : originSymbolToSpotSymbol_) {
+        m_uri.clear();
+        m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+        m_uri.domain = Bn_DOMAIN;
         if (it.first.find("PERP") != std::string::npos) {
             m_uri.api = BN_CM_BRACKET_API;
         } else {
