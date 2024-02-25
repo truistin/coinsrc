@@ -3,6 +3,7 @@
 #include "spot/strategy/Initializer.h"
 #include "spot/strategy/StrategyUCArb.h"
 #include "spot/strategy/StrategyUCArb1.h"
+#include "spot/strategy/StrategyFR.h"
 
 
 using namespace spot;
@@ -42,7 +43,7 @@ void StrategyFactory::initStrategy()
 }
 void StrategyFactory::registerStrategys()
 {
-	registerStrategy("arb", StrategyUCArb1::Create);
+	registerStrategy("FR", StrategyFR::Create);
 	// registerStrategy("test", StrategyTEST::Create); 
 }
 
