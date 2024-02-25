@@ -65,6 +65,10 @@ public:
 	void uriReqCallbackOnHttp(char* message, uint64_t clientId);
 	void uriCanCallbackOnHttp(char* message, uint64_t clientId);
 	int QryAsynOrder(const Order& order);
+	void GetCollateralRate();
+	void GetLeverageBracket();
+	void GetSpotAsset();
+	void GetUm_Cm_Account();
 
 private:
 	void SetPrivateParams(int mode, Uri& m_uri, int encode_mode = -1);
@@ -75,10 +79,6 @@ private:
 	uint64_t ReqOrderInsert_perp(const Order& order);
 	uint64_t ReqOrderInsert_swap(const Order& order);
 	uint64_t ReqOrderInsert_lever(const Order& order);
-	void GetCollateralRate();
-	void GetLeverageBracket();
-	void GetSpotAsset();
-	void GetUm_Cm_Account();
 
 private:
 	string m_api_key;
