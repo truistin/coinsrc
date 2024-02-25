@@ -139,6 +139,8 @@ public:
 public:
 	double		crossMarginFree;
 	double 		crossMarginLocked;
+	double		crossMarginBorrowed;
+	double		crossMarginInterest;
 
 	int decode(const char* json) {
 		Document doc;
@@ -151,6 +153,8 @@ public:
         }
 		spotrapidjson::Value& crossFree = doc["crossMarginFree"];
 		spotrapidjson::Value& crossLocked = doc["crossMarginLocked"];
+		spotrapidjson::Value& crossBorrowed = doc["crossMarginBorrowed"];
+		spotrapidjson::Value& crossInterest = doc["crossMarginInterest"];
 
 		if (crossFree.IsString()){
 			std::string s = crossFree.GetString();
@@ -160,6 +164,16 @@ public:
 		if (crossLocked.IsString()){
 			std::string s = crossLocked.GetString();
 			crossMarginLocked = stod(s);
+		}
+
+		if (crossBorrowed.IsString()){
+			std::string s = crossBorrowed.GetString();
+			crossMarginBorrowed = stod(s);
+		}
+
+		if (crossInterest.IsString()){
+			std::string s = crossInterest.GetString();
+			crossMarginInterest = stod(s);
 		}
 		return 0;
 
