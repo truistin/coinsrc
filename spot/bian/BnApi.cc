@@ -357,15 +357,15 @@ void BnApi::GetLeverageBracket()
 void BnApi::GetCollateralRate()
 {
     m_uri.clear();
-    // m_uri.protocol = HTTP_PROTOCOL_HTTPS;
-    // m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
     m_uri.method = METHOD_GET;
     m_uri.domain = "www.binancezh.info";
     m_uri.api = "/bapi/margin/v1/public/margin/portfolio/collateral-rate";
 
     m_uri.Request();
     string &res = m_uri.result;
-    LOG_INFO << "GetCollateralRate res: " << res << ", url: " << m_uri.GetUrl();
+    LOG_INFO << "GetCollateralRate res: " << res << ", url: " << m_uri.GetUrl() << ", errorcode: " << m_uri.errcode;
     if (res.size() < 10) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
         return;
