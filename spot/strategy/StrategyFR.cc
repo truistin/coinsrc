@@ -1152,6 +1152,7 @@ void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument 
 
 void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument)
 {
+    return;
 try {
     uint64_t now_ns = CURR_NSTIME_POINT;
     if (strcmp(sy2.symbol, marketTrade.InstrumentID) == 0 || IS_DOUBLE_LESS_EQUAL(marketTrade.Price, 0)) return;
@@ -1232,6 +1233,7 @@ catch (std::exception ex) {
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
+    return;
     uint64_t now_ns = CURR_NSTIME_POINT;
     if (strcmp(sy2.symbol, marketData.InstrumentID) == 0) {
         if (sy2.exch_ts > marketData.EpochTime * 1000000) {

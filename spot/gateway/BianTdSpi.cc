@@ -178,7 +178,12 @@ void BianTdSpi::PostponeListenKey()
 
 void BianTdSpi::Run()
 {
-	int listenTime = CURR_MSTIME_POINT;
+	int listenTime = CURR_STIME_POINT;
+	int AssetTime = CURR_STIME_POINT;
+	int CM_UM_Time = CURR_STIME_POINT;
+
+	int commonTime = CURR_STIME_POINT;
+
 	while (true)
 	{
 		// SLEEP(InitialData::getOrderQueryIntervalMili());
@@ -201,16 +206,28 @@ void BianTdSpi::Run()
 					uri->setResponseCallback(std::bind(&BianTdSpi::uriPingOnHttp,this,std::placeholders::_1,std::placeholders::_2));
 					
 					CurlMultiCurl::instance().addUri(uri);
-					LOG_DEBUG << "BianTdSpi PING: " << CURR_MSTIME_POINT  << ", order_id: " << order_id  << ", map size: "
+					LOG_DEBUG << "BianTdSpi PING: " << CURR_STIME_POINT  << ", order_id: " << order_id  << ", map size: "
 						<< CurlMultiCurl::m_QueEasyHandMap->size();;
 					break;
 				}
     		}
 		}
 
-		if (CURR_MSTIME_POINT - listenTime >= 600000) {
-			listenTime = CURR_MSTIME_POINT;
+		if (CURR_STIME_POINT - listenTime >= 10) {
+			listenTime = CURR_STIME_POINT;
 			PostponeListenKey();
+		}
+
+		if (CURR_STIME_POINT - AssetTime >= 10) {
+			AssetTime = CURR_STIME_POINT;
+			traderApi_->GetSpotAsset();
+			traderApi_->GetUm_Cm_Account();
+		}
+
+		if (CURR_STIME_POINT - commonTime >= 10) {
+			commonTime = CURR_STIME_POINT;
+			traderApi_->GetLeverageBracket();
+			traderApi_->GetCollateralRate();
 		}
 	}
 		// if (gBianListenKeyFlag) { // all 60s
