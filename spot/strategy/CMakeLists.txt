@@ -35,6 +35,8 @@ set(strategy_SRCS
 	StrategyUCArb.h
 	StrategyUCArb1.cc
 	StrategyUCArb1.h
+	StrategyFR.cc
+	StrategyFR.h
   )
 
 add_library(spot_strategy ${strategy_SRCS})
