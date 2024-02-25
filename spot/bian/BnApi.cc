@@ -296,10 +296,10 @@ void BnApi::GetLeverageBracket()
         m_uri.Request();
         
         string &res = m_uri.result;
-        LOG_INFO << "GetLeverageBracket res: " << res;
+        LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
 
         if (res.empty()) {
-            LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res;
+            LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res << ", symbol: " << it.first;
             return;
         }
 
@@ -307,7 +307,7 @@ void BnApi::GetLeverageBracket()
         doc.Parse(res.c_str(), res.size());
         if (doc.HasParseError())
         {
-            LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res;
+            LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res << ", symbol: " << it.first;
             return;
         }
 
@@ -364,7 +364,7 @@ void BnApi::GetCollateralRate()
 
     m_uri.Request();
     string &res = m_uri.result;
-    LOG_INFO << "GetCollateralRate res: " << res;
+    LOG_INFO << "GetCollateralRate res: " << res << ", GetParamSet: " << m_uri->GetParamSet();
     if (res.empty()) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
         return;
