@@ -203,7 +203,7 @@ void BnApi::GetSpotAsset()
     m_uri.Request();
 
     string &res = m_uri.result;
-    LOG_INFO << "GetSpotAsset result: " << res;
+    cout << "GetSpotAsset result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
         return;
@@ -234,7 +234,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.Request();
 
     string &res = m_uri.result;
-    LOG_INFO << "GetUm_Cm_Account result: " << res;
+    cout << "GetUm_Cm_Account result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
         return;
@@ -367,9 +367,9 @@ void BnApi::GetCollateralRate()
 
     m_uri.Request();
     string &res = m_uri.result;
-    cout << "GetCollateralRate res: " << res;
-    LOG_INFO << "GetCollateralRate res: " << res.c_str() << ", url: " << m_uri.GetUrl() << ", errorcode: " << m_uri.errcode 
-        << ", res size: " << res.size();
+    // cout << "GetCollateralRate res: " << res;
+    // LOG_INFO << "GetCollateralRate res: " << res.c_str() << ", url: " << m_uri.GetUrl() << ", errorcode: " << m_uri.errcode 
+        // << ", res size: " << res.size();
     if (res.size() < 10) {
         LOG_FATAL << "BnApi::GetCollateralRateHttp decode failed res: " << res;
         return;
