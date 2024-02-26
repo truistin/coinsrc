@@ -20,6 +20,7 @@ using namespace spot::base;
 #endif //__TESTMODE__
 // #define Bn_DOMAIN "testnet.binancefuture.com"
 
+using namespace spot;
 class BnApi	
 {
 public:

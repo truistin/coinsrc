@@ -32,8 +32,6 @@ using namespace std;
 #define BN_SERVER_TIME_API "/api/v1/time"
 #define BN_FUTURE_SERVER_TIME_API "/fapi/v1/time"
 
-#define BN_MARKPRICE_FUNDRATE_API "/fapi/v1/premiumIndex"
-
 #define BN_UM_ORDER_API "/papi/v1/um/order"
 #define BN_UM_ALL_ORDERS_API "/papi/v1/um/allOrders"
 
