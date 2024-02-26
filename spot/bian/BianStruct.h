@@ -57,16 +57,24 @@ enum BianOrderStatus
 	NEW_ADL, //�Զ���������(ǿƽ)
 };
 
+class BnCmAccountInfo
+{
+public:
+	BnCmAccountInfo() {
+		memset(this, 0, sizeof(BnCmAccountInfo));
+	}
+public:
+	char		asset[20];
+	double		crossWalletBalance;
+	double 		crossUnPnl;
+};
+
 class BnCmAccount
 {
 public:
 	BnCmAccount()
 	{
-		memset(this, 0, sizeof(BnCmAccount));
 	}
-public:
-	double		crossWalletBalance;
-	double 		crossUnPnl;
 
 	int decode(const char* json) {
 		Document doc;
@@ -77,20 +85,40 @@ public:
             LOG_WARN << "BnSpotAsset Parse error. result:" << json;
             return -1;
         }
-		spotrapidjson::Value& walletBalance = doc["crossWalletBalance"];
-		spotrapidjson::Value& unPnl = doc["crossUnPnl"];
 
-		if (walletBalance.IsString()){
-			std::string s = walletBalance.GetString();
-			crossWalletBalance = stod(s);
+		spotrapidjson::Value dataNodes = doc["assets"];
+		if (!IsArray(dataNodes)) {
+			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
-		if (unPnl.IsString()){
-			std::string s = unPnl.GetString();
-			crossUnPnl = stod(s);
+        for (int i = 0; i < dataNodes.Capacity(); ++i) {
+			spotrapidjson::Value& asset = dataNodes[i]["asset"];
+			spotrapidjson::Value& walletBalance = dataNodes[i]["crossWalletBalance"];
+			spotrapidjson::Value& unPnl = dataNodes[i]["crossUnPnl"];
+		
+			BnCmAccountInfo info;
+			if (asset.IsString()){
+				std::string s = asset.GetString();
+				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
+			}
+
+			if (walletBalance.IsString()){
+				std::string s = walletBalance.GetString();
+				crossWalletBalance = stod(s);
+			}
+
+			if (unPnl.IsString()){
+				std::string s = unPnl.GetString();
+				crossUnPnl = stod(s);
+			}
+
+			info_.push_back(info);
 		}
 		return 0;
 	}
+	
+public:
+	vector<BnCmAccountInfo> info_;
 };
 
 class BnUmAccountInfo
@@ -101,7 +129,7 @@ public:
 		memset(this, 0, sizeof(BnUmAccountInfo));
 	}
 public:
-
+	char		asset[20];
 	double		crossWalletBalance;
 	double 		crossUnPnl;
 }
@@ -111,11 +139,7 @@ class BnUmAccount
 public:
 	BnUmAccount()
 	{
-		memset(this, 0, sizeof(BnUmAccount));
 	}
-public:
-	double		crossWalletBalance;
-	double 		crossUnPnl;
 
 	int decode(const char* json) {
 		Document doc;
@@ -126,20 +150,39 @@ public:
             LOG_WARN << "BnSpotAsset Parse error. result:" << json;
             return -1;
         }
-		spotrapidjson::Value& walletBalance = doc["crossWalletBalance"];
-		spotrapidjson::Value& unPnl = doc["crossUnPnl"];
 
-		if (walletBalance.IsString()){
-			std::string s = walletBalance.GetString();
-			crossWalletBalance = stod(s);
+		spotrapidjson::Value dataNodes = doc["assets"];
+		if (!IsArray(dataNodes)) {
+			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
-		if (unPnl.IsString()){
-			std::string s = unPnl.GetString();
-			crossUnPnl = stod(s);
+        for (int i = 0; i < dataNodes.Capacity(); ++i) {
+			spotrapidjson::Value& asset = dataNodes[i]["asset"];
+			spotrapidjson::Value& walletBalance = dataNodes[i]["crossWalletBalance"];
+			spotrapidjson::Value& unPnl = dataNodes[i]["crossUnPnl"];
+		
+			BnUmAccountInfo info;
+			if (asset.IsString()){
+				std::string s = asset.GetString();
+				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
+			}
+
+			if (walletBalance.IsString()){
+				std::string s = walletBalance.GetString();
+				crossWalletBalance = stod(s);
+			}
+
+			if (unPnl.IsString()){
+				std::string s = unPnl.GetString();
+				crossUnPnl = stod(s);
+			}
+
+			info_.push_back(info);
 		}
 		return 0;
 	}
+public:
+	vector<BnUmAccountInfo> info_;
 };
 
 struct BnSpotAssetInfo
