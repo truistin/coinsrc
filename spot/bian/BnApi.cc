@@ -244,8 +244,8 @@ void BnApi::GetUm_Cm_Account()
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
     }
 
-    UmMap_["crossWalletBalance"] = umAccInfo.crossWalletBalance;
-    UmMap_["crossUnPnl"] = umAccInfo.crossUnPnl;
+    // UmMap_["crossWalletBalance"] = umAccInfo.crossWalletBalance;
+    // UmMap_["crossUnPnl"] = umAccInfo.crossUnPnl;
 
     m_uri.clear();
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
