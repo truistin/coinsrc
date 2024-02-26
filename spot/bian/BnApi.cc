@@ -203,6 +203,7 @@ void BnApi::GetSpotAsset()
     m_uri.Request();
 
     string &res = m_uri.result;
+    LOG(INFO) << "GetSpotAsset result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
         return;
@@ -233,6 +234,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.Request();
 
     string &res = m_uri.result;
+    LOG(INFO) << "GetUm_Cm_Account result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
         return;
