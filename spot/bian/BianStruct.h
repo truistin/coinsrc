@@ -87,7 +87,7 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!IsArray(dataNodes)) {
+		if (!dataNodes.IsArray(dataNodes)) {
 			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
@@ -152,7 +152,7 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!IsArray(dataNodes)) {
+		if (!dataNodes.IsArray(dataNodes)) {
 			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
