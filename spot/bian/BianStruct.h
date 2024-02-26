@@ -132,7 +132,7 @@ public:
 	char		asset[20];
 	double		crossWalletBalance;
 	double 		crossUnPnl;
-}
+};
 
 class BnUmAccount
 {
