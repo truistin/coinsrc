@@ -87,7 +87,7 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!dataNodes.IsArray(dataNodes)) {
+		if (!dataNodes.IsArray()) {
 			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
@@ -104,12 +104,12 @@ public:
 
 			if (walletBalance.IsString()){
 				std::string s = walletBalance.GetString();
-				crossWalletBalance = stod(s);
+				info.crossWalletBalance = stod(s);
 			}
 
 			if (unPnl.IsString()){
 				std::string s = unPnl.GetString();
-				crossUnPnl = stod(s);
+				info.crossUnPnl = stod(s);
 			}
 
 			info_.push_back(info);
@@ -152,7 +152,7 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!dataNodes.IsArray(dataNodes)) {
+		if (!dataNodes.IsArray()) {
 			LOG_FATAL << "BnUmAccount ERROR";
 		}
 
@@ -169,12 +169,12 @@ public:
 
 			if (walletBalance.IsString()){
 				std::string s = walletBalance.GetString();
-				crossWalletBalance = stod(s);
+				info.crossWalletBalance = stod(s);
 			}
 
 			if (unPnl.IsString()){
 				std::string s = unPnl.GetString();
-				crossUnPnl = stod(s);
+				info.crossUnPnl = stod(s);
 			}
 
 			info_.push_back(info);
