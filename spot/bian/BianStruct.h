@@ -93,6 +93,19 @@ public:
 	}
 };
 
+class BnUmAccountInfo
+{
+public:
+	BnUmAccountInfo()
+	{
+		memset(this, 0, sizeof(BnUmAccountInfo));
+	}
+public:
+
+	double		crossWalletBalance;
+	double 		crossUnPnl;
+}
+
 class BnUmAccount
 {
 public:
@@ -129,18 +142,27 @@ public:
 	}
 };
 
+struct BnSpotAssetInfo
+{
+public:
+	BnSpotAssetInfo()
+	{
+		memset(this, 0, sizeof(BnSpotAssetInfo));
+	}
+public:
+	char		asset[20];
+	double		crossMarginFree;
+	double 		crossMarginLocked;
+	double		crossMarginBorrowed;
+	double		crossMarginInterest;
+};
+
 class BnSpotAsset
 {
 public:
 	BnSpotAsset()
 	{
-		memset(this, 0, sizeof(BnSpotAsset));
 	}
-public:
-	double		crossMarginFree;
-	double 		crossMarginLocked;
-	double		crossMarginBorrowed;
-	double		crossMarginInterest;
 
 	int decode(const char* json) {
 		Document doc;
@@ -151,33 +173,49 @@ public:
             LOG_WARN << "BnSpotAsset Parse error. result:" << json;
             return -1;
         }
-		spotrapidjson::Value& crossFree = doc["crossMarginFree"];
-		spotrapidjson::Value& crossLocked = doc["crossMarginLocked"];
-		spotrapidjson::Value& crossBorrowed = doc["crossMarginBorrowed"];
-		spotrapidjson::Value& crossInterest = doc["crossMarginInterest"];
 
-		if (crossFree.IsString()){
-			std::string s = crossFree.GetString();
-			crossMarginFree = stod(s);
+		spotrapidjson::Value dataNodes = doc.GetArray();
+        for (int i = 0; i < dataNodes.Capacity(); ++i) {
+			spotrapidjson::Value& asset = dataNodes[i]["asset"];
+			spotrapidjson::Value& crossFree = dataNodes[i]["crossMarginFree"];
+			spotrapidjson::Value& crossLocked = dataNodes[i]["crossMarginLocked"];
+			spotrapidjson::Value& crossBorrowed = dataNodes[i]["crossMarginBorrowed"];
+			spotrapidjson::Value& crossInterest = dataNodes[i]["crossMarginInterest"];
+
+			BnSpotAssetInfo info;
+			if (asset.IsString()){
+				std::string s = asset.GetString();
+				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
+			}
+
+			if (crossFree.IsString()){
+				std::string s = crossFree.GetString();
+				info.crossMarginFree = stod(s);
+			}
+
+			if (crossLocked.IsString()){
+				std::string s = crossLocked.GetString();
+				info.crossMarginLocked = stod(s);
+			}
+
+			if (crossBorrowed.IsString()){
+				std::string s = crossBorrowed.GetString();
+				info.crossMarginBorrowed = stod(s);
+			}
+
+			if (crossInterest.IsString()){
+				std::string s = crossInterest.GetString();
+				info.crossMarginInterest = stod(s);
+			}
+
+			info_.push_back(info);
 		}
 
-		if (crossLocked.IsString()){
-			std::string s = crossLocked.GetString();
-			crossMarginLocked = stod(s);
-		}
-
-		if (crossBorrowed.IsString()){
-			std::string s = crossBorrowed.GetString();
-			crossMarginBorrowed = stod(s);
-		}
-
-		if (crossInterest.IsString()){
-			std::string s = crossInterest.GetString();
-			crossMarginInterest = stod(s);
-		}
 		return 0;
 
 	}
+public:
+	vector<BnSpotAssetInfo> info_;
 };
 
 class BianQueryOrder
