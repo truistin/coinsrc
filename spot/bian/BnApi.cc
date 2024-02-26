@@ -194,7 +194,7 @@ void BnApi::GetSpotAsset()
     m_uri.clear();
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
     m_uri.domain = Bn_DOMAIN;
-    m_uri.api = BN_UM_ACCOUNT;
+    m_uri.api = BN_SPOT_BALANCE;
 
     uint64_t EpochTime = CURR_MSTIME_POINT;
 
