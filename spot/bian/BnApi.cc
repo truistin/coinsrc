@@ -214,6 +214,9 @@ void BnApi::GetSpotAsset()
         return;
     }
 
+    for (auto& it : assetInfo.info_) {
+        BalMap_[it.asset] = it;
+    }
     // BalMap_["crossMarginFree"] = assetInfo.crossMarginFree;
     // BalMap_["crossMarginLocked"] = assetInfo.crossMarginLocked;
 }
@@ -271,6 +274,13 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
+    for (auto& it : umAccInfo.info_) {
+        UmMap_[it.asset] = it;
+    }
+
+    for (auto& it : cmAccInfo.info_) {
+        CmMap_[it.asset] = it;
+    }
     // CmMap_["crossWalletBalance"] = cmAccInfo.crossWalletBalance;
     // CmMap_["crossUnPnl"] = cmAccInfo.crossUnPnl;
 

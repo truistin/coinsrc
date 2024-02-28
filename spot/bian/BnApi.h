@@ -98,9 +98,9 @@ private:
 
 	static std::map<string, string> originSymbolToSpotSymbol_;
 
-	static std::map<string, BnSpotAsset> BalMap_;
-	static std::map<string, BnUmAccount> UmMap_;
-	static std::map<string, BnCmAccount> CmMap_;
+	static std::map<string, BnSpotAssetInfo> BalMap_;
+	static std::map<string, BnUmAccountInfo> UmMap_;
+	static std::map<string, BnCmAccountInfo> CmMap_;
 
 	bool cancelAll;
 
