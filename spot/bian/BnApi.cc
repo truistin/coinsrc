@@ -213,9 +213,18 @@ void BnApi::GetSpotAsset()
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
         return;
     }
-
+/*
+	char		asset[20];
+	double		crossMarginFree;
+	double 		crossMarginLocked;
+	double		crossMarginBorrowed;
+	double		crossMarginInterest;
+*/
     for (auto& it : assetInfo.info_) {
         BalMap_[it.asset] = it;
+        LOG_INFO << "GetSpotAsset asset: " << it.asset << ", crossMarginFree: " << it.crossMarginFree
+            << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
+            << ", crossMarginInterest: " << it.crossMarginInterest
     }
     // BalMap_["crossMarginFree"] = assetInfo.crossMarginFree;
     // BalMap_["crossMarginLocked"] = assetInfo.crossMarginLocked;
@@ -237,14 +246,14 @@ void BnApi::GetUm_Cm_Account()
     string &res = m_uri.result;
     cout << "GetUm_Cm_Account result: " << res;
     if (res.empty()) {
-        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
+        LOG_ERROR << "BnApi GetUm_Cm_Account decode failed res: " << res;
         return;
     }
 
     BnUmAccount umAccInfo;
     int ret = umAccInfo.decode(res.c_str());
     if (ret != 0) {
-        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+        LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res;
     }
 
     // UmMap_["crossWalletBalance"] = umAccInfo.crossWalletBalance;
@@ -263,23 +272,31 @@ void BnApi::GetUm_Cm_Account()
 
     string &res1 = m_uri.result;
     if (res1.empty()) {
-        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res1;
+        LOG_ERROR << "BnApi GetUm_Cm_Account decode failed res: " << res1;
         return;
     }
 
     BnCmAccount cmAccInfo;
     ret = cmAccInfo.decode(res1.c_str());
     if (ret != 0) {
-        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res1;
+        LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res1;
         return;
     }
-
+/*
+	char		asset[20];
+	double		crossWalletBalance;
+	double 		crossUnPnl;
+*/
     for (auto& it : umAccInfo.info_) {
         UmMap_[it.asset] = it;
+        LOG_INFO << "BnApi umAccInfo: " << it.asset << ", crossWalletBalance: " <<
+            it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
     }
 
     for (auto& it : cmAccInfo.info_) {
         CmMap_[it.asset] = it;
+        LOG_INFO << "BnApi cmAccInfo: " << it.asset << ", crossWalletBalance: " <<
+            it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
     }
     // CmMap_["crossWalletBalance"] = cmAccInfo.crossWalletBalance;
     // CmMap_["crossUnPnl"] = cmAccInfo.crossUnPnl;
