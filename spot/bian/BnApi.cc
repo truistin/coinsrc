@@ -305,7 +305,7 @@ void BnApi::GetLeverageBracket()
         m_uri.Request();
         
         string &res = m_uri.result;
-        LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
+        // LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
 
         if (res.empty()) {
             LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res << ", symbol: " << it.first;

@@ -35,6 +35,41 @@ static void signalHandler( int signum )
 	// throw std::exception(e);
 }
 
+void fillTables()
+{
+	TableInfo btcInfo("BTCUSDT", 10, 5);
+	TableInfo btcPerpInfo("BTCUSD_PERP", 10, 5);
+
+	TableInfo ethInfo("ETHUSDT", 11, 5);
+	TableInfo ethPerpInfo("ETHUSD_PERP", 11, 5);
+
+	btcInfo.data = new double*[btcInfo.rows];
+	for (int i = 0; i < btcInfo.rows; ++i) {  
+		btcInfo.data[i] = new double[btcInfo.cols];  
+	}  
+ 
+
+	btcPerpInfo.data = new double*[btcPerpInfo.rows];
+	for (int i = 0; i < btcPerpInfo.rows; ++i) {  
+		btcPerpInfo.data[i] = new double[btcPerpInfo.cols];  
+	}  
+
+	ethInfo.data = new double*[ethInfo.rows];
+	for (int i = 0; i < ethInfo.rows; ++i) {  
+		ethInfo.data[i] = new double[ethInfo.cols];  
+	}
+
+	ethPerpInfo.data = new double*[ethPerpInfo.rows];
+	for (int i = 0; i < ethPerpInfo.rows; ++i) {  
+		ethPerpInfo.data[i] = new double[ethPerpInfo.cols];  
+	}  
+
+	mmr_table.push_back(btcInfo);
+	mmr_table.push_back(btcPerpInfo);
+	mmr_table.push_back(ethInfo);
+	mmr_table.push_back(ethPerpInfo);
+}
+
 int main(int argc, char* argv[])
 {
 #ifdef __LINUX__
@@ -58,6 +93,8 @@ int main(int argc, char* argv[])
 	g_asyncLog = new (buff) AsyncLogging("../log/spot", 500 * 1000 * 1000, config.logLevel(),config.logMqLevel());
 	g_asyncLog->connectMq(config.mqParam());
 	g_asyncLog->start();
+
+	fillTables();
 
 	LOG_INFO << "Trading:Main g_asyncLog start finish. time:" << getCurrentSystemTime();
 	//setup gateway
