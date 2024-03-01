@@ -201,7 +201,7 @@ void BnApi::GetSpotAsset()
     m_uri.Request();
 
     string &res = m_uri.result;
-    cout << "GetSpotAsset result: " << res;
+    // cout << "GetSpotAsset result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
         return;
