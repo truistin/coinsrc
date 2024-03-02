@@ -93,8 +93,11 @@ namespace spot {
 			OrderByPriceMap*  sellPriceMap1;
 			OrderByPriceMap*  buyPriceMap2;
 			OrderByPriceMap*  sellPriceMap2;
+			map<string, double>* margin_leverage;
+			map<double, double>* margin_mmr;
 
 		public:
+			map<string. double>* price_map;
 			uint32_t cSize_;
 			uint32_t rSize_;
 			// make: postonly pending   take :ioc pending   hedge: ioc pending

@@ -50,8 +50,9 @@ void BianMdSpi::Init()
 	subscribe();
 	LOG_INFO << "frontMdAddr_: " << apiInfo_->frontMdAddr_ 
 		<< ", InterfaceAddr_: " << apiInfo_->InterfaceAddr_
+		<< ", frontQueryAddr_: " << apiInfo_->frontQueryAddr_
 		<< ", symbolStreams_: " << symbolStreams_ << ", symbolStreams1_: "
-		<< symbolStreams1_;
+		<< symbolStreams1_ << ", symbolStreams2_: " << symbolStreams2_;
 	// MeasureFunc::addMeasureData(3, "BianMdSpi::dealBianMdData", 1000);
 	cout << "frontMdAddr_: " << apiInfo_->frontMdAddr_ 
 		<< ", InterfaceAddr_: " << apiInfo_->InterfaceAddr_
@@ -84,6 +85,20 @@ void BianMdSpi::Init()
 	std::thread BianMdSpiSocket1(std::bind(&WebSocketApi::Run, websocketApi1_));
 	pthread_setname_np(BianMdSpiSocket1.native_handle(), "BaMdSocket_1");
 	BianMdSpiSocket1.detach();
+
+	string str2 = string(apiInfo_->InterfaceAddr_) + symbolStreams2_;
+	websocketApi2_ = new WebSocketApi();
+//	websocketApi_->SetUri(BINANCE_WSS + symbolStreams_);
+//	websocketApi_->SetUri("wss://fstream.binance.com/stream?streams=ethusdt@bookTicker/btcusdt@bookTicker");
+	websocketApi2_->SetUri(str2);
+	//websocketApi_->SetCompress(true);
+	websocketApi2_->SetCallBackOpen(std::bind(&BianMdSpi::com_callbak_open, this));
+	websocketApi2_->SetCallBackMessage(std::bind(&BianMdSpi::com_callbak_message, this, std::placeholders::_1));
+	websocketApi2_->SetCallBackClose(std::bind(&BianMdSpi::com_callbak_close, this));
+
+	std::thread BianMdSpiSocket2(std::bind(&WebSocketApi::Run, websocketApi2_));
+	pthread_setname_np(BianMdSpiSocket2.native_handle(), "BaMdSocket_2");
+	BianMdSpiSocket2.detach();
 }
 
 void BianMdSpi::com_callbak_open()
@@ -101,6 +116,7 @@ void BianMdSpi::subscribe()
 {
 	bool firstSymbol = true;
 	bool firstSymbol1 = true;
+	bool firstSymbol2 = true;
 	map<string, string> tickerInstrumentMap = BnApi::GetTickerInstrumentMap();
 	map<string, string> tradeInstrumentMap = BnApi::GetTradeInstrumentMap();
 	
@@ -110,9 +126,12 @@ void BianMdSpi::subscribe()
 		if (iter.second.find("perp") != iter.second.npos) {
 			subscribePerp(iter.first,firstSymbol1);
 			firstSymbol1 = false;
-		} else {
+		} else if (iter.second.find("usdt") != iter.second.npos) {
 			subscribe(iter.first,firstSymbol);
 			firstSymbol = false;
+		} else {
+			subscribeSpot(iter.first,firstSymbol2);
+			firstSymbol2 = false;
 		}
 	}
 
@@ -121,8 +140,10 @@ void BianMdSpi::subscribe()
 		LOG_INFO << "subscribe trade:" << iter.first << "second: " << iter.second;;
 		if (iter.second.find("perp") != iter.second.npos) {
 			subscribePerp(iter.first,firstSymbol1);
-		} else {
+		} else if (iter.second.find("usdt") != iter.second.npos) {
 			subscribe(iter.first, firstSymbol);
+		} else {
+			subscribeSpot(iter.first,firstSymbol2);
 		}
 	}
 }
@@ -149,6 +170,19 @@ void BianMdSpi::subscribePerp(string channel,bool firstSymbol)
 		symbolStreams1_ = symbolStreams1_ + "/" + channel ;
 	}
 }
+
+void BianMdSpi::subscribeSpot(string channel,bool firstSymbol)
+{
+	if (firstSymbol)
+	{
+		symbolStreams2_ = symbolStreams2_ + channel;
+	}
+	else
+	{
+		symbolStreams2_ = symbolStreams2_ + "/" + channel ;
+	}
+}
+
 
 void BianMdSpi::fillDepthAskBidInfo(spotrapidjson::Value& tickNode, InnerMarketData& field_)
 {

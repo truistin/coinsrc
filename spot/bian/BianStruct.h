@@ -194,6 +194,7 @@ public:
 	}
 public:
 	char		asset[20];
+	double		crossMarginAsset;
 	double		crossMarginFree;
 	double 		crossMarginLocked;
 	double		crossMarginBorrowed;
@@ -220,6 +221,7 @@ public:
 		spotrapidjson::Value dataNodes = doc.GetArray();
         for (int i = 0; i < dataNodes.Capacity(); ++i) {
 			spotrapidjson::Value& asset = dataNodes[i]["asset"];
+			spotrapidjson::Value& crossMargin = dataNodes[i]["crossMarginAsset"];
 			spotrapidjson::Value& crossFree = dataNodes[i]["crossMarginFree"];
 			spotrapidjson::Value& crossLocked = dataNodes[i]["crossMarginLocked"];
 			spotrapidjson::Value& crossBorrowed = dataNodes[i]["crossMarginBorrowed"];
@@ -229,6 +231,11 @@ public:
 			if (asset.IsString()){
 				std::string s = asset.GetString();
 				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
+			}
+
+			if (crossMargin.IsString()){
+				std::string s = crossMargin.GetString();
+				info.crossMarginAsset = stod(s);
 			}
 
 			if (crossFree.IsString()){
