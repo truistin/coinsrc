@@ -55,17 +55,6 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
     return;
 }
 
-/*
-	static std::map<string, BnSpotAssetInfo> BalMap_;
-	static std::map<string, BnUmAccountInfo> UmMap_;
-	static std::map<string, BnCmAccountInfo> CmMap_;
-
-    extern vector<TableInfo> mmr_table;
-	extern map<string, double> collateralRateMap;
-
-    for (auto it : mmr_table) {
-*/
-
 void StrategyFR::calc_spot_equity()
 {
     double sum_equity = 0;
@@ -109,57 +98,65 @@ double StrategyFR::calc_mm()
             
         }
 
-/*
-        if symbol in ('USDT', 'USDC', 'BUSD'):
-            mm = Decimal(val['crossMarginBorrowed']) * Decimal(self.margin_mmr[10])  * Decimal(1) #维持保证金
-            sum_mm += mm
-            #mm = Decimal(0)
-        else:
-            price = self.get_last_price(symbol)
-            mm = Decimal(val['crossMarginBorrowed']) * Decimal(self.margin_mmr[leverage])  * Decimal(price) #维持保证金
-            sum_mm += mm
-*/
         if (symbol == "USDT" || symbol == "USDC" || symbol == "BUSD") {
             double mm = it.second.crossMarginBorrowed * margin_mmr[10];
             sum_mm += mm;
         } else {
-            double mm = it.second.crossMarginBorrowed * margin_mmr[leverage] * price;
+            double mm = it.second.crossMarginBorrowed * margin_mmr[leverage] * mrkprice_map[it.second.asset];
             sum_mm += mm;
         }
     }
-
-/*
-            gQryPosiInfo[symbol].size
-        for symbol, val in self.umPositions.items(): #u本位mm
-            markPrice = Decimal(val['markPrice'])
-            qty = Decimal(val['positionAmt'])
-            mmr, cum = self.get_um_brackets(symbol, abs(qty) * markPrice)
-            mm = abs(qty) * markPrice * mmr - cum#维持保证金
-            if symbol == 'ETHBTC':
-                mm = mm * Decimal(self.get_last_price('BTC'))
-            #print(f'{symbol}-USDT-SWAP', 'calc_mm:', mm, 'get_mm:')
-            sum_mm += mm
-
-*/
 
     for (auto it : BnApi::UmMap_) {
         string symbol = it.asset;
         double qty = gQryPosiInfo[symbol].size;
         double markPrice = mrkprice_map[symbol];
-
-        double mm = 
+        double mmr_rate;
+        double mmr_num;
+        get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
+        double mm = abs(qty) * markPrice * mmr_rate - mmr_num;
+        sum_mm += mm
     }
+
+    for (auto it : BnApi::CmMap_) {
+        string symbol = it.asset;
+        double qty = 0;
+
+        if (symbol == "BTCUSD_PERP") {
+            qty = gQryPosiInfo[symbol].size * 100;
+        } else {
+            qty = gQryPosiInfo[symbol].size * 10;
+        }
+
+        double markPrice = mrkprice_map[symbol];
+        double mmr_rate;
+        double mmr_num;
+        get_cm_um_brackets(symbol, abs(qty), mmr_rate, mmr_num);
+        double mm = (abs(qty) * mmr_rate - mmr_num) * markPrice;
+        sum_mm += mm;
+    }
+    return sum_mm;
+
 }
 
-void get_um_brackets(string symbol, double val, double mmr_rate, double mmr_num)
+void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num)
 {
+    bool flag = false;
     for (auto it : mmr_table) {
-        //TableInfo ethPerpInfo("ETHUSD_PERP", 11, 5);
-        string symbol = it.table_name;
-        double** data = it.data;
-        for (int i = 0; i < it.rows; ++i) {  
-            if
-        }  
+        if (symbol == it.table_name) {
+            double** data = it.data;
+            for (int i = 0; i < it.rows; ++i) {  
+                if (IS_DOUBLE_GREATER_EQUAL(val, data[i][0]) && IS_DOUBLE_LESS_EQUAL(val, data[i][1])) {
+                    mmr_rate = data[i][3];
+                    mmr_num = data[i][4];
+                    return;
+                }
+            }  
+        }
+    }
+
+    if (!flag) {
+        LOG_FATAL << ""; 
     }
 }
 

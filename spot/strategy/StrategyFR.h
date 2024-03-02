@@ -97,7 +97,7 @@ namespace spot {
 			map<double, double>* margin_mmr;
 
 		public:
-			map<string. double>* price_map;
+			map<string, double>* mrkprice_map;
 			uint32_t cSize_;
 			uint32_t rSize_;
 			// make: postonly pending   take :ioc pending   hedge: ioc pending
