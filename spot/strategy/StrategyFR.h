@@ -104,7 +104,11 @@ namespace spot {
 			//ioc: ( sy1: hedge , sy2:take_action)
 			spotRisk* risk_; // taker_action maker_action only exchange2 ,hedge only exchange1.
 			uint64_t on_time_60;
+			double um_leverage;
 
+			double pre_sum_equity;
+			double price_ratio;
+			map<string, double>* pridict_borrow;
 		};
     }
 }
