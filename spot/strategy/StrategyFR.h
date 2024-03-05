@@ -10,6 +10,18 @@ using namespace std;
 using namespace spot::risk;
 namespace spot {
     namespace strategy {
+		struct order_fr {
+			public:
+				order_fr() {
+					sy = "";
+					qty = 0;
+					borrow = 0;
+				}
+			public:
+				string sy;
+				double qty;
+				double borrow;
+		};
         class StrategyFR : public StrategyCircuit {
         public:
             static Strategy *Create(int strategyID, StrategyParameter *params);
@@ -97,7 +109,7 @@ namespace spot {
 			map<double, double>* margin_mmr;
 
 		public:
-			map<string, double>* mrkprice_map;
+			map<string, double>* last_price_map;
 			uint32_t cSize_;
 			uint32_t rSize_;
 			// make: postonly pending   take :ioc pending   hedge: ioc pending
