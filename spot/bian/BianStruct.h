@@ -57,17 +57,35 @@ enum BianOrderStatus
 	NEW_ADL, //�Զ���������(ǿƽ)
 };
 
-class BnCmAccountInfo
+class BnCmAssetInfo
 {
 public:
-	BnCmAccountInfo() {
-		memset(this, 0, sizeof(BnCmAccountInfo));
+	BnCmAssetInfo() {
+		memset(this, 0, sizeof(BnCmAssetInfo));
 	}
 public:
 	char		asset[20];
 	double		crossWalletBalance;
 	double 		crossUnPnl;
+	int64_t		updateTime;	
 };
+
+class BnCmPositionInfo
+{
+public:
+	BnCmPositionInfo()
+	{
+		memset(this, 0, sizeof(BnCmPositionInfo));
+	}
+public:
+	char		symbol[20];
+	double		positionAmt;
+	double		entryPrice;
+	int			leverage;
+	char		side[10];
+	int64_t		updateTime;
+};
+
 
 class BnCmAccount
 {
@@ -87,16 +105,13 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!dataNodes.IsArray()) {
-			LOG_FATAL << "BnUmAccount ERROR";
-		}
 
         for (int i = 0; i < dataNodes.Capacity(); ++i) {
 			spotrapidjson::Value& asset = dataNodes[i]["asset"];
 			spotrapidjson::Value& walletBalance = dataNodes[i]["crossWalletBalance"];
 			spotrapidjson::Value& unPnl = dataNodes[i]["crossUnPnl"];
 		
-			BnCmAccountInfo info;
+			BnCmAssetInfo info;
 			if (asset.IsString()){
 				std::string s = asset.GetString();
 				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
@@ -111,27 +126,83 @@ public:
 				std::string s = unPnl.GetString();
 				info.crossUnPnl = stod(s);
 			}
-
+			info.updateTime = CURR_MSTIME_POINT;
 			info_.push_back(info);
 		}
+
+		spotrapidjson::Value& dataNodes1 = doc["positions"];
+		for (int i = 0; i < dataNodes1.Capacity(); i++) {
+			spotrapidjson::Value& symbol = dataNodes[i]["symbol"];
+			spotrapidjson::Value& positionAmt = dataNodes[i]["positionAmt"];
+			spotrapidjson::Value& entryPrice = dataNodes[i]["entryPrice"];
+			spotrapidjson::Value& side = dataNodes[i]["positionSide"];
+			spotrapidjson::Value& leverage = dataNodes[i]["leverage"];
+
+			BnCmPositionInfo info;
+			if (symbol.IsString()){
+				std::string s = symbol.GetString();
+				memcpy(info.symbol, s.c_str(), min(sizeof(info.symbol), s.size()));
+			}
+
+			if (side.IsString()){
+				std::string s = side.GetString();
+				memcpy(info.side, s.c_str(), min(sizeof(info.side), s.size()));
+			}
+
+			if (positionAmt.IsString()){
+				std::string s = positionAmt.GetString();
+				info.positionAmt = stod(s);
+			}
+
+			if (entryPrice.IsString()){
+				std::string s = entryPrice.GetString();
+				info.entryPrice = stod(s);
+			}
+
+			if (leverage.IsString()){
+				std::string s = leverage.GetString();
+				info.leverage = stoi(s);
+			}
+			info.updateTime = CURR_MSTIME_POINT;
+			info1_.push_back(info);
+		}
+
 		return 0;
 	}
 	
 public:
-	vector<BnCmAccountInfo> info_;
+	vector<BnCmAssetInfo> info_;
+	vector<BnCmPositionInfo> info1_;
 };
 
-class BnUmAccountInfo
+class BnUmAssetInfo
 {
 public:
-	BnUmAccountInfo()
+	BnUmAssetInfo()
 	{
-		memset(this, 0, sizeof(BnUmAccountInfo));
+		memset(this, 0, sizeof(BnUmAssetInfo));
 	}
 public:
 	char		asset[20];
 	double		crossWalletBalance;
 	double 		crossUnPnl;
+	int64_t		updateTime;	
+};
+
+class BnUmPositionInfo
+{
+public:
+	BnUmPositionInfo()
+	{
+		memset(this, 0, sizeof(BnUmPositionInfo));
+	}
+public:
+	char		symbol[20];
+	double		positionAmt;
+	double		entryPrice;
+	int			leverage;
+	char		side[10];
+	int64_t		updateTime;
 };
 
 class BnUmAccount
@@ -152,16 +223,12 @@ public:
         }
 
 		spotrapidjson::Value& dataNodes = doc["assets"];
-		if (!dataNodes.IsArray()) {
-			LOG_FATAL << "BnUmAccount ERROR";
-		}
 
         for (int i = 0; i < dataNodes.Capacity(); ++i) {
 			spotrapidjson::Value& asset = dataNodes[i]["asset"];
 			spotrapidjson::Value& walletBalance = dataNodes[i]["crossWalletBalance"];
 			spotrapidjson::Value& unPnl = dataNodes[i]["crossUnPnl"];
-		
-			BnUmAccountInfo info;
+			BnUmAssetInfo info;
 			if (asset.IsString()){
 				std::string s = asset.GetString();
 				memcpy(info.asset, s.c_str(), min(sizeof(info.asset), s.size()));
@@ -176,13 +243,52 @@ public:
 				std::string s = unPnl.GetString();
 				info.crossUnPnl = stod(s);
 			}
+			info.updateTime = CURR_MSTIME_POINT;
 
 			info_.push_back(info);
+		}
+		
+		spotrapidjson::Value& dataNodes1 = doc["positions"];
+		for (int i = 0; i < dataNodes1.Capacity(); i++) {
+			spotrapidjson::Value& symbol = dataNodes[i]["symbol"];
+			spotrapidjson::Value& positionAmt = dataNodes[i]["positionAmt"];
+			spotrapidjson::Value& entryPrice = dataNodes[i]["entryPrice"];
+			spotrapidjson::Value& side = dataNodes[i]["positionSide"];
+			spotrapidjson::Value& leverage = dataNodes[i]["leverage"];
+
+			BnUmPositionInfo info;
+			if (symbol.IsString()){
+				std::string s = symbol.GetString();
+				memcpy(info.symbol, s.c_str(), min(sizeof(info.symbol), s.size()));
+			}
+
+			if (side.IsString()){
+				std::string s = side.GetString();
+				memcpy(info.side, s.c_str(), min(sizeof(info.side), s.size()));
+			}
+
+			if (positionAmt.IsString()){
+				std::string s = positionAmt.GetString();
+				info.positionAmt = stod(s);
+			}
+
+			if (entryPrice.IsString()){
+				std::string s = entryPrice.GetString();
+				info.entryPrice = stod(s);
+			}
+
+			if (leverage.IsString()){
+				std::string s = leverage.GetString();
+				info.leverage = stoi(s);
+			}
+			info.updateTime = CURR_MSTIME_POINT;
+			info1_.push_back(info);
 		}
 		return 0;
 	}
 public:
-	vector<BnUmAccountInfo> info_;
+	vector<BnUmAssetInfo> info_;
+	vector<BnUmPositionInfo> info1_;
 };
 
 struct BnSpotAssetInfo

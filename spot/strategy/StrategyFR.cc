@@ -175,9 +175,17 @@ void StrategyFR::calc_predict_equity(order_fr& order)
         }
     }
 
-    
+    for (auto it : BnApi::UmMap_) {
+        for (auto iter : it.info1_) {
 
+        }
+    }
 
+    for (auto it : BnApi::CmMap_) {
+        for (auto iter : it.info1_) {
+
+        }
+    }
 }
 
 void StrategyFR::calc_equity()
