@@ -60,21 +60,6 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
     return;
 }
 
-double StrategyFR::predict_spot_IM(string symbol, double qty)
-{
-    double borrow = BalMap_["USDT"] - qty * last_price_map[symbol];
-    if (IS_DOUBLE_LESS(borrow, 0)) {
-        borrow = -borrow;
-    }
-    pridict_borrow.insert({symbol, borrow});
-    return (borrow / (margin_leverage[symbol] - 1));
-}
-
-double StrategyFR::predict_um_IM(string symbol, double qty)
-{
-    return (qty * last_price_map[symbol] / um_leverage);
-}
-
 void StrategyFR::get_usdt_equity()
 {
     double equity = 0;
@@ -102,9 +87,10 @@ void StrategyFR::calc_future_uniMMR(string symbol, double qty)
         IM = IM + borrow / (margin_leverage[symbol] - 1) + (qty * price / um_leverage);         
     } else { // 借现货
         borrow = -qty;
-        // IM += Decimal(abs(qty)) / (self.margin_leverage[key] - 1) * price + Decimal(abs(qty)) * price / self.uswap_leverage[key]
         IM = IM + (price * (-qty) / (margin_leverage[symbol] - 1)) + (-qty) * price / um_leverage;
     }
+
+    order.borrow = borrow;
 
     if (IS_DOUBLE_GREAT(IM, sum_equity)) {
         LOG_INFO << "现货+合约的初始保证金 > 有效保证金，不可以下单: " << IM << ", sum_equity: " << sum_equity;
@@ -118,20 +104,20 @@ void StrategyFR::calc_future_uniMMR(string symbol, double qty)
 
 }
 
-void StrategyFR::calc_predict_equity(order_fr& order)
+void StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 {
     double sum_equity = 0;
     double price = last_price_map[order.symbol];
     double rate = collateralRateMap[order.symbol];
 
     if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多， 合约做空
-        double equity = order.qty * price * (1 + price_ratio) * rate;
-        double uswap_unpnl = order.qty * price - (1 + price_ratio) * price * order.qty;
+        double equity = order.qty * price * (1 + price_cent) * rate;
+        double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
     } else { // 现货做空， 合约做多
         double qty = (-order.qty);
-        double equity = qty * price - order.borrow * (1 + price_ratio) * price;
-        double uswap_unpnl = order.qty * price * (1 + price_ratio) - qty * price;
+        double equity = qty * price - order.borrow * (1 + price_cent) * price;
+        double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
         sum_equity = equity + uswap_unpnl;
     }
 
@@ -145,7 +131,7 @@ void StrategyFR::calc_predict_equity(order_fr& order)
             if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
                 price = last_price_map[sy];
             } else {
-                price = last_price_map[sy] * (1 + price_ratio);
+                price = last_price_map[sy] * (1 + price_cent);
             }
             sum_equity = sum_equity + min(equity*price, equity*price*rate);
         }
@@ -157,7 +143,7 @@ void StrategyFR::calc_predict_equity(order_fr& order)
             if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
                 price = last_price_map[sy];
             } else {
-                price = last_price_map[sy] * (1 + price_ratio);
+                price = last_price_map[sy] * (1 + price_cent);
             }
             sum_equity = sum_equity + equity * price;
         }
@@ -169,7 +155,7 @@ void StrategyFR::calc_predict_equity(order_fr& order)
             if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
                 price = last_price_map[sy];
             } else {
-                price = last_price_map[sy] * (1 + price_ratio);
+                price = last_price_map[sy] * (1 + price_cent);
             }
             sum_equity = sum_equity + min(equity*price, equity*price*rate);
         }
@@ -177,15 +163,93 @@ void StrategyFR::calc_predict_equity(order_fr& order)
 
     for (auto it : BnApi::UmMap_) {
         for (auto iter : it.info1_) {
-
+            double price = last_price_map[iter.symbol] * (1 + price_cent);
+            double uswap_unpnl = (price - iter.entryPrice) * iter.positionAmt;
+            sum_equity += uswap_unpnl;
         }
     }
 
     for (auto it : BnApi::CmMap_) {
         for (auto iter : it.info1_) {
-
+            string sy = iter.symbol;
+            double price = last_price_map[sy] * (1 + price_cent);
+            double perp_size = 0;
+            if (sy == "BTCUSD_PERP") {
+                perp_size = 100;
+            } else {
+                perp_size = 10;
+            }
+            double cswap_unpnl = price * perp_size * iter.positionAmt * (1 / iter.entryPrice - 1 / price);
+            sum_equity += cswap_unpnl;
         }
     }
+    return sum_equity;
+}
+
+void StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
+{
+    double sum_mm = 0;
+    double price = last_price_map[order.symbol];
+
+    double leverage = 0;
+    if (margin_leverage.find(order.symbol) == margin_leverage.end()) {
+        leverage = margin_leverage["default"];
+    } else {
+        leverage = margin_leverage[order.symbol];
+        
+    }
+
+    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多，合约做空
+        sum_mm = sum_mm + order.borrow * margin_mmr[leverage];
+    } else { // 现货做空，合约做多
+        sum_mm = sum_mm + order.borrow * price * margin_mmr[leverage];
+    }
+
+    for (auto it : BnApi::BalMap_) {
+        double leverage = margin_mmr[margin_leverage[it.first]];
+        double price = last_price_map[it.first];
+        string sy = it.first;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + margin_mmr[leverage] * 1; // 杠杆现货维持保证金
+        } else {
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + margin_mmr[leverage] * price;
+        }
+    }
+
+    for (auto it : BnApi::UmMap_) {
+        for (auto iter : it.info1_) {
+            string sy = iter.symbol;
+            double price = last_price_map[iter.symbol] * (1 + price_cent);
+            double qty = iter.positionAmt;
+            if (sy == order.sy) {
+                qty = qty + order.qty;
+            }
+            double mmr_rate = 0;
+            double mmr_num = 0;
+            get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+            sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
+        }
+    }
+
+    for (auto it : BnApi::CmMap_) {
+        for (auto iter : it.info1_) {
+            string sy = iter.symbol;
+            double price = last_price_map[iter.symbol] * (1 + price_cent);
+            double qty = 0;
+            if (sy == "BTCUSD_PERP") {
+                qty = iter.positionAmt * 100 / price;
+            } else {
+                qty = iter.positionAmt * 10 / price;
+            }
+            double mmr_rate = 0;
+            double mmr_num = 0;
+            double qty = iter.positionAmt;
+            get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+            sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+        }
+    }
+    return sum_mm;
+
 }
 
 void StrategyFR::calc_equity()
