@@ -27,7 +27,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     margin_leverage->insert({"ETC", 10});
     margin_leverage->insert({"default", 5});
 
-    margin_mmr = new map<string, double>;
+    margin_mmr = new map<double, double>;
     margin_mmr.insert({3, 0.1}); // {3:0.1, 5:0.08, 10:0.05}
     margin_mmr.insert({5, 0.08});
     margin_mmr.insert({10, 0.05});
@@ -106,8 +106,8 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
 double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 {
     double sum_equity = 0;
-    double price = last_price_map[order.symbol];
-    double rate = collateralRateMap[order.symbol];
+    double price = last_price_map[order.sy];
+    double rate = collateralRateMap[order.sy];
 
     if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多， 合约做空
         double equity = order.qty * price * (1 + price_cent) * rate;
@@ -188,13 +188,13 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 {
     double sum_mm = 0;
-    double price = last_price_map[order.symbol];
+    double price = last_price_map[order.sy];
 
     double leverage = 0;
-    if (margin_leverage.find(order.symbol) == margin_leverage.end()) {
+    if (margin_leverage.find(order.sy) == margin_leverage.end()) {
         leverage = margin_leverage["default"];
     } else {
-        leverage = margin_leverage[order.symbol];
+        leverage = margin_leverage[order.sy];
         
     }
 
