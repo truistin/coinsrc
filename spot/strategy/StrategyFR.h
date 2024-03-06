@@ -42,6 +42,8 @@ namespace spot {
 			void OnForceCloseTimerInterval(){};
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
+
+			double StrategyFR::get_usdt_equity()
 			double calc_predict_mm(order_fr& order, double price_cent);
 			double calc_predict_equity(order_fr& order, double price_cent);
 			double calc_future_uniMMR(string symbol, double qty);

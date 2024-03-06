@@ -22,10 +22,10 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     price_ratio = *parameters()->getDouble("price_ratio");
 
     margin_leverage = new map<string, double>; // {'BTC':10, 'ETH':10,'ETC':10,'default':5}
-    margin_leverage.insert({"BTC", 10});
-    margin_leverage.insert({"ETH", 10});
-    margin_leverage.insert({"ETC", 10});
-    margin_leverage.insert({"default", 5});
+    margin_leverage->insert({"BTC", 10});
+    margin_leverage->insert({"ETH", 10});
+    margin_leverage->insert({"ETC", 10});
+    margin_leverage->insert({"default", 5});
 
     margin_mmr = new map<string, double>;
     margin_mmr.insert({3, 0.1}); // {3:0.1, 5:0.08, 10:0.05}
@@ -60,7 +60,7 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
     return;
 }
 
-void StrategyFR::get_usdt_equity()
+double StrategyFR::get_usdt_equity()
 {
     double equity = 0;
     equity = Decimal(BalMap_["USDT"].crossMarginFree) + Decimal(BalMap_["USDT"].crossMarginLocked) - Decimal(BalMap_["USDT"].crossMarginBorrowed) - Decimal(BalMap_["USDT"].crossMarginInterest);
@@ -79,10 +79,9 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
     order.sy = symbol;
     order.qty = qty;
 
-    double IM = 0;
     double price = last_price_map[symbol];
     double borrow = 0;
-    if (IS_DOUBLE_GREAT(qty, 0)) { // 借usdt
+    if (IS_DOUBLE_GREATER(qty, 0)) { // 借usdt
         borrow = qty * price;
         IM = IM + borrow / (margin_leverage[symbol] - 1) + (qty * price / um_leverage);         
     } else { // 借现货
@@ -92,13 +91,13 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
 
     order.borrow = borrow;
 
-    if (IS_DOUBLE_GREAT(IM, sum_equity)) {
+    if (IS_DOUBLE_GREATER(IM, sum_equity)) {
         LOG_INFO << "现货+合约的初始保证金 > 有效保证金，不可以下单: " << IM << ", sum_equity: " << sum_equity;
-        return;
+        return 0;
     }
 
-    double predict_equity = calc_predict_equity(order);
-    double predict_mm = calc_predict_mm(order);
+    double predict_equity = calc_predict_equity(order, price_ratio);
+    double predict_mm = calc_predict_mm(order, price_ratio);
     double predict_mmr = predict_equity / predict_mm;
     return predict_mmr;
 

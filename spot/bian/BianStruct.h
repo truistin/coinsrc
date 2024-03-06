@@ -305,6 +305,11 @@ public:
 	double 		crossMarginLocked;
 	double		crossMarginBorrowed;
 	double		crossMarginInterest;
+	double		umWalletBalance;
+	double 		umUnrealizedPNL;
+	double		cmWalletBalance;
+	double		cmUnrealizedPNL;
+
 };
 
 class BnSpotAsset
@@ -332,6 +337,10 @@ public:
 			spotrapidjson::Value& crossLocked = dataNodes[i]["crossMarginLocked"];
 			spotrapidjson::Value& crossBorrowed = dataNodes[i]["crossMarginBorrowed"];
 			spotrapidjson::Value& crossInterest = dataNodes[i]["crossMarginInterest"];
+			spotrapidjson::Value& umWalletBalance = dataNodes[i]["umWalletBalance"];
+			spotrapidjson::Value& umUnrealizedPNL = dataNodes[i]["umUnrealizedPNL"];
+			spotrapidjson::Value& cmWalletBalance = dataNodes[i]["cmWalletBalance"];
+			spotrapidjson::Value& cmUnrealizedPNL = dataNodes[i]["cmUnrealizedPNL"];
 
 			BnSpotAssetInfo info;
 			if (asset.IsString()){
@@ -362,6 +371,26 @@ public:
 			if (crossInterest.IsString()){
 				std::string s = crossInterest.GetString();
 				info.crossMarginInterest = stod(s);
+			}
+
+			if (umWalletBalance.IsString()){
+				std::string s = umWalletBalance.GetString();
+				info.umWalletBalance = stod(s);
+			}
+
+			if (umUnrealizedPNL.IsString()){
+				std::string s = umUnrealizedPNL.GetString();
+				info.umUnrealizedPNL = stod(s);
+			}
+
+			if (cmWalletBalance.IsString()){
+				std::string s = cmWalletBalance.GetString();
+				info.cmWalletBalance = stod(s);
+			}
+
+			if (cmUnrealizedPNL.IsString()){
+				std::string s = cmUnrealizedPNL.GetString();
+				info.cmUnrealizedPNL = stod(s);
 			}
 
 			info_.push_back(info);
