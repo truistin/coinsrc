@@ -28,9 +28,9 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     margin_leverage->insert({"default", 5});
 
     margin_mmr = new map<double, double>;
-    margin_mmr.insert({3, 0.1}); // {3:0.1, 5:0.08, 10:0.05}
-    margin_mmr.insert({5, 0.08});
-    margin_mmr.insert({10, 0.05});
+    margin_mmr->insert({3, 0.1}); // {3:0.1, 5:0.08, 10:0.05}
+    margin_mmr->insert({5, 0.08});
+    margin_mmr->insert({10, 0.05});
 
     last_price_map = new map<string. double>;
     pridict_borrow = new map<string, double>;
@@ -41,7 +41,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
 void StrategyFR::init() 
 {
     for (auto iter : strategyInstrumentList()) {
-        last_price_map.insert({iter->instrument()->getInstrumentID(), 0});
+        last_price_map->insert({iter->instrument()->getInstrumentID(), 0});
     }
 }
 
@@ -63,9 +63,9 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
 double StrategyFR::get_usdt_equity()
 {
     double equity = 0;
-    equity = Decimal(BalMap_["USDT"].crossMarginFree) + Decimal(BalMap_["USDT"].crossMarginLocked) - Decimal(BalMap_["USDT"].crossMarginBorrowed) - Decimal(BalMap_["USDT"].crossMarginInterest);
-    equity += Decimal(BalMap_["USDT"].umWalletBalance) +  Decimal(BalMap_["USDT"].umUnrealizedPNL);
-    equity += Decimal(BalMap_["USDT"].cmWalletBalance) + Decimal(BalMap_["USDT"].cmUnrealizedPNL);
+    equity = Decimal(BnApi::BalMap_["USDT"].crossMarginFree) + Decimal(BnApi::BalMap_["USDT"].crossMarginLocked) - Decimal(BnApi::BalMap_["USDT"].crossMarginBorrowed) - Decimal(BnApi::BalMap_["USDT"].crossMarginInterest);
+    equity += Decimal(BnApi::BalMap_["USDT"].umWalletBalance) +  Decimal(BnApi::BalMap_["USDT"].umUnrealizedPNL);
+    equity += Decimal(BnApi::BalMap_["USDT"].cmWalletBalance) + Decimal(BnApi::BalMap_["USDT"].cmUnrealizedPNL);
     return equity
 }
 
@@ -310,7 +310,7 @@ double StrategyFR::calc_mm()
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
         double mm = abs(qty) * markPrice * mmr_rate - mmr_num;
-        sum_mm += mm
+        sum_mm += mm;
     }
 
     for (auto it : BnApi::CmMap_) {
