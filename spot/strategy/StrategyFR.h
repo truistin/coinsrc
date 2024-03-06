@@ -42,6 +42,12 @@ namespace spot {
 			void OnForceCloseTimerInterval(){};
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
+			double calc_predict_mm(order_fr& order, double price_cent);
+			double calc_predict_equity(order_fr& order, double price_cent);
+			double calc_future_uniMMR(string symbol, double qty);
+			double calc_equity();
+			double calc_mm();
+			void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num);
 
 		private:
 			bool first_time60;

@@ -69,7 +69,7 @@ void StrategyFR::get_usdt_equity()
     return equity
 }
 
-void StrategyFR::calc_future_uniMMR(string symbol, double qty)
+double StrategyFR::calc_future_uniMMR(string symbol, double qty)
 {
     double usdt_equity = get_usdt_equity();
     double sum_equity = calc_equity();
@@ -104,7 +104,7 @@ void StrategyFR::calc_future_uniMMR(string symbol, double qty)
 
 }
 
-void StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
+double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 {
     double sum_equity = 0;
     double price = last_price_map[order.symbol];
@@ -186,7 +186,7 @@ void StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
     return sum_equity;
 }
 
-void StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
+double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 {
     double sum_mm = 0;
     double price = last_price_map[order.symbol];
@@ -252,7 +252,7 @@ void StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
 }
 
-void StrategyFR::calc_equity()
+double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
     for (auto it : BnApi::BalMap_) {
@@ -335,7 +335,7 @@ double StrategyFR::calc_mm()
 
 }
 
-void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num)
+void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num)
 {
     bool flag = false;
     for (auto it : mmr_table) {
