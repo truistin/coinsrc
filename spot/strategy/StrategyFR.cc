@@ -63,10 +63,10 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
 double StrategyFR::get_usdt_equity()
 {
     double equity = 0;
-    equity = (BnApi::BalMap_["USDT"].crossMarginFree) + (BnApi::BalMap_["USDT"].crossMarginLocked) - (BnApi::BalMap_["USDT"].crossMarginBorrowed) - Decimal(BnApi::BalMap_["USDT"].crossMarginInterest);
+    equity = (BnApi::BalMap_["USDT"].crossMarginFree) + (BnApi::BalMap_["USDT"].crossMarginLocked) - (BnApi::BalMap_["USDT"].crossMarginBorrowed) - (BnApi::BalMap_["USDT"].crossMarginInterest);
     equity += (BnApi::BalMap_["USDT"].umWalletBalance) +  (BnApi::BalMap_["USDT"].umUnrealizedPNL);
     equity += (BnApi::BalMap_["USDT"].cmWalletBalance) + (BnApi::BalMap_["USDT"].cmUnrealizedPNL);
-    return equity
+    return equity;
 }
 
 double StrategyFR::calc_future_uniMMR(string symbol, double qty)
@@ -79,7 +79,7 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
     order.sy = symbol;
     order.qty = qty;
 
-    double price = last_price_map[symbol];
+    double price = (*last_price_map)[symbol];
     double borrow = 0;
     if (IS_DOUBLE_GREATER(qty, 0)) { // 借usdt
         borrow = qty * price;
@@ -305,7 +305,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::UmMap_) {
         string symbol = it.asset;
         double qty = gQryPosiInfo[symbol].size;
-        double markPrice = last_price_map[symbol];
+        double markPrice = (*last_price_map)[symbol];
         double mmr_rate;
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
@@ -323,7 +323,7 @@ double StrategyFR::calc_mm()
             qty = gQryPosiInfo[symbol].size * 10;
         }
 
-        double markPrice = last_price_map[symbol];
+        double markPrice = (*last_price_map)[symbol];
         double mmr_rate;
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty), mmr_rate, mmr_num);
