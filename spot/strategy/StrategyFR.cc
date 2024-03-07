@@ -187,7 +187,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
     double price = (*last_price_map)[order.sy];
 
     double leverage = 0;
-    if (margin_leverage.find(order.sy) == margin_leverage.end()) {
+    if (margin_leverage->find(order.sy) == margin_leverage->end()) {
         leverage = (*margin_leverage)["default"];
     } else {
         leverage = (*margin_leverage)[order.sy];
@@ -201,7 +201,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
     }
 
     for (auto it : BnApi::BalMap_) {
-        double leverage = margin_mmr[margin_leverage[it.first]];
+        double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = (*last_price_map)[it.first];
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
@@ -278,8 +278,8 @@ double StrategyFR::calc_mm()
     // 现货杠杆mm
     for (auto it : BnApi::BalMap_) {
         double leverage = 0; 
-        string symbol = it.asset;
-        if (margin_leverage.find(symbol) == margin_leverage.end()) {
+        string symbol = it.first;
+        if (margin_leverage->find(symbol) == margin_leverage->end()) {
             leverage = (*margin_leverage)["default"];
         } else {
             leverage = (*margin_leverage)[symbol];
