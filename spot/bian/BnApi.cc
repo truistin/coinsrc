@@ -253,7 +253,7 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
-    int ret = UmAcc_.decode(res.c_str());
+    int ret = UmAcc_->decode(res.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res;
     }
@@ -275,7 +275,7 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
-    ret = CmAcc_.decode(res1.c_str());
+    ret = CmAcc_->decode(res1.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res1;
         return;
