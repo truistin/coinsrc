@@ -32,7 +32,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     margin_mmr->insert({5, 0.08});
     margin_mmr->insert({10, 0.05});
 
-    last_price_map = new map<string. double>;
+    last_price_map = new map<string, double>;
     pridict_borrow = new map<string, double>;
 
     pre_sum_equity = 0;
@@ -106,7 +106,7 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
 double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 {
     double sum_equity = 0;
-    double price = last_price_map[order.sy];
+    double price = (*last_price_map)[order.sy];
     double rate = collateralRateMap[order.sy];
 
     if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多， 合约做空
@@ -161,7 +161,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
     }
 
     for (auto iter : BnApi::UmAcc_->info1_) {
-        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
         double uswap_unpnl = (price - iter.entryPrice) * iter.positionAmt;
         sum_equity += uswap_unpnl;
     }
@@ -184,7 +184,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 {
     double sum_mm = 0;
-    double price = last_price_map[order.sy];
+    double price = (*last_price_map)[order.sy];
 
     double leverage = 0;
     if (margin_leverage.find(order.sy) == margin_leverage.end()) {
@@ -202,7 +202,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
     for (auto it : BnApi::BalMap_) {
         double leverage = margin_mmr[margin_leverage[it.first]];
-        double price = last_price_map[it.first];
+        double price = (*last_price_map)[it.first];
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // 杠杆现货维持保证金
@@ -213,7 +213,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
         double qty = iter.positionAmt;
         if (sy == order.sy) {
             qty = qty + order.qty;
@@ -226,7 +226,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
         double qty = 0;
         if (sy == "BTCUSD_PERP") {
             qty = iter.positionAmt * 100 / price;
@@ -251,21 +251,21 @@ double StrategyFR::calc_equity()
         if (!IS_DOUBLE_ZERO(it.second.crossMarginAsset) ||  !IS_DOUBLE_ZERO(it.second.crossMarginBorrowed)) {
             double rate = collateralRateMap[it.second.asset];
             double equity = it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest;
-            double calc_equity = min(equity * last_price_map[it.second.asset], equity * last_price_map[it.second.asset] * rate);
+            double calc_equity = min(equity * (*last_price_map)[it.second.asset], equity * (*last_price_map)[it.second.asset] * rate);
             sum_equity += calc_equity;
         }
 
         if (!IS_DOUBLE_ZERO(it.second.umWalletBalance) ||  !IS_DOUBLE_ZERO(it.second.umUnrealizedPNL)) {
             double rate = collateralRateMap[it.second.asset];
             double equity = it.second.umWalletBalance +  it.second.umUnrealizedPNL;
-            double calc_equity = equity * last_price_map[it.second.asset]; // should be swap symbol
+            double calc_equity = equity * (*last_price_map)[it.second.asset]; // should be swap symbol
             sum_equity += calc_equity;
         }
 
         if (!IS_DOUBLE_ZERO(it.second.cmWalletBalance) ||  !IS_DOUBLE_ZERO(it.second.cmUnrealizedPNL)) {
             double rate = collateralRateMap[it.second.asset];
-            double equity = it.second.second.cmWalletBalance +  it.second.cmUnrealizedPNL;
-            double calc_equity = min(equity * last_price_map[it.second.asset], equity * last_price_map[it.second.asset] * rate); // should be perp symbol
+            double equity = it.second.cmWalletBalance +  it.second.cmUnrealizedPNL;
+            double calc_equity = min(equity * (*last_price_map)[it.second.asset], equity * (*last_price_map)[it.second.asset] * rate); // should be perp symbol
             sum_equity += calc_equity;
         }
     }
@@ -290,7 +290,7 @@ double StrategyFR::calc_mm()
             double mm = it.second.crossMarginBorrowed * margin_mmr[10];
             sum_mm += mm;
         } else {
-            double mm = it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * last_price_map[it.second.asset];
+            double mm = it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * (*last_price_map)[it.second.asset];
             sum_mm += mm;
         }
     }
