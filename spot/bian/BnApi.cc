@@ -64,9 +64,9 @@ std::map<string, string> BnApi::tickerToInstrumentMap_;
 std::map<string, string> BnApi::originSymbolToSpotSymbol_;
 
 std::map<string, BnSpotAssetInfo> BnApi::BalMap_;
-std::map<string, BnUmAssetInfo> BnApi::UmMap_;
-std::map<string, BnCmAssetInfo> BnApi::CmMap_;
 
+BnCmAccount* BnApi::CmAcc_;
+BnUmAccount* BnApi::UmAcc_;
 
 BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto* adapt) {
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
@@ -80,6 +80,9 @@ BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto
     m_passphrase = passphrase;
     adapter_ = adapt;
     cancelAll = false;
+
+    CmAcc_ = new BnCmAccount;
+    UmAcc_ = new BnUmAccount;
     
     LOG_INFO << "BnApi apikey:" << m_api_key << ", secret_key: " << m_secret_key << " passwd:" << m_passphrase << " skey-len:" << m_secret_key.length();
 
@@ -250,14 +253,10 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
-    BnUmAccount umAccInfo;
-    int ret = umAccInfo.decode(res.c_str());
+    int ret = UmAcc_.decode(res.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res;
     }
-
-    // UmMap_["crossWalletBalance"] = umAccInfo.crossWalletBalance;
-    // UmMap_["crossUnPnl"] = umAccInfo.crossUnPnl;
 
     m_uri.clear();
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
@@ -276,30 +275,22 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
-    BnCmAccount cmAccInfo;
-    ret = cmAccInfo.decode(res1.c_str());
+    ret = CmAcc_.decode(res1.c_str());
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res1;
         return;
     }
-/*
-	char		asset[20];
-	double		crossWalletBalance;
-	double 		crossUnPnl;
-*/
-    for (auto& it : umAccInfo.info_) {
-        UmMap_[it.asset] = it;
-        LOG_INFO << "BnApi umAccInfo: " << it.asset << ", crossWalletBalance: " <<
-            it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
-    }
 
-    for (auto& it : cmAccInfo.info_) {
-        CmMap_[it.asset] = it;
-        LOG_INFO << "BnApi cmAccInfo: " << it.asset << ", crossWalletBalance: " <<
-            it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
-    }
-    // CmMap_["crossWalletBalance"] = cmAccInfo.crossWalletBalance;
-    // CmMap_["crossUnPnl"] = cmAccInfo.crossUnPnl;
+    // for (auto& it : UmAcc_.info_) {
+    //     LOG_INFO << "BnApi umAccInfo: " << it.asset << ", crossWalletBalance: " <<
+    //         it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
+    // }
+
+    // for (auto& it : cmAccInfo.info_) {
+    //     LOG_INFO << "BnApi cmAccInfo: " << it.asset << ", crossWalletBalance: " <<
+    //         it.crossWalletBalance << ", crossUnPnl: " << it.crossUnPnl;
+    // }
+
 
 }
 

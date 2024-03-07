@@ -100,8 +100,8 @@ private:
 
 public:
 	static std::map<string, BnSpotAssetInfo> BalMap_;
-	static std::map<string, BnUmAssetInfo> UmMap_;
-	static std::map<string, BnCmAssetInfo> CmMap_;
+	static BnCmAccount* CmAcc_;
+	static BnUmAccount* UmAcc_;
 
 	bool cancelAll;
 

@@ -160,27 +160,23 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
         }
     }
 
-    for (auto it : BnApi::UmMap_) {
-        for (auto iter : it.second.info1_) {
-            double price = last_price_map[iter.symbol] * (1 + price_cent);
-            double uswap_unpnl = (price - iter.entryPrice) * iter.positionAmt;
-            sum_equity += uswap_unpnl;
-        }
+    for (auto iter : BnApi::UmAcc_->info1_) {
+        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double uswap_unpnl = (price - iter.entryPrice) * iter.positionAmt;
+        sum_equity += uswap_unpnl;
     }
 
-    for (auto it : BnApi::CmMap_) {
-        for (auto iter : it.second.info1_) {
-            string sy = iter.symbol;
-            double price = (*last_price_map)[sy] * (1 + price_cent);
-            double perp_size = 0;
-            if (sy == "BTCUSD_PERP") {
-                perp_size = 100;
-            } else {
-                perp_size = 10;
-            }
-            double cswap_unpnl = price * perp_size * iter.positionAmt * (1 / iter.entryPrice - 1 / price);
-            sum_equity += cswap_unpnl;
+    for (auto iter : BnApi::CmAcc_->info1_) {
+        string sy = iter.symbol;
+        double price = (*last_price_map)[sy] * (1 + price_cent);
+        double perp_size = 0;
+        if (sy == "BTCUSD_PERP") {
+            perp_size = 100;
+        } else {
+            perp_size = 10;
         }
+        double cswap_unpnl = price * perp_size * iter.positionAmt * (1 / iter.entryPrice - 1 / price);
+        sum_equity += cswap_unpnl;
     }
     return sum_equity;
 }
@@ -215,38 +211,35 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
         }
     }
 
-    for (auto it : BnApi::UmMap_) {
-        for (auto iter : it.second.info1_) {
-            string sy = iter.symbol;
-            double price = last_price_map[iter.symbol] * (1 + price_cent);
-            double qty = iter.positionAmt;
-            if (sy == order.sy) {
-                qty = qty + order.qty;
-            }
-            double mmr_rate = 0;
-            double mmr_num = 0;
-            get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
-            sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
+    for (auto iter : BnApi::UmAcc_->info1_) {
+        string sy = iter.symbol;
+        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double qty = iter.positionAmt;
+        if (sy == order.sy) {
+            qty = qty + order.qty;
         }
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
     }
 
-    for (auto it : BnApi::CmMap_) {
-        for (auto iter : it.second.info1_) {
-            string sy = iter.symbol;
-            double price = last_price_map[iter.symbol] * (1 + price_cent);
-            double qty = 0;
-            if (sy == "BTCUSD_PERP") {
-                qty = iter.positionAmt * 100 / price;
-            } else {
-                qty = iter.positionAmt * 10 / price;
-            }
-            double mmr_rate = 0;
-            double mmr_num = 0;
-            qty = iter.positionAmt;
-            get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
-            sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+    for (auto iter : BnApi::CmAcc_->info1_) {
+        string sy = iter.symbol;
+        double price = last_price_map[iter.symbol] * (1 + price_cent);
+        double qty = 0;
+        if (sy == "BTCUSD_PERP") {
+            qty = iter.positionAmt * 100 / price;
+        } else {
+            qty = iter.positionAmt * 10 / price;
         }
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        qty = iter.positionAmt;
+        get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
     }
+
     return sum_mm;
 
 }
@@ -302,8 +295,8 @@ double StrategyFR::calc_mm()
         }
     }
 
-    for (auto it : BnApi::UmMap_) {
-        string symbol = it.asset;
+    for (auto it : BnApi::UmAcc_->info1_) {
+        string symbol = it.symbol;
         double qty = gQryPosiInfo[symbol].size;
         double markPrice = (*last_price_map)[symbol];
         double mmr_rate;
@@ -313,8 +306,8 @@ double StrategyFR::calc_mm()
         sum_mm += mm;
     }
 
-    for (auto it : BnApi::CmMap_) {
-        string symbol = it.asset;
+    for (auto it : BnApi::CmAcc_->info1_) {
+        string symbol = it.symbol;
         double qty = 0;
 
         if (symbol == "BTCUSD_PERP") {

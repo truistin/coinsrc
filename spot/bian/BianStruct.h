@@ -95,6 +95,8 @@ public:
 	}
 
 	int decode(const char* json) {
+		info_.clear();
+		info.clear();
 		Document doc;
         doc.Parse(json, strlen(json));
 
@@ -213,6 +215,8 @@ public:
 	}
 
 	int decode(const char* json) {
+		info_.clear();
+		info.clear();
 		Document doc;
         doc.Parse(json, strlen(json));
 
