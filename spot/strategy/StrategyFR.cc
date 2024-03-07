@@ -287,7 +287,7 @@ double StrategyFR::calc_mm()
         }
 
         if (symbol == "USDT" || symbol == "USDC" || symbol == "BUSD") {
-            double mm = it.second.crossMarginBorrowed * margin_mmr[10];
+            double mm = it.second.crossMarginBorrowed * (*margin_mmr)[10];
             sum_mm += mm;
         } else {
             double mm = it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * (*last_price_map)[it.second.asset];
