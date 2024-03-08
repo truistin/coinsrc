@@ -303,7 +303,7 @@ double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
     for (auto it : BnApi::BalMap_) {
-        if (IS_DOUBLE_LESS_EQUAL(it.second.asset , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL((*last_price_map)[it.second.asset] , 0)) {
             LOG_WARN << "calc_equity asset has no mkprice: " << it.second.asset << ", markprice: " << (*last_price_map)[it.second.asset];
             return 0;
         }
@@ -336,7 +336,7 @@ double StrategyFR::calc_mm()
     double sum_mm = 0;
     // 现货杠杆mm
     for (auto it : BnApi::BalMap_) {
-        if (IS_DOUBLE_LESS_EQUAL(it.second.asset , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL((*last_price_map)[it.second.asset] , 0)) {
             LOG_WARN << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << (*last_price_map)[it.second.asset];
             return 0;
         }
@@ -360,7 +360,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::UmAcc_->info1_) {
-        if (IS_DOUBLE_LESS_EQUAL(it.symbol , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL((*last_price_map)[it.symbol] , 0)) {
             LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*last_price_map)[it.symbol];
             return 0;
         }
@@ -376,7 +376,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::CmAcc_->info1_) {
-        if (IS_DOUBLE_LESS_EQUAL(it.symbol , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL((*last_price_map)[it.symbol] , 0)) {
             LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*last_price_map)[it.symbol];
             return 0;
         }
