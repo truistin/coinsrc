@@ -1047,6 +1047,9 @@ void BnApi::AddInstrument(const char *instrument) {
     } else if (inst.find("perp") != inst.npos) {
         //btc_usdt_b_perp --> btcusdt_perp
         cp = GetCMCurrencyPair(inst);
+    } else if (inst.find("perp") != inst.npos) {
+        //btc_usdt_b_perp --> btcusdt_perp
+        cp = GetUMCurrencyPair(inst);
     }
     transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     originSymbolToSpotSymbol_[cp] = string(instrument);
@@ -1078,6 +1081,11 @@ string BnApi::GetDepthChannel(string inst) {
         cp = GetCMCurrencyPair(inst);
         //convert to channel
         cp += "@depth5";
+    } else if (inst.find("spot") != inst.npos) {
+        //btc_usdt_b_swap --> btcusdt
+        cp = GetUMCurrencyPair(inst);
+        //convert to channel
+        cp += "@depth5";
     }
     return cp;  //btcusdt@depth5
 }
@@ -1095,6 +1103,11 @@ string BnApi::GetTickerChannel(string inst) {
         cp = GetCMCurrencyPair(inst);
         //convert to channel
         cp += "@bookTicker";
+    } else if (inst.find("spot") != inst.npos) {
+        //btc_usdt_b_swap --> btcusdt
+        cp = GetUMCurrencyPair(inst);
+        //convert to channel
+        cp += "@bookTicker";
     }
     return cp;  //btcusdt@bookTicker
 }
@@ -1109,6 +1122,11 @@ string BnApi::GetTradeChannel(string inst) {
     } else if (inst.find("perp") != inst.npos) {
         //btc_usdt_b_swap --> btcusdt
         cp = GetCMCurrencyPair(inst);
+        //convert to channel
+        cp += "@trade";
+    } else if (inst.find("spot") != inst.npos) {
+        //btc_usdt_b_swap --> btcusdt
+        cp = GetUMCurrencyPair(inst);
         //convert to channel
         cp += "@trade";
     }

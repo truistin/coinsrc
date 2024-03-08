@@ -44,7 +44,7 @@ namespace spot
 			InnerMarketTrade trade_;
 			WebSocketApi *websocketApi_;
 			WebSocketApi *websocketApi1_;
-			WebSocketApi *BianMdSpiSocket2;
+			WebSocketApi *websocketApi2_;
 			std::string  symbolStreams_;
 			std::string  symbolStreams1_;
 			std::string  symbolStreams2_;

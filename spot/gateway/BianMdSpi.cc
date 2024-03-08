@@ -36,6 +36,7 @@ BianMdSpi::BianMdSpi(std::shared_ptr<ApiInfoDetail> &apiInfo, MktDataStoreCallBa
 	count_ = 1;
 	symbolStreams_ ="/stream?streams=";
 	symbolStreams1_ ="/stream?streams=";
+	symbolStreams2_ ="/stream?streams=";
 	lastTradeTime_ = 0;
 	lastTickTime_ = 0;
 	lastDepthTime_ = 0;
@@ -54,10 +55,11 @@ void BianMdSpi::Init()
 		<< ", symbolStreams_: " << symbolStreams_ << ", symbolStreams1_: "
 		<< symbolStreams1_ << ", symbolStreams2_: " << symbolStreams2_;
 	// MeasureFunc::addMeasureData(3, "BianMdSpi::dealBianMdData", 1000);
-	cout << "frontMdAddr_: " << apiInfo_->frontMdAddr_ 
-		<< ", InterfaceAddr_: " << apiInfo_->InterfaceAddr_
-		<< ", symbolStreams_: " << symbolStreams_ << ", symbolStreams1_: "
-		<< symbolStreams1_;
+	// cout << "frontMdAddr_: " << apiInfo_->frontMdAddr_ 
+	// 	<< ", InterfaceAddr_: " << apiInfo_->InterfaceAddr_
+	// 	<< ", frontQueryAddr_: " << apiInfo_->frontQueryAddr_
+	// 	<< ", symbolStreams_: " << symbolStreams_ << ", symbolStreams1_: "
+	// 	<< symbolStreams1_ << ", symbolStreams2_: " << symbolStreams2_;
 	string str  = string(apiInfo_->frontMdAddr_) + symbolStreams_;
 	websocketApi_ = new WebSocketApi();
 //	websocketApi_->SetUri(BINANCE_WSS + symbolStreams_);
@@ -86,7 +88,7 @@ void BianMdSpi::Init()
 	pthread_setname_np(BianMdSpiSocket1.native_handle(), "BaMdSocket_1");
 	BianMdSpiSocket1.detach();
 
-	string str2 = string(apiInfo_->InterfaceAddr_) + symbolStreams2_;
+	string str2 = string(apiInfo_->frontQueryAddr_) + symbolStreams2_;
 	websocketApi2_ = new WebSocketApi();
 //	websocketApi_->SetUri(BINANCE_WSS + symbolStreams_);
 //	websocketApi_->SetUri("wss://fstream.binance.com/stream?streams=ethusdt@bookTicker/btcusdt@bookTicker");
@@ -126,10 +128,10 @@ void BianMdSpi::subscribe()
 		if (iter.second.find("perp") != iter.second.npos) {
 			subscribePerp(iter.first,firstSymbol1);
 			firstSymbol1 = false;
-		} else if (iter.second.find("usdt") != iter.second.npos) {
+		} else if (iter.second.find("swap") != iter.second.npos) {
 			subscribe(iter.first,firstSymbol);
 			firstSymbol = false;
-		} else {
+		} else if (iter.second.find("spot") != iter.second.npos){
 			subscribeSpot(iter.first,firstSymbol2);
 			firstSymbol2 = false;
 		}
@@ -140,9 +142,9 @@ void BianMdSpi::subscribe()
 		LOG_INFO << "subscribe trade:" << iter.first << "second: " << iter.second;;
 		if (iter.second.find("perp") != iter.second.npos) {
 			subscribePerp(iter.first,firstSymbol1);
-		} else if (iter.second.find("usdt") != iter.second.npos) {
+		} else if (iter.second.find("swap") != iter.second.npos) {
 			subscribe(iter.first, firstSymbol);
-		} else {
+		} else if (iter.second.find("spot") != iter.second.npos){
 			subscribeSpot(iter.first,firstSymbol2);
 		}
 	}
