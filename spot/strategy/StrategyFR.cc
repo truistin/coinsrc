@@ -84,7 +84,7 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
     if (IS_DOUBLE_GREATER(qty, 0)) { // 借usdt
         borrow = qty * price;
         IM = IM + borrow / ((*margin_leverage)[symbol] - 1) + (qty * price / um_leverage);         
-    } else { // 借现货
+    } else { // 借现贄1�7
         borrow = -qty;
         IM = IM + (price * (-qty) / ((*margin_leverage)[symbol] - 1)) + (-qty) * price / um_leverage;
     }
@@ -92,7 +92,7 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
     order.borrow = borrow;
 
     if (IS_DOUBLE_GREATER(IM, sum_equity)) {
-        LOG_INFO << "现货+合约的初始保证金 > 有效保证金，不可以下单: " << IM << ", sum_equity: " << sum_equity;
+        LOG_INFO << "现货+合约的初始保证金 > 有效保证金，不可以下卄1�7: " << IM << ", sum_equity: " << sum_equity;
         return 0;
     }
 
@@ -109,11 +109,11 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
     double price = (*last_price_map)[order.sy];
     double rate = collateralRateMap[order.sy];
 
-    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多， 合约做空
+    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多＄1�7 合约做空
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // 现货做空， 合约做多
+    } else { // 现货做空＄1�7 合约做多
         double qty = (-order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -162,7 +162,8 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
-        double uswap_unpnl = (price - iter.entryPrice) * iter.positionAmt;
+        double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*last_price_map)[iter.symbol]) / (iter.positionAmt + order.qty);
+        double uswap_unpnl = (price - avgPrice) * iter.positionAmt;
         sum_equity += uswap_unpnl;
     }
 
@@ -175,7 +176,14 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
         } else {
             perp_size = 10;
         }
-        double cswap_unpnl = price * perp_size * iter.positionAmt * (1 / iter.entryPrice - 1 / price);
+
+        double quantity = perp_size * iter.positionAmt / iter.entryPrice + order.qty * perp_size / (*last_price_map)[sy];
+
+        double turnover = perp_size * iter.positionAmt + order.qty * perp_size;
+
+        double avgPrice = turnover / quantity;
+
+        double cswap_unpnl = price * perp_size * iter.positionAmt * (1/avgPrice - 1/price);
         sum_equity += cswap_unpnl;
     }
     return sum_equity;
@@ -194,9 +202,9 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
         
     }
 
-    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多，合约做空
+    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多，合约做穄1�7
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // 现货做空，合约做多
+    } else { // 现货做空，合约做处1�7
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -205,7 +213,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
         double price = (*last_price_map)[it.first];
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // 杠杆现货维持保证金
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // 杠杆现货维持保证釄1�7
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
