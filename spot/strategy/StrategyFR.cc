@@ -80,7 +80,7 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
     order.qty = qty;
 
     double price = (*last_price_map)[symbol];
-    if (IS_DOUBLE_EQUAL(price , 0)) {
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
         LOG_WARN << "calc_future_umimmr has no mkprice: " << symbol << ", markprice: " << (*last_price_map)[symbol];
         return 0;
     }
@@ -111,8 +111,8 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 {
     double sum_equity = 0;
     double price = (*last_price_map)[order.sy];
-    if (IS_DOUBLE_EQUAL(price , 0)) {
-        LOG_WARN << "calc_predict_equity has no mkprice: " << order.sy << ", markprice: " << (*last_price_map)[symbol];
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_predict_equity has no mkprice: " << order.sy << ", markprice: " << (*last_price_map)[order.sy];
         return 0;
     }
 
@@ -141,7 +141,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
             } else {
                 price = (*last_price_map)[sy] * (1 + price_cent);
             }
-            if (IS_DOUBLE_EQUAL(price , 0)) {
+            if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
                 LOG_WARN << "BalMap calc_predict_equity has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
                 return 0;
             }
@@ -157,7 +157,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
             } else {
                 price = (*last_price_map)[sy] * (1 + price_cent);
             }
-            if (IS_DOUBLE_EQUAL(price , 0)) {
+            if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
                 LOG_WARN << "umWalletBalance calc_predict_equity has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
                 return 0;
             }
@@ -173,7 +173,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
             } else {
                 price = (*last_price_map)[sy] * (1 + price_cent);
             }
-            if (IS_DOUBLE_EQUAL(price , 0)) {
+            if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
                 LOG_WARN << "cmWalletBalance calc_predict_equity has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
                 return 0;
             }
@@ -183,7 +183,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
-        if (IS_DOUBLE_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc has no mkprice: " << iter.symbol << ", markprice: " << (*last_price_map)[iter.symbol];
             return 0;
         }
@@ -195,7 +195,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         double price = (*last_price_map)[sy] * (1 + price_cent);
-        if (IS_DOUBLE_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
             return 0;
         }
@@ -211,7 +211,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
         double turnover = perp_size * iter.positionAmt + order.qty * perp_size;
 
         double avgPrice = turnover / quantity;
-        if (IS_DOUBLE_EQUAL(avgPrice, 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(avgPrice, 0)) {
             avgPrice = (*last_price_map)[sy];
         }
 
@@ -225,7 +225,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 {
     double sum_mm = 0;
     double price = (*last_price_map)[order.sy];
-    if (IS_DOUBLE_EQUAL(price , 0)) {
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
         LOG_WARN << "calc_predict_mm has no mkprice: " << order.sy << ", markprice: " << (*last_price_map)[order.sy];
         return 0;
     }
@@ -246,7 +246,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
     for (auto it : BnApi::BalMap_) {
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = (*last_price_map)[it.first];
-        if (IS_DOUBLE_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "BalMap calc_predict_mm has no mkprice: " << it.first << ", markprice: " << (*last_price_map)[it.first];
             return 0;
         }
@@ -260,9 +260,9 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
-        if (IS_DOUBLE_EQUAL(price , 0)) {
-            LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << iter.symbol << ", markprice: " << (*last_price_map)[iter.symbol];
+        double price = (*last_price_map)[sy] * (1 + price_cent);
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
             return 0;
         }
         double qty = iter.positionAmt;
@@ -278,8 +278,8 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         double price = (*last_price_map)[iter.symbol] * (1 + price_cent);
-        if (IS_DOUBLE_EQUAL(price , 0)) {
-            LOG_WARN << "CmAcc calc_predict_mm has no mkprice: " << iter.symbol << ", markprice: " << (*last_price_map)[iter.symbol];
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "CmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*last_price_map)[sy];
             return 0;
         }
         double qty = 0;
@@ -303,7 +303,7 @@ double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
     for (auto it : BnApi::BalMap_) {
-        if (IS_DOUBLE_EQUAL(it.second.asset , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.second.asset , 0)) {
             LOG_WARN << "calc_equity asset has no mkprice: " << it.second.asset << ", markprice: " << (*last_price_map)[it.second.asset];
             return 0;
         }
@@ -336,7 +336,7 @@ double StrategyFR::calc_mm()
     double sum_mm = 0;
     // 现货杠杆mm
     for (auto it : BnApi::BalMap_) {
-        if (IS_DOUBLE_EQUAL(it.second.asset , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.second.asset , 0)) {
             LOG_WARN << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << (*last_price_map)[it.second.asset];
             return 0;
         }
@@ -360,7 +360,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::UmAcc_->info1_) {
-        if (IS_DOUBLE_EQUAL(it.symbol , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.symbol , 0)) {
             LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*last_price_map)[it.symbol];
             return 0;
         }
@@ -376,7 +376,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::CmAcc_->info1_) {
-        if (IS_DOUBLE_EQUAL(it.symbol , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.symbol , 0)) {
             LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*last_price_map)[it.symbol];
             return 0;
         }
