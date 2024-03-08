@@ -182,6 +182,9 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
         double turnover = perp_size * iter.positionAmt + order.qty * perp_size;
 
         double avgPrice = turnover / quantity;
+        if (IS_DOUBLE_EQUAL(avgPrice, 0)) {
+            avgPrice = (*last_price_map)[sy];
+        }
 
         double cswap_unpnl = price * perp_size * iter.positionAmt * (1/avgPrice - 1/price);
         sum_equity += cswap_unpnl;
