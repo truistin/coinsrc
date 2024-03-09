@@ -276,6 +276,8 @@ namespace spot
       double CoinOrderSize;
       int MTaker;
       int LongShort;
+      double OrderQty;
+      double MvRatio;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -335,11 +337,27 @@ namespace spot
       void setLongShort( void *value , uint16_t length = 0) {
         LongShort = *static_cast<int*>(value);
       }
+      void setOrderQty( void *value , uint16_t length = 0) {
+        if (length == 8)
+          OrderQty = *static_cast<double*>(value);
+        else if (length == 0)
+          OrderQty = (double)*static_cast<int*>(value);
+        else
+          OrderQty = (double)*static_cast<int64_t*>(value);
+      }
+      void setMvRatio( void *value , uint16_t length = 0) {
+        if (length == 8)
+          MvRatio = *static_cast<double*>(value);
+        else if (length == 0)
+          MvRatio = (double)*static_cast<int*>(value);
+        else
+          MvRatio = (double)*static_cast<int64_t*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio);
         return buffer;
       }
 
@@ -355,6 +373,8 @@ namespace spot
         methodMap["CoinOrderSize"] = std::bind(&SymbolInfo::setCoinOrderSize, this, _1,_2);
         methodMap["MTaker"] = std::bind(&SymbolInfo::setMTaker, this, _1,_2);
         methodMap["LongShort"] = std::bind(&SymbolInfo::setLongShort, this, _1,_2);
+        methodMap["OrderQty"] = std::bind(&SymbolInfo::setOrderQty, this, _1,_2);
+        methodMap["MvRatio"] = std::bind(&SymbolInfo::setMvRatio, this, _1,_2);
       }
 
       string toJson() const {
@@ -389,6 +409,10 @@ namespace spot
           doc.AddMember("CoinOrderSize",CoinOrderSize, allocator);
         doc.AddMember("MTaker",MTaker, allocator);
         doc.AddMember("LongShort",LongShort, allocator);
+        if (!std::isnan(OrderQty))
+          doc.AddMember("OrderQty",OrderQty, allocator);
+        if (!std::isnan(MvRatio))
+          doc.AddMember("MvRatio",MvRatio, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;

@@ -34,7 +34,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
 
     last_price_map = new map<string, double>;
     pridict_borrow = new map<string, double>;
-    make_taker = new map<string, double>;
+    make_taker = new map<string, sy_info>;
 
     pre_sum_equity = 0;
 }
@@ -46,7 +46,12 @@ void StrategyFR::init()
     }
 
     for (auto it : InitialData::symbolInfoMap()) {
-        make_taker[it.second.Symbol] = it.second.Margin;
+        sy_info sy;
+        sy.long_short_flag = it.second.LongShort;
+        sy.make_taker_flag = it.second.MTaker;
+        sy.qty = it.second.OrderQty;
+        sy.mv_ratio = it.second.MvRatio;
+        make_taker->insert({it.second.Symbol, sy});
     }
 }
 

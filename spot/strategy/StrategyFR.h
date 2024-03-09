@@ -22,6 +22,19 @@ namespace spot {
 				double qty;
 				double borrow;
 		};
+
+		struct sy_info {
+			public:
+				sy_info() {
+					memset(this, 0, sizeof(sy_info));
+				}
+			public:
+				int make_taker_flag;
+				int long_short_flag;
+				double qty;
+				double mv_ratio;
+		}
+
         class StrategyFR : public StrategyCircuit {
         public:
             static Strategy *Create(int strategyID, StrategyParameter *params);
@@ -129,7 +142,7 @@ namespace spot {
 			double pre_sum_equity;
 			double price_ratio;
 			map<string, double>* pridict_borrow;
-			map<string, double>* make_taker;
+			map<string, sy_info>* make_taker;
 		};
     }
 }
