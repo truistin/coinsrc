@@ -1029,25 +1029,36 @@ int BnApi::CancelAllOrders() {
 }
 
 void BnApi::AddInstrument(const char *instrument) {
-    string channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
-    depthToInstrumentMap_[channelDepth] = instrument;
+    string inst(instrument);
+    if (inst.find("swap") != inst.npos || inst.find("perp") != inst.npos) {
+        string channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
+        depthToInstrumentMap_[channelDepth] = instrument;
 
-    string channelTrade = GetTradeChannel(instrument);
-    tradeToInstrumentMap_[channelTrade] = instrument;
+        string channelTrade = GetTradeChannel(instrument);
+        tradeToInstrumentMap_[channelTrade] = instrument;
 
-    string channelTicker = GetTickerChannel(instrument);
-    tickerToInstrumentMap_[channelTicker] = instrument;
+        string channelTicker = GetTickerChannel(instrument);
+        tickerToInstrumentMap_[channelTicker] = instrument;
+    } else {
+        string channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
+        spot_depthToInstrumentMap_[channelDepth] = instrument;
+
+        string channelTrade = GetTradeChannel(instrument);
+        spot_tradeToInstrumentMap_[channelTrade] = instrument;
+
+        string channelTicker = GetTickerChannel(instrument);
+        spot_tickerToInstrumentMap_[channelTicker] = instrument;
+    }
 
 
     string cp;
-    string inst(instrument);
     if (inst.find("swap") != inst.npos) {
         //btc_usdt_b_swap --> btcusdt
         cp = GetUMCurrencyPair(inst);
     } else if (inst.find("perp") != inst.npos) {
         //btc_usdt_b_perp --> btcusdt_perp
         cp = GetCMCurrencyPair(inst);
-    } else if (inst.find("perp") != inst.npos) {
+    } else if (inst.find("spot") != inst.npos) {
         //btc_usdt_b_perp --> btcusdt_perp
         cp = GetUMCurrencyPair(inst);
     }
@@ -1133,6 +1144,30 @@ string BnApi::GetTradeChannel(string inst) {
     return cp;
 }
 
+string BnApi::GetSpotDepthInstrumentID(string channel) {
+    auto iter = spot_depthToInstrumentMap_.find(channel);
+    if (iter != spot_depthToInstrumentMap_.end()) {
+        return iter->second;
+    }
+    return "";
+}
+
+string BnApi::GetSpotTickerInstrumentID(string channel) {
+    auto iter = spot_tickerToInstrumentMap_.find(channel);
+    if (iter != spot_tickerToInstrumentMap_.end()) {
+        return iter->second;
+    }
+    return "";
+}
+
+string BnApi::GetSpotTradeInstrumentID(string channel) {
+    auto iter = spot_tradeToInstrumentMap_.find(channel);
+    if (iter != spot_tradeToInstrumentMap_.end()) {
+        return iter->second;
+    }
+    return "";
+}
+
 string BnApi::GetDepthInstrumentID(string channel) {
     auto iter = depthToInstrumentMap_.find(channel);
     if (iter != depthToInstrumentMap_.end()) {
@@ -1155,6 +1190,18 @@ string BnApi::GetTradeInstrumentID(string channel) {
         return iter->second;
     }
     return "";
+}
+
+std::map<string, string> BnApi::GetSpotDepthInstrumentMap() {
+    return spot_depthToInstrumentMap_;
+}
+
+std::map<string, string> BnApi::GetSpotTickerInstrumentMap() {
+    return spot_tickerToInstrumentMap_;
+}
+
+std::map<string, string> BnApi::GetSpotTradeInstrumentMap() {
+    return spot_tradeToInstrumentMap_;
 }
 
 std::map<string, string> BnApi::GetDepthInstrumentMap() {

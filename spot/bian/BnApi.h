@@ -55,6 +55,10 @@ public:
 	static std::map<string, string> GetTradeInstrumentMap();
 	static std::map<string, string> GetTickerInstrumentMap();
 
+	static string GetSpotDepthInstrumentID(string channel);
+	static string GetSpotTickerInstrumentID(string channel);
+	static string GetSpotTradeInstrumentID(string channel);
+
 	static string GetUMCurrencyPair(string inst);
 	static string GetCMCurrencyPair(string inst);
 
@@ -95,6 +99,11 @@ private:
 	static std::map<string, string> depthToInstrumentMap_;
 	static std::map<string, string> tradeToInstrumentMap_;
 	static std::map<string, string> tickerToInstrumentMap_;
+
+	static std::map<string, string> spot_depthToInstrumentMap_;
+	static std::map<string, string> spot_tradeToInstrumentMap_;
+	static std::map<string, string> spot_tickerToInstrumentMap_;
+
 
 	static std::map<string, string> originSymbolToSpotSymbol_;
 
