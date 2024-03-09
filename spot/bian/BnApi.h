@@ -78,6 +78,7 @@ public:
 	void GetLeverageBracket();
 	void GetSpotAsset();
 	void GetUm_Cm_Account();
+	void GetAccountInfo();
 
 private:
 	void SetPrivateParams(int mode, Uri& m_uri, int encode_mode = -1);
@@ -115,6 +116,7 @@ public:
 	static std::map<string, BnSpotAssetInfo> BalMap_;
 	static BnCmAccount* CmAcc_;
 	static BnUmAccount* UmAcc_;
+	static BnAccountInfo* accInfo_;
 
 	bool cancelAll;
 

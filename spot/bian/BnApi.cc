@@ -53,6 +53,7 @@ using namespace std;
 #define BN_CM_ACCOUNT "/papi/v1/cm/account"
 #define BN_UM_ACCOUNT "/papi/v1/um/account"
 #define BN_SPOT_BALANCE "/papi/v1/balance"
+#define BN_ACCOUNT_INFO "/papi/v1/account"
 
 using namespace std;
 using namespace std::chrono;
@@ -72,6 +73,8 @@ std::map<string, BnSpotAssetInfo> BnApi::BalMap_;
 
 BnCmAccount* BnApi::CmAcc_;
 BnUmAccount* BnApi::UmAcc_;
+BnAccountInfo* BnApi::accInfo_;
+
 
 BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto* adapt) {
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
@@ -88,6 +91,7 @@ BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto
 
     CmAcc_ = new BnCmAccount;
     UmAcc_ = new BnUmAccount;
+    accInfo_ = new BnAccountInfo;
     
     LOG_INFO << "BnApi apikey:" << m_api_key << ", secret_key: " << m_secret_key << " passwd:" << m_passphrase << " skey-len:" << m_secret_key.length();
 
@@ -195,6 +199,33 @@ bool BnApi::GetServerTime(int type) {
 
 }
 
+void BnApi::GetAccountInfo()
+{
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.domain = Bn_DOMAIN;
+    m_uri.api = BN_ACCOUNT_INFO;
+
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    SetPrivateParams(HTTP_GET, m_uri);
+    m_uri.Request();
+
+    string &res = m_uri.result;
+
+   if (res.empty()) {
+        LOG_ERROR << "BnApi GetSpotAsset decode failed res: " << res;
+        return;
+    }
+
+    int ret = accInfo_->decode(res.c_str());
+    if (ret != 0) {
+        LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+        return;
+    }
+}
+
 void BnApi::GetSpotAsset()
 {
     m_uri.clear();
@@ -221,21 +252,13 @@ void BnApi::GetSpotAsset()
         LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
         return;
     }
-/*
-	char		asset[20];
-	double		crossMarginFree;
-	double 		crossMarginLocked;
-	double		crossMarginBorrowed;
-	double		crossMarginInterest;
-*/
+
     for (auto& it : assetInfo.info_) {
         BalMap_[it.asset] = it;
         LOG_INFO << "GetSpotAsset asset: " << it.asset << ", crossMarginFree: " << it.crossMarginFree
             << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
             << ", crossMarginInterest: " << it.crossMarginInterest << ", crossMarginAsset: " << it.crossMarginAsset;
     }
-    // BalMap_["crossMarginFree"] = assetInfo.crossMarginFree;
-    // BalMap_["crossMarginLocked"] = assetInfo.crossMarginLocked;
 }
 
 void BnApi::GetUm_Cm_Account()

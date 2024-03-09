@@ -57,6 +57,42 @@ enum BianOrderStatus
 	NEW_ADL, //�Զ���������(ǿƽ)
 };
 
+class BnAccountInfo
+{
+public:
+	BnAccountInfo() {
+		memset(this, 0, sizeof(BnAccountInfo));
+	}
+public:
+	double		uniMMR;
+	int64_t		updateTime;	
+public:
+	int decode(const char* json) {
+		uniMMR = 0;
+		updateTime = 0;
+		Document doc;
+        doc.Parse(json, strlen(json));
+
+        if (doc.HasParseError())
+        {
+            LOG_WARN << "BnSpotAsset Parse error. result:" << json;
+            return -1;
+        }
+
+		spotrapidjson::Value& mr = doc["uniMMR"];
+		spotrapidjson::Value& time = doc["updateTime"];
+
+		if (mr.IsString()){
+			std::string s = mr.GetString();
+			uniMMR = stod(s);
+		}
+
+		updateTime = time.GetUint64();
+		return 0;
+	}
+};
+
+
 class BnCmAssetInfo
 {
 public:
