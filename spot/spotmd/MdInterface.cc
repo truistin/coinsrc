@@ -101,6 +101,7 @@ void MdInterface::init(Initializer &initializer)
 			{
 				strcpy(ptrDetail->frontMdAddr_, mdInfo->FrontAddr);
 				strcpy(ptrDetail->InterfaceAddr_, mdInfo->LocalAddr);
+				strcpy(ptrDetail->frontQueryAddr_, mdInfo->FrontQueryAddr);
 				strcpy(ptrDetail->exchangeCode_, mdInfo->ExchangeCode);
 			}
 			strcpy(ptrDetail->type_, interfaceType.c_str());
