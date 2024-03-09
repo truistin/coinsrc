@@ -33,7 +33,7 @@ namespace spot {
 				int long_short_flag;
 				double qty;
 				double mv_ratio;
-		}
+		};
 
         class StrategyFR : public StrategyCircuit {
         public:
