@@ -51,9 +51,13 @@ public:
 	static string GetTickerInstrumentID(string channel);
 
 	//btcusdt@depth5
-	static std::map<string, string> GetDepthInstrumentMap();
-	static std::map<string, string> GetTradeInstrumentMap();
-	static std::map<string, string> GetTickerInstrumentMap();
+	static std::map<string, string>* GetDepthInstrumentMap();
+	static std::map<string, string>* GetTradeInstrumentMap();
+	static std::map<string, string>* GetTickerInstrumentMap();
+
+	static std::map<string, string>* GetSpotDepthInstrumentMap();
+	static std::map<string, string>* GetSpotTradeInstrumentMap();
+	static std::map<string, string>* GetSpotTickerInstrumentMap();
 
 	static string GetSpotDepthInstrumentID(string channel);
 	static string GetSpotTickerInstrumentID(string channel);

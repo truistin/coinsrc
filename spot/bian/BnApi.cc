@@ -1192,28 +1192,28 @@ string BnApi::GetTradeInstrumentID(string channel) {
     return "";
 }
 
-std::map<string, string> BnApi::GetSpotDepthInstrumentMap() {
-    return spot_depthToInstrumentMap_;
+std::map<string, string>* BnApi::GetSpotDepthInstrumentMap() {
+    return &spot_depthToInstrumentMap_;
 }
 
-std::map<string, string> BnApi::GetSpotTickerInstrumentMap() {
-    return spot_tickerToInstrumentMap_;
+std::map<string, string>* BnApi::GetSpotTickerInstrumentMap() {
+    return &spot_tickerToInstrumentMap_;
 }
 
-std::map<string, string> BnApi::GetSpotTradeInstrumentMap() {
-    return spot_tradeToInstrumentMap_;
+std::map<string, string>* BnApi::GetSpotTradeInstrumentMap() {
+    return &spot_tradeToInstrumentMap_;
 }
 
-std::map<string, string> BnApi::GetDepthInstrumentMap() {
-    return depthToInstrumentMap_;
+std::map<string, string>* BnApi::GetDepthInstrumentMap() {
+    return &depthToInstrumentMap_;
 }
 
-std::map<string, string> BnApi::GetTickerInstrumentMap() {
-    return tickerToInstrumentMap_;
+std::map<string, string>* BnApi::GetTickerInstrumentMap() {
+    return &tickerToInstrumentMap_;
 }
 
-std::map<string, string> BnApi::GetTradeInstrumentMap() {
-    return tradeToInstrumentMap_;
+std::map<string, string>* BnApi::GetTradeInstrumentMap() {
+    return &tradeToInstrumentMap_;
 }
 
 string BnApi::GetUMCurrencyPair(string inst) {
