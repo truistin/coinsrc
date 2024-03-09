@@ -34,6 +34,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
 
     last_price_map = new map<string, double>;
     pridict_borrow = new map<string, double>;
+    make_taker = new map<string, double>;
 
     pre_sum_equity = 0;
 }
@@ -42,6 +43,10 @@ void StrategyFR::init()
 {
     for (auto iter : strategyInstrumentList()) {
         last_price_map->insert({iter->instrument()->getInstrumentID(), 0});
+    }
+
+    for (auto it : InitialData::symbolInfoMap()) {
+        make_taker[it.second.Symbol] = it.second.Margin;
     }
 }
 
@@ -423,7 +428,6 @@ void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate,
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
-
     return;
 }
 

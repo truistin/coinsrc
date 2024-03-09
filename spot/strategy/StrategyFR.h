@@ -129,6 +129,7 @@ namespace spot {
 			double pre_sum_equity;
 			double price_ratio;
 			map<string, double>* pridict_borrow;
+			map<string, double>* make_taker;
 		};
     }
 }

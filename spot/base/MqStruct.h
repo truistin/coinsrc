@@ -274,6 +274,8 @@ namespace spot
       double MaxOrderSize;
       double MinOrderSize;
       double CoinOrderSize;
+      int MTaker;
+      int LongShort;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -327,11 +329,17 @@ namespace spot
         else
           CoinOrderSize = (double)*static_cast<int64_t*>(value);
       }
+      void setMTaker( void *value , uint16_t length = 0) {
+        MTaker = *static_cast<int*>(value);
+      }
+      void setLongShort( void *value , uint16_t length = 0) {
+        LongShort = *static_cast<int*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort);
         return buffer;
       }
 
@@ -345,6 +353,8 @@ namespace spot
         methodMap["MaxOrderSize"] = std::bind(&SymbolInfo::setMaxOrderSize, this, _1,_2);
         methodMap["MinOrderSize"] = std::bind(&SymbolInfo::setMinOrderSize, this, _1,_2);
         methodMap["CoinOrderSize"] = std::bind(&SymbolInfo::setCoinOrderSize, this, _1,_2);
+        methodMap["MTaker"] = std::bind(&SymbolInfo::setMTaker, this, _1,_2);
+        methodMap["LongShort"] = std::bind(&SymbolInfo::setLongShort, this, _1,_2);
       }
 
       string toJson() const {
@@ -377,6 +387,8 @@ namespace spot
           doc.AddMember("MinOrderSize",MinOrderSize, allocator);
         if (!std::isnan(CoinOrderSize))
           doc.AddMember("CoinOrderSize",CoinOrderSize, allocator);
+        doc.AddMember("MTaker",MTaker, allocator);
+        doc.AddMember("LongShort",LongShort, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;
