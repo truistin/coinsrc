@@ -224,10 +224,11 @@ void BianTdSpi::Run()
 			traderApi_->GetUm_Cm_Account();
 		}
 
-		if (CURR_STIME_POINT - commonTime >= 10) {
+		if (CURR_STIME_POINT - commonTime >= 30) {
 			commonTime = CURR_STIME_POINT;
 			traderApi_->GetLeverageBracket();
 			traderApi_->GetCollateralRate();
+			traderApi_->GetAccountInfo();
 		}
 	}
 		// if (gBianListenKeyFlag) { // all 60s
