@@ -61,6 +61,11 @@ using namespace spot::base;
 std::map<string, string> BnApi::depthToInstrumentMap_;
 std::map<string, string> BnApi::tradeToInstrumentMap_;
 std::map<string, string> BnApi::tickerToInstrumentMap_;
+
+std::map<string, string> BnApi::spot_depthToInstrumentMap_;
+std::map<string, string> BnApi::spot_tradeToInstrumentMap_;
+std::map<string, string> BnApi::spot_tickerToInstrumentMap_;
+
 std::map<string, string> BnApi::originSymbolToSpotSymbol_;
 
 std::map<string, BnSpotAssetInfo> BnApi::BalMap_;
@@ -1030,23 +1035,27 @@ int BnApi::CancelAllOrders() {
 
 void BnApi::AddInstrument(const char *instrument) {
     string inst(instrument);
+    string channelDepth;
+    string channelTrade;
+    string channelTicker;
+
     if (inst.find("swap") != inst.npos || inst.find("perp") != inst.npos) {
-        string channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
+        channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
         depthToInstrumentMap_[channelDepth] = instrument;
 
-        string channelTrade = GetTradeChannel(instrument);
+        channelTrade = GetTradeChannel(instrument);
         tradeToInstrumentMap_[channelTrade] = instrument;
 
-        string channelTicker = GetTickerChannel(instrument);
+        channelTicker = GetTickerChannel(instrument);
         tickerToInstrumentMap_[channelTicker] = instrument;
     } else {
-        string channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
+        channelDepth = GetDepthChannel(instrument);//btcusdt@depth5
         spot_depthToInstrumentMap_[channelDepth] = instrument;
 
-        string channelTrade = GetTradeChannel(instrument);
+        channelTrade = GetTradeChannel(instrument);
         spot_tradeToInstrumentMap_[channelTrade] = instrument;
 
-        string channelTicker = GetTickerChannel(instrument);
+        channelTicker = GetTickerChannel(instrument);
         spot_tickerToInstrumentMap_[channelTicker] = instrument;
     }
 

@@ -95,7 +95,7 @@ void BianMdSpi::Init()
 	websocketApi2_->SetUri(str2);
 	//websocketApi_->SetCompress(true);
 	websocketApi2_->SetCallBackOpen(std::bind(&BianMdSpi::com_callbak_open, this));
-	websocketApi2_->SetCallBackMessage(std::bind(&BianMdSpi::com_callbak_message, this, std::placeholders::_1));
+	websocketApi2_->SetCallBackMessage(std::bind(&BianMdSpi::spot_com_callbak_message, this, std::placeholders::_1));
 	websocketApi2_->SetCallBackClose(std::bind(&BianMdSpi::com_callbak_close, this));
 
 	std::thread BianMdSpiSocket2(std::bind(&WebSocketApi::Run, websocketApi2_));
@@ -253,6 +253,11 @@ bool BianMdSpi::fillTickerAskBidInfo(spotrapidjson::Value& tickNode, InnerMarket
 		return false;
 	}
 	return true;
+}
+
+void BianMdSpi::com_callbak_message(const char *message)
+{
+	
 }
 
 void BianMdSpi::com_callbak_message(const char *message)

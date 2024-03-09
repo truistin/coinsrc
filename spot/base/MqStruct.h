@@ -2012,6 +2012,7 @@ namespace spot
       char FrontAddr[FrontAddrLen+1];
       char LocalAddr[LocalAddrLen+1];
       int InterfaceID;
+      char FrontQueryAddr[FrontQueryAddrLen+1];
 
       void setSpotID( void *value , uint16_t length = 0) {
         SpotID = *static_cast<int*>(value);
@@ -2037,11 +2038,14 @@ namespace spot
       void setInterfaceID( void *value , uint16_t length = 0) {
         InterfaceID = *static_cast<int*>(value);
       }
+      void setFrontQueryAddr( void *value , uint16_t length = 0) {
+        memcpy(FrontQueryAddr, static_cast<char*>(value), length <FrontQueryAddrLen  ? length :FrontQueryAddrLen);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "SpotID=[%d]UserID=[%s]InvestorID=[%s]ExchangeCode=[%s]InterfaceType=[%s]FrontAddr=[%s]LocalAddr=[%s]InterfaceID=[%d]",
-                SpotID,UserID,InvestorID,ExchangeCode,InterfaceType,FrontAddr,LocalAddr,InterfaceID);
+        SNPRINTF(buffer, sizeof buffer, "SpotID=[%d]UserID=[%s]InvestorID=[%s]ExchangeCode=[%s]InterfaceType=[%s]FrontAddr=[%s]LocalAddr=[%s]InterfaceID=[%d]FrontQueryAddr=[%s]",
+                SpotID,UserID,InvestorID,ExchangeCode,InterfaceType,FrontAddr,LocalAddr,InterfaceID,FrontQueryAddr);
         return buffer;
       }
 
@@ -2054,6 +2058,7 @@ namespace spot
         methodMap["FrontAddr"] = std::bind(&SpotMdInfo::setFrontAddr, this, _1,_2);
         methodMap["LocalAddr"] = std::bind(&SpotMdInfo::setLocalAddr, this, _1,_2);
         methodMap["InterfaceID"] = std::bind(&SpotMdInfo::setInterfaceID, this, _1,_2);
+        methodMap["FrontQueryAddr"] = std::bind(&SpotMdInfo::setFrontQueryAddr, this, _1,_2);
       }
 
       string toJson() const {
@@ -2089,6 +2094,10 @@ namespace spot
           doc.AddMember("LocalAddr", spotrapidjson::Value().SetString(LocalAddr,length), allocator);
         }
         doc.AddMember("InterfaceID",InterfaceID, allocator);
+        if (strlen(FrontQueryAddr) != 0){
+          int length = strlen(FrontQueryAddr) < FrontQueryAddrLen ? strlen(FrontQueryAddr):FrontQueryAddrLen;
+          doc.AddMember("FrontQueryAddr", spotrapidjson::Value().SetString(FrontQueryAddr,length), allocator);
+        }
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SpotMdInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;

@@ -193,6 +193,8 @@ void ConfigParameter::initMdConfig(GateWay *gateway)
 				memcpy(ptrDetail->frontMdAddr_, mdInfo->FrontAddr, min(sizeof(ptrDetail->frontMdAddr_), sizeof(mdInfo->FrontAddr)));
 				//InterfaceAddr is only used to guava udp md - InterfaceAddr = local ip address
 				memcpy(ptrDetail->InterfaceAddr_, mdInfo->LocalAddr, min(sizeof(ptrDetail->InterfaceAddr_), sizeof(mdInfo->LocalAddr)));
+				memcpy(ptrDetail->frontQueryAddr_, mdInfo->FrontQueryAddr, min(sizeof(ptrDetail->frontQueryAddr_), sizeof(mdInfo->FrontQueryAddr)));
+
 			}
 
 			memcpy(ptrDetail->type_ , interfaceType.c_str(), min(sizeof(ptrDetail->type_), interfaceType.size()+1));
