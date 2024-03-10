@@ -280,6 +280,7 @@ namespace spot
       double OrderQty;
       double MvRatio;
       char RefSymbol[RefSymbolLen+1];
+      double Thresh;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -358,11 +359,19 @@ namespace spot
       void setRefSymbol( void *value , uint16_t length = 0) {
         memcpy(RefSymbol, static_cast<char*>(value), length <RefSymbolLen  ? length :RefSymbolLen);
       }
+      void setThresh( void *value , uint16_t length = 0) {
+        if (length == 8)
+          Thresh = *static_cast<double*>(value);
+        else if (length == 0)
+          Thresh = (double)*static_cast<int*>(value);
+        else
+          Thresh = (double)*static_cast<int64_t*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh);
         return buffer;
       }
 
@@ -381,6 +390,7 @@ namespace spot
         methodMap["OrderQty"] = std::bind(&SymbolInfo::setOrderQty, this, _1,_2);
         methodMap["MvRatio"] = std::bind(&SymbolInfo::setMvRatio, this, _1,_2);
         methodMap["RefSymbol"] = std::bind(&SymbolInfo::setRefSymbol, this, _1,_2);
+        methodMap["Thresh"] = std::bind(&SymbolInfo::setThresh, this, _1,_2);
       }
 
       string toJson() const {
@@ -423,6 +433,8 @@ namespace spot
           int length = strlen(RefSymbol) < RefSymbolLen ? strlen(RefSymbol):RefSymbolLen;
           doc.AddMember("RefSymbol", spotrapidjson::Value().SetString(RefSymbol,length), allocator);
         }
+        if (!std::isnan(Thresh))
+          doc.AddMember("Thresh",Thresh, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;

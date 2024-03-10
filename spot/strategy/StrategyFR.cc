@@ -35,6 +35,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     last_price_map = new map<string, double>;
     pridict_borrow = new map<string, double>;
     make_taker = new map<string, sy_info>;
+    delta_mp = new map<string, double>;
 
     pre_sum_equity = 0;
 }
@@ -46,12 +47,27 @@ void StrategyFR::init()
     }
 
     for (auto it : InitialData::symbolInfoMap()) {
-        sy_info sy;
-        sy.long_short_flag = it.second.LongShort;
-        sy.make_taker_flag = it.second.MTaker;
-        sy.qty = it.second.OrderQty;
-        sy.mv_ratio = it.second.MvRatio;
-        make_taker->insert({it.second.Symbol, sy});
+        sy_info syInfo;
+        memcpy(syInfo.sy, it.second.Symbol, min(sizeof(syInfo.sy), sizeof(it.second.Symbol)));
+        memcpy(syInfo.ref_sy, it.second.RefSymbol, min(sizeof(syInfo.ref_sy), sizeof(it.second.RefSymbol)));
+        syInfo.long_short_flag = it.second.LongShort;
+        syInfo.make_taker_flag = it.second.MTaker;
+        syInfo.qty = it.second.OrderQty;
+        syInfo.mv_ratio = it.second.MvRatio;
+        syInfo.thresh = it.second.Thresh;
+        make_taker->insert({it.second.Symbol, syInfo});
+        if (syInfo.make_taker_flag == 1) delta_mp->insert({it.second.Symbol, 0});
+    }
+
+    for (auto iter : strategyInstrumentList()) {
+        for (auto it : (*make_taker)) {
+            if (it.first == iter->instrument()->getInstrumentID()) {
+                it.second.inst = it.second.strategyInstrument;
+                it.second.sellMap = it.second.inst->->sellOrders();
+                it.second.buyMap = it.second.inst->->buyOrders();
+                break;
+            }
+        }
     }
 }
 
@@ -431,8 +447,79 @@ void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate,
     }
 }
 
+void StrategyFR::over_max_delta_limit(string symbol)
+{
+    sy_info& sy1 = 
+    sy1.real_pos = sy1.strategyInstrument->position().getNetPosition();
+    sy2.real_pos = sy2.strategyInstrument->position().getNetPosition();
+    delta_pos_notional = (sy1.real_pos + sy2.real_pos) * sy1.mid_price;
+    if (IS_DOUBLE_GREATER(abs(delta_pos_notional), max_delta_limit * 10)) {
+        enable_hedge = 0;
+        enable_taker = 0;
+        enable_maker = 0;
+        LOG_INFO << "over_max_delta_limit delta: " << delta_pos_notional << ", max_delta_limit: " << max_delta_limit * 10;
+        //  logger.info(f"Stop trade becasue over max delta limit, {delta_pos_notional}, {max_delta_limit * 10}")
+    }
+}
+
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
+    int64_t ts = CURR_MSTIME_POINT;
+    if (marketData.EpochTime - ts > 30) {
+        LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
+        return;
+    }
+
+/*
+				char sy[40];
+				char ref_sy[40];
+				double mid_p;
+				double ask_p;
+				double bid_p;
+				double ask_v;
+				double bid_v;
+				int make_taker_flag;
+				int long_short_flag;
+				double qty;
+				double mv_ratio;
+				int64_t exch_ts;
+*/
+
+    sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
+    sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
+
+    sy_info& sy2 = (*make_taker)[sy1.ref_sy];
+
+    if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
+        double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
+            if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio) ||
+                IS_DOUBLE_NOT_EQUAL(sy1.real_pos, sy2.real_pos)) {
+                LOG_WARN << "";
+                return;
+            }
+            double qty = min(sy1.qty, marketData.AskVolume1/2);
+            if (strcmp(sy1.type, SPOT.c_str() == 0)) {
+                SetOrderOptions order;
+                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                if (sy1.type)
+                string Category = "spot";
+                string CoinType = "SPOT";
+
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+                memcpy(order.CoinType, CoinType.c_str(), min(uint16_t(CoinTypeLen), uint16_t(CoinType.size())));
+
+                setOrder(sy2.strategyInstrument, INNER_DIRECTION_Buy,
+                    last_order_px - i * order_distance,
+                    maker_qty, order);
+            }
+        }
+    }
+    
+
     return;
 }
 
