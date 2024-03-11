@@ -39,6 +39,8 @@ namespace spot {
 				double bid_v;
 				int make_taker_flag;
 				int long_short_flag;
+				double prc_tick_size;
+				double qty_tick_size;
 				double qty;
 				double mv_ratio;
 				double thresh;

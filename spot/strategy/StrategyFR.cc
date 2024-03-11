@@ -50,11 +50,15 @@ void StrategyFR::init()
         sy_info syInfo;
         memcpy(syInfo.sy, it.second.Symbol, min(sizeof(syInfo.sy), sizeof(it.second.Symbol)));
         memcpy(syInfo.ref_sy, it.second.RefSymbol, min(sizeof(syInfo.ref_sy), sizeof(it.second.RefSymbol)));
+        memcpy(syInfo.type, it.second.Type, min(sizeof(syInfo.type), sizeof(it.second.Type)));
+
         syInfo.long_short_flag = it.second.LongShort;
         syInfo.make_taker_flag = it.second.MTaker;
         syInfo.qty = it.second.OrderQty;
         syInfo.mv_ratio = it.second.MvRatio;
         syInfo.thresh = it.second.Thresh;
+        syInfo.prc_tick_size = it.second.PreTickSize;
+        syInfo.qty_tick_size = it.second.QtyTickSize;
         make_taker->insert({it.second.Symbol, syInfo});
         if (syInfo.make_taker_flag == 1) delta_mp->insert({it.second.Symbol, 0});
     }
@@ -498,26 +502,43 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 LOG_WARN << "";
                 return;
             }
-            double qty = min(sy1.qty, marketData.AskVolume1/2);
             if (strcmp(sy1.type, SPOT.c_str() == 0)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
-                if (sy1.type)
-                string Category = "spot";
-                string CoinType = "SPOT";
+                string Category = LEVERAGE;
 
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
-                memcpy(order.CoinType, CoinType.c_str(), min(uint16_t(CoinTypeLen), uint16_t(CoinType.size())));
 
-                setOrder(sy2.strategyInstrument, INNER_DIRECTION_Buy,
-                    last_order_px - i * order_distance,
-                    maker_qty, order);
+                double qty = min(sy1.qty, marketData.AskVolume1/2);
+
+                setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                    marketData.AskPrice1 + sy1.prc_tick_size,
+                    qty, order);
+            }
+
+            if (strcmp(sy1.type, SWAP.c_str() == 0)) {
+                SetOrderOptions order;
+                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string Category = LINEAR;
+
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+                double qty = min(sy1.qty, marketData.AskVolume1/2);
+
+                setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                    marketData.AskPrice1 + sy1.prc_tick_size,
+                    qty, order);
             }
         }
     }
+
+
     
 
     return;
