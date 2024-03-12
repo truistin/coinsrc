@@ -569,6 +569,9 @@ int BnApi::QryAsynOrder(const Order& order) {
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         uri->api = BN_CM_ORDER_API;
         symbol = GetCMCurrencyPair((order.InstrumentID));
+    } else if (strcmp(order.Category, LEVERAGE.c_str()) == 0) {
+        uri->api = BN_LEVERAGE_ORDER_API;
+        symbol = GetUMCurrencyPair((order.InstrumentID));
     } else {
         // ReqOrderInsert_spot(order);
         // ReqOrderInsert_cm_spot(order);
@@ -646,7 +649,11 @@ int BnApi::QryPosiBySymbol(const Order &order) {
     } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
         m_uri.api = BN_CM_POSITION_RISK_API;
         symbol = GetCMCurrencyPair((order.InstrumentID));
-    } else {
+    } else if (strcmp(order.Category, LEVERAGE.c_str()) == 0) {
+        m_uri.api = BN_SPOT_BALANCE;
+        symbol = GetCMCurrencyPair((order.InstrumentID));
+    } 
+    else {
         LOG_FATAL << "BnApi QryAsynInfo: " << order.InstrumentID << ", symbol: " << symbol
             << ", Category: " << order.Category;
     }
@@ -670,34 +677,52 @@ int BnApi::QryPosiBySymbol(const Order &order) {
         LOG_FATAL << "BnApi::QryPosiBySymbol decode failed res: " << res;
         return -1;
     }
-    BianQryPositionInfo qryInfo;
-    int ret = qryInfo.decode(res.c_str());
 
-    LOG_INFO << "BnApi QryPosiBySymbol rst: " << res;
-    if (ret == 2) return 0;
+    if ((strcmp(order.Category, INVERSE.c_str()) == 0)
+        || (strcmp(order.Category, LINEAR.c_str() == 0))) {
+        BianQryPositionInfo qryInfo;
+        int ret = qryInfo.decode(res.c_str());
 
-    if (ret != 0) {
-        LOG_FATAL << "BnApi::QryPosiBySymbol decode failed res: " << res;
-        return -1;
+        LOG_INFO << "BnApi QryPosiBySymbol rst: " << res;
+        if (ret == 2) return 0;
+
+        if (ret != 0) {
+            LOG_FATAL << "BnApi::QryPosiBySymbol decode failed res: " << res;
+            return -1;
+        }
+
+        if (IS_DOUBLE_LESS(qryInfo.posiNode_.size, 0) && (strcmp(qryInfo.posiNode_.side, "BOTH") == 0)) {
+            memset(qryInfo.posiNode_.side, 0, sizeof(qryInfo.posiNode_.side));
+            string str("SELL");
+            memcpy(qryInfo.posiNode_.side, str.c_str(), min(uint16_t(str.size()), DateLen));
+        } else if (IS_DOUBLE_GREATER_EQUAL(qryInfo.posiNode_.size, 0) && (strcmp(qryInfo.posiNode_.side, "BOTH") == 0)) {
+            memset(qryInfo.posiNode_.side, 0, sizeof(qryInfo.posiNode_.side));
+            string str("BUY");
+            memcpy(qryInfo.posiNode_.side, str.c_str(), min(uint16_t(str.size()), DateLen));
+        } else {
+            LOG_FATAL << "BnApi QryPosiBySymbol ERROR: " << qryInfo.posiNode_.side<< ", size: " << qryInfo.posiNode_.size;
+        }
+
+        qryInfo.posiNode_.size = abs(qryInfo.posiNode_.size);
+        memcpy(qryInfo.posiNode_.symbol, order.InstrumentID, InstrumentIDLen);
+        
+        gIsPosiQryInfoSuccess[order.InstrumentID] = true;
+        gQryPosiInfo[order.InstrumentID] = qryInfo.posiNode_;
+    } else if (strcmp(order.Category, LEVERAGE.c_str()) == 0) {
+        BnSpotAsset assetInfo;
+        int ret = assetInfo.decode(res.c_str());
+        if (ret != 0) {
+            LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
+            return;
+        }
+
+        for (auto& it : assetInfo.info_) {
+            BalMap_[it.asset] = it;
+            LOG_INFO << "QryPosiBySymbol GetSpotAsset asset: " << it.asset << ", crossMarginFree: " << it.crossMarginFree
+                << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
+                << ", crossMarginInterest: " << it.crossMarginInterest << ", crossMarginAsset: " << it.crossMarginAsset;
+        }
     }
-
-    if (IS_DOUBLE_LESS(qryInfo.posiNode_.size, 0) && (strcmp(qryInfo.posiNode_.side, "BOTH") == 0)) {
-        memset(qryInfo.posiNode_.side, 0, sizeof(qryInfo.posiNode_.side));
-        string str("SELL");
-        memcpy(qryInfo.posiNode_.side, str.c_str(), min(uint16_t(str.size()), DateLen));
-    } else if (IS_DOUBLE_GREATER_EQUAL(qryInfo.posiNode_.size, 0) && (strcmp(qryInfo.posiNode_.side, "BOTH") == 0)) {
-        memset(qryInfo.posiNode_.side, 0, sizeof(qryInfo.posiNode_.side));
-        string str("BUY");
-        memcpy(qryInfo.posiNode_.side, str.c_str(), min(uint16_t(str.size()), DateLen));
-    } else {
-        LOG_FATAL << "BnApi QryPosiBySymbol ERROR: " << qryInfo.posiNode_.side<< ", size: " << qryInfo.posiNode_.size;
-    }
-
-    qryInfo.posiNode_.size = abs(qryInfo.posiNode_.size);
-    memcpy(qryInfo.posiNode_.symbol, order.InstrumentID, InstrumentIDLen);
-    
-    gIsPosiQryInfoSuccess[order.InstrumentID] = true;
-    gQryPosiInfo[order.InstrumentID] = qryInfo.posiNode_;
     return 0;
 
 }
