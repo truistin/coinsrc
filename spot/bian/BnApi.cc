@@ -679,7 +679,7 @@ int BnApi::QryPosiBySymbol(const Order &order) {
     }
 
     if ((strcmp(order.Category, INVERSE.c_str()) == 0)
-        || (strcmp(order.Category, LINEAR.c_str() == 0))) {
+        || (strcmp(order.Category, LINEAR.c_str()) == 0)) {
         BianQryPositionInfo qryInfo;
         int ret = qryInfo.decode(res.c_str());
 
