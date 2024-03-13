@@ -517,11 +517,15 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
         double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
         if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-            if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio) ||
+            if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
                 IS_DOUBLE_NOT_EQUAL(sy1.real_pos, sy2.real_pos)) {
                 LOG_WARN << "";
                 return;
             }
+
+            double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+            double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
+
             if (strcmp(sy1.type, SPOT.c_str() == 0)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -531,9 +535,6 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
-
-                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
-                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
 
                 setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
@@ -550,13 +551,19 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
-                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
-
                 setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
             } 
+        } else if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
+            double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+            if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
+                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
+                    IS_DOUBLE_NOT_EQUAL(sy1.real_pos, sy2.real_pos)) {
+                    LOG_WARN << "";
+                    return;
+                }
+            }
         }
     }
 
