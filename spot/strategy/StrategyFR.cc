@@ -329,6 +329,40 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
 
 }
 
+double StrategyFR::calc_balance()
+{
+    double sum_usdt = 0;
+    // um_account
+    for (auto it : BnApi::UmAcc_->info_) {
+        string sy = it.asset;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            sum_usdt += it.crossWalletBalance + it.crossUnPnl;
+        } else {
+            sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * (*last_price_map)[sy];
+        }
+    }
+
+    // cm_account
+    for (auto it : BnApi::CmAcc_->info_) {
+        string sy = it.asset;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            LOG_FATAL << "";
+        }
+        sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * (*last_price_map)[sy];
+    }
+
+    for (auto it : BnApi::BalMap_) {
+        string sy = it.asset;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            sum_usdt += it.crossMarginFree + it.crossMarginLocked - it.crossMarginLocked - it.crossMarginInterest;
+        } else {
+            sum_usdt += (it.crossMarginFree + it.crossMarginLocked - it.crossMarginLocked - it.crossMarginInterest) * (*last_price_map)[sy];;
+        }
+
+    }
+    return sum_usdt;
+}
+
 double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
@@ -474,26 +508,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         return;
     }
 
-/*
-				char sy[40];
-				char ref_sy[40];
-				double mid_p;
-				double ask_p;
-				double bid_p;
-				double ask_v;
-				double bid_v;
-				int make_taker_flag;
-				int long_short_flag;
-				double qty;
-				double mv_ratio;
-				int64_t exch_ts;
-*/
-
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
 
     sy_info& sy2 = (*make_taker)[sy1.ref_sy];
 
+    double bal = calc_balance();
     if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
         double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
         if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
@@ -512,7 +532,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                double qty = min(sy1.qty, marketData.AskVolume1/2);
+                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
 
                 setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
@@ -529,12 +550,13 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                double qty = min(sy1.qty, marketData.AskVolume1/2);
+                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
 
                 setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
-            }
+            } 
         }
     }
 

@@ -86,6 +86,7 @@ namespace spot {
 			double calc_future_uniMMR(string symbol, double qty);
 			double calc_equity();
 			double calc_mm();
+			double calc_balance();
 			void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num);
 
 		private:
