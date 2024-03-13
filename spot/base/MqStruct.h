@@ -283,6 +283,7 @@ namespace spot
       double Thresh;
       double PreTickSize;
       double QtyTickSize;
+      double MaxDeltaLimit;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -385,11 +386,19 @@ namespace spot
         else
           QtyTickSize = (double)*static_cast<int64_t*>(value);
       }
+      void setMaxDeltaLimit( void *value , uint16_t length = 0) {
+        if (length == 8)
+          MaxDeltaLimit = *static_cast<double*>(value);
+        else if (length == 0)
+          MaxDeltaLimit = (double)*static_cast<int*>(value);
+        else
+          MaxDeltaLimit = (double)*static_cast<int64_t*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit);
         return buffer;
       }
 
@@ -411,6 +420,7 @@ namespace spot
         methodMap["Thresh"] = std::bind(&SymbolInfo::setThresh, this, _1,_2);
         methodMap["PreTickSize"] = std::bind(&SymbolInfo::setPreTickSize, this, _1,_2);
         methodMap["QtyTickSize"] = std::bind(&SymbolInfo::setQtyTickSize, this, _1,_2);
+        methodMap["MaxDeltaLimit"] = std::bind(&SymbolInfo::setMaxDeltaLimit, this, _1,_2);
       }
 
       string toJson() const {
@@ -459,6 +469,8 @@ namespace spot
           doc.AddMember("PreTickSize",PreTickSize, allocator);
         if (!std::isnan(QtyTickSize))
           doc.AddMember("QtyTickSize",QtyTickSize, allocator);
+        if (!std::isnan(MaxDeltaLimit))
+          doc.AddMember("MaxDeltaLimit",MaxDeltaLimit, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;

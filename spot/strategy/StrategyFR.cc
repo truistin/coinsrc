@@ -59,6 +59,7 @@ void StrategyFR::init()
         syInfo.thresh = it.second.Thresh;
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
+        syInfo.max_delta_limit = it.second.MaxDeltaLimit;
         make_taker->insert({it.second.Symbol, syInfo});
         if (syInfo.make_taker_flag == 1) delta_mp->insert({it.second.Symbol, 0});
     }
@@ -485,19 +486,20 @@ void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate,
     }
 }
 
-void StrategyFR::over_max_delta_limit(string symbol)
+bool StrategyFR::over_max_delta_limit(sy_info& sy1, sy_info& sy2) 
 {
-    sy_info& sy1 = 
-    sy1.real_pos = sy1.strategyInstrument->position().getNetPosition();
-    sy2.real_pos = sy2.strategyInstrument->position().getNetPosition();
-    delta_pos_notional = (sy1.real_pos + sy2.real_pos) * sy1.mid_price;
-    if (IS_DOUBLE_GREATER(abs(delta_pos_notional), max_delta_limit * 10)) {
-        enable_hedge = 0;
-        enable_taker = 0;
-        enable_maker = 0;
-        LOG_INFO << "over_max_delta_limit delta: " << delta_pos_notional << ", max_delta_limit: " << max_delta_limit * 10;
+    sy1.real_pos = sy1.inst->position().getNetPosition();
+    sy2.real_pos = sy2.inst->position().getNetPosition();
+
+    double delta_pos = (sy1.real_pos + sy2.real_pos) * sy1.mid_price;
+
+    if (IS_DOUBLE_GREATER(abs(delta_pos), sy1.max_delta_limit)) {
+        return false;
+        LOG_INFO << "over_max_delta_limit delta: " << delta_pos << ", max_delta_limit: " << max_delta_limit;
         //  logger.info(f"Stop trade becasue over max delta limit, {delta_pos_notional}, {max_delta_limit * 10}")
     }
+
+    return true;
 }
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
@@ -518,7 +520,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
         if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
             if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
-                IS_DOUBLE_NOT_EQUAL(sy1.real_pos, sy2.real_pos)) {
+                !over_max_delta_limit(sy1, sy2)) {
                 LOG_WARN << "";
                 return;
             }
@@ -555,20 +557,17 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
             } 
-        } else if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
+        }
+    } else if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
             double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
-                    IS_DOUBLE_NOT_EQUAL(sy1.real_pos, sy2.real_pos)) {
+                    !over_max_delta_limit(sy1, sy2)) {
                     LOG_WARN << "";
                     return;
                 }
             }
-        }
     }
-
-
-    
 
     return;
 }
