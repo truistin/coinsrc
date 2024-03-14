@@ -47,6 +47,7 @@ namespace spot {
 				double thresh;
 				int64_t exch_ts;
 				double real_pos;
+				sy_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap;
 				OrderByPriceMap* buyMap;
@@ -81,6 +82,7 @@ namespace spot {
 			bool over_max_delta_limit();
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
+			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
 			double calc_predict_mm(order_fr& order, double price_cent);
