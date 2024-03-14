@@ -509,64 +509,97 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
         return;
     }
-
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
-    sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
-
-    sy_info& sy2 = (*make_taker)[sy1.ref_sy];
-
-    double bal = calc_balance();
-    if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
-        double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
-        if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-            if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
-                !over_max_delta_limit(sy1, sy2)) {
-                LOG_WARN << "";
-                return;
-            }
-
-            double u_posi = abs(sy1.real_pos) * sy1.mid_p;
-            double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
-
-            if (strcmp(sy1.type, SPOT.c_str() == 0)) {
-                SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
-                string Category = LEVERAGE;
-
-                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
-
-                setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
-                    marketData.AskPrice1 + sy1.prc_tick_size,
-                    qty, order);
-            }
-
-            if (strcmp(sy1.type, SWAP.c_str() == 0)) {
-                SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
-                string Category = LINEAR;
-
-                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
-
-                setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
-                    marketData.AskPrice1 + sy1.prc_tick_size,
-                    qty, order);
-            } 
-        }
-    } else if (sy1.make_taker_flag == 1 && sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
-            double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+    
+    if (sy1.make_taker_flag == 1) {
+        sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
+        sy_info& sy2 = (*make_taker)[sy1.ref_sy];
+        double bal = calc_balance();
+        if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
+            double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
                     !over_max_delta_limit(sy1, sy2)) {
                     LOG_WARN << "";
                     return;
                 }
+
+                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
+
+                if (strcmp(sy1.type, SPOT.c_str() == 0)) {
+                    SetOrderOptions order;
+                    order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                    string Category = LEVERAGE;
+
+                    memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                    memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                        marketData.AskPrice1 + sy1.prc_tick_size,
+                        qty, order);
+                }
+
+                if (strcmp(sy1.type, SWAP.c_str() == 0)) {
+                    SetOrderOptions order;
+                    order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                    string Category = LINEAR;
+
+                    memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                    memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                        marketData.AskPrice1 + sy1.prc_tick_size,
+                        qty, order);
+                } 
             }
+        } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
+                double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+                if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
+                    if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
+                        !over_max_delta_limit(sy1, sy2)) {
+                        LOG_WARN << "";
+                        return;
+                    }
+                }
+
+                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
+
+                if (strcmp(sy1.type, SPOT.c_str() == 0)) {
+                    SetOrderOptions order;
+                    order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                    string Category = LEVERAGE;
+
+                    memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                    memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Buy,
+                        marketData.BidPrice1 - sy1.prc_tick_size,
+                        qty, order);
+                }
+
+                if (strcmp(sy1.type, SWAP.c_str() == 0)) {
+                    SetOrderOptions order;
+                    order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                    string Category = LINEAR;
+
+                    memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+                    memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Buy,
+                        marketData.BidPrice1 - sy1.prc_tick_size,
+                        qty, order);
+                } 
+        }
     }
 
     return;
