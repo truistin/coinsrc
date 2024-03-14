@@ -491,16 +491,57 @@ bool StrategyFR::over_max_delta_limit(sy_info& sy1, sy_info& sy2)
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
 
-    double delta_pos = (sy1.real_pos + sy2.real_pos) * sy1.mid_price;
-
-    if (IS_DOUBLE_GREATER(abs(delta_pos), sy1.max_delta_limit)) {
+    if (IS_DOUBLE_LESS(sy1.real_pos - sy2.real_pos, sy1.qty_tick_size)) {
         return false;
-        LOG_INFO << "over_max_delta_limit delta: " << delta_pos << ", max_delta_limit: " << max_delta_limit;
-        //  logger.info(f"Stop trade becasue over max delta limit, {delta_pos_notional}, {max_delta_limit * 10}")
+        LOG_INFO << "over_max_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
     }
 
     return true;
 }
+
+void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
+{
+    string symbol = strategyInstrument->getInstrumentID();
+    sy_info& sy1 = (*make_taker)[symbol];
+
+    double delta_posi = sy1.real_pos + sy2.real_pos;
+    if (IS_DOUBLE_LESS(abs(delta_posi), sy1.qty_tick_size)) return;
+     
+    double taker_qty = abs(delta_posi);
+
+    SetOrderOptions order;
+    if (IS_DOUBLE_GREATER(delta_posi, sy1.qty_tick_size)) {
+        if (sy1.make_taker_flag == 1) {
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "IOC";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string Category = LINEAR;
+
+            memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+
+            setOrder(sy2->inst, INNER_DIRECTION_Sell,
+                            sy1.bid_price,
+                            taker_qty,
+                            order);
+        }
+        else {          
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "IOC";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string Category = LINEAR;
+
+            memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+ 
+            setOrder(sy1->inst, INNER_DIRECTION_Buy,
+                            sy1.ask_price,
+                            taker_qty,
+                            order);
+        }
+    }
+}
+
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
