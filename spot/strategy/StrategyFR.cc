@@ -437,7 +437,7 @@ double StrategyFR::calc_mm()
         }
 
         string symbol = it.symbol;
-        double qty = gQryPosiInfo[symbol].size;
+        double qty = it.positionAmt;
         double markPrice = (*last_price_map)[symbol];
         double mmr_rate;
         double mmr_num;
@@ -455,9 +455,9 @@ double StrategyFR::calc_mm()
         double qty = 0;
 
         if (symbol == "BTCUSD_PERP") {
-            qty = gQryPosiInfo[symbol].size * 100;
+            qty = it.positionAmt * 100;
         } else {
-            qty = gQryPosiInfo[symbol].size * 10;
+            qty = it.positionAmt * 10;
         }
 
         double markPrice = (*last_price_map)[symbol];
@@ -588,9 +588,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         return;
     }
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
-    
+    sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
+
     if (sy1.make_taker_flag == 1) {
-        sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
         sy_info& sy2 = (*make_taker)[sy1.ref_sy];
         double bal = calc_balance();
         if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
@@ -604,6 +604,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy1.real_pos) * sy1.mid_p;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
+                if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
+                 qty = sy1.max_delta_limit
 
                 if (strcmp(sy1.type, SPOT.c_str() == 0)) {
                     SetOrderOptions order;
@@ -647,6 +649,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy1.real_pos) * sy1.mid_p;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
+
+                if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
+                 qty = sy1.max_delta_limit
 
                 if (strcmp(sy1.type, SPOT.c_str() == 0)) {
                     SetOrderOptions order;
@@ -695,3 +700,36 @@ void StrategyFR::OnForceCloseTimerInterval()
         hedge(iter);
     }
 }
+
+void StrategyFR::OnTimerTradingLogic() 
+{
+    for (auto it : (*make_taker)) {
+        if (SPOT == it.second.type) {
+            auto iter = BnApi::BalMap_.find(it.first);
+            if (iter == BnApi::BalMap_.end()) LOG_FATAL << "";
+            double qty = iter.second.crossMarginFree + iter.second.crossMarginLocked - iter.second.crossMarginLocked - iter.second.crossMarginInterest;
+            if (IS_DOUBLE_GREATER(abs(it.second.real_pos - qty), it.second.max_delta_limit)) {
+                LOG_WARN << "";
+            }
+        }
+
+        if (SWAP == it.second.type) {
+            bool flag = false;
+            for (auto iter : BnApi::UmAcc_->info1_) {
+                if (strcmp(it.first, iter.symbol) == 0) {
+                    if (IS_DOUBLE_GREATER(abs(it.second.real_pos - iter.positionAmt), it.second.max_delta_limit)) {
+                        LOG_WARN << "";
+                    }
+                    flag = true;
+                }
+            }
+            if (!flag) LOG_FATAL << "";
+        }
+    }
+    
+    for (auto it : BnApi::UmAcc_->info1_) {
+        if (PERP == it.second.type) LOG_FATAL << "";
+    }
+
+}
+
