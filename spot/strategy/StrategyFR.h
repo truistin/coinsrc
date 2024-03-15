@@ -52,7 +52,7 @@ namespace spot {
 				OrderByPriceMap* sellMap;
 				OrderByPriceMap* buyMap;
 			public:
-				update(double askp, double bidp, double askv, double bidv) {
+				void update(double askp, double bidp, double askv, double bidv) {
 					ask_p = askp;
 					bid_p = bidp;
 					ask_v = askv;

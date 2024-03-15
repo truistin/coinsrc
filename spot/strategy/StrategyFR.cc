@@ -67,9 +67,9 @@ void StrategyFR::init()
     for (auto iter : strategyInstrumentList()) {
         for (auto it : (*make_taker)) {
             if (it.first == iter->instrument()->getInstrumentID()) {
-                it.second.inst = it.second.strategyInstrument;
-                it.second.sellMap = it.second.inst->->sellOrders();
-                it.second.buyMap = it.second.inst->->buyOrders();
+                it.second.inst = it.second.inst;
+                it.second.sellMap = it.second.inst->sellOrders();
+                it.second.buyMap = it.second.inst->buyOrders();
                 break;
             }
         }
@@ -359,11 +359,11 @@ double StrategyFR::calc_balance()
     }
 
     for (auto it : BnApi::BalMap_) {
-        string sy = it.asset;
+        string sy = it.second.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_usdt += it.crossMarginFree + it.crossMarginLocked - it.crossMarginLocked - it.crossMarginInterest;
+            sum_usdt += it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginLocked - it.second.crossMarginInterest;
         } else {
-            sum_usdt += (it.crossMarginFree + it.crossMarginLocked - it.crossMarginLocked - it.crossMarginInterest) * (*last_price_map)[sy];;
+            sum_usdt += (it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginLocked - it.second.crossMarginInterest) * (*last_price_map)[sy];;
         }
 
     }
@@ -528,7 +528,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
             setOrder(sy1.ref->inst, INNER_DIRECTION_Buy,
-                            sy1.bid_price,
+                            sy1.bid_p,
                             taker_qty,
                             order);
         } else {          
@@ -541,8 +541,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
  
-            setOrder(sy1->inst, INNER_DIRECTION_Sell,
-                            sy1.ask_price,
+            setOrder(sy1.inst, INNER_DIRECTION_Sell,
+                            sy1.ask_p,
                             taker_qty,
                             order);
         }
@@ -558,7 +558,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
             setOrder(sy1.ref->inst, INNER_DIRECTION_Sell,
-                            sy1.bid_price,
+                            sy1.bid_p,
                             taker_qty,
                             order);
         } else {          
@@ -571,8 +571,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
  
-            setOrder(sy1->inst, INNER_DIRECTION_Buy,
-                            sy1.ask_price,
+            setOrder(sy1.inst, INNER_DIRECTION_Buy,
+                            sy1.ask_p,
                             taker_qty,
                             order);
         }
