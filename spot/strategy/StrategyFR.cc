@@ -707,7 +707,7 @@ void StrategyFR::OnTimerTradingLogic()
         if (SPOT == it.second.type) {
             auto iter = BnApi::BalMap_.find(it.first);
             if (iter == BnApi::BalMap_.end()) LOG_FATAL << "";
-            double qty = iter.second.crossMarginFree + iter.second.crossMarginLocked - iter.second.crossMarginLocked - iter.second.crossMarginInterest;
+            double qty = iter->second.crossMarginFree + iter->second.crossMarginLocked - iter->second.crossMarginLocked - iter->second.crossMarginInterest;
             if (IS_DOUBLE_GREATER(abs(it.second.real_pos - qty), it.second.max_delta_limit)) {
                 LOG_WARN << "";
             }
@@ -716,7 +716,7 @@ void StrategyFR::OnTimerTradingLogic()
         if (SWAP == it.second.type) {
             bool flag = false;
             for (auto iter : BnApi::UmAcc_->info1_) {
-                if (strcmp(it.first, iter.symbol) == 0) {
+                if (it.first == iter.symbol) {
                     if (IS_DOUBLE_GREATER(abs(it.second.real_pos - iter.positionAmt), it.second.max_delta_limit)) {
                         LOG_WARN << "";
                     }
