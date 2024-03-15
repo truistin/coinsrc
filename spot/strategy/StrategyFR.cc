@@ -76,7 +76,7 @@ void StrategyFR::init()
     }
 
     for (auto it : (*make_taker)) {
-        it.second.ref = (*make_taker)[it.second.ref_sy];
+        it.second.ref = &(*make_taker)[it.second.ref_sy];
     }
 }
 
@@ -596,7 +596,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
             double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
+                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.MvRatio * bal) ||
                     !over_max_delta_limit(sy1, sy2)) {
                     LOG_WARN << "";
                     return;
@@ -607,7 +607,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
                  qty = sy1.max_delta_limit
 
-                if (strcmp(sy1.type, SPOT.c_str() == 0)) {
+                if (SPOT == sy1.type) {
                     SetOrderOptions order;
                     order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                     string timeInForce = "GTX";
@@ -617,12 +617,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                     memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                    setOrder(sy1.inst, INNER_DIRECTION_Sell,
                         marketData.AskPrice1 + sy1.prc_tick_size,
                         qty, order);
                 }
 
-                if (strcmp(sy1.type, SWAP.c_str() == 0)) {
+                if (SWAP == sy1.type) {
                     SetOrderOptions order;
                     order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                     string timeInForce = "GTX";
@@ -632,7 +632,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                     memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Sell,
+                    setOrder(sy1.inst, INNER_DIRECTION_Sell,
                         marketData.AskPrice1 + sy1.prc_tick_size,
                         qty, order);
                 } 
@@ -640,7 +640,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
                 double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
                 if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-                    if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_price, sy1.MvRatio * bal) ||
+                    if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.MvRatio * bal) ||
                         !over_max_delta_limit(sy1, sy2)) {
                         LOG_WARN << "";
                         return;
@@ -663,7 +663,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                     memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Buy,
+                    setOrder(sy1.inst, INNER_DIRECTION_Buy,
                         marketData.BidPrice1 - sy1.prc_tick_size,
                         qty, order);
                 }
@@ -678,7 +678,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                     memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                    setOrder(sy1.strategyInstrument, INNER_DIRECTION_Buy,
+                    setOrder(sy1.inst, INNER_DIRECTION_Buy,
                         marketData.BidPrice1 - sy1.prc_tick_size,
                         qty, order);
                 } 

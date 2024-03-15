@@ -79,7 +79,7 @@ namespace spot {
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument);
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval(){};
-			bool over_max_delta_limit();
+			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void hedge(StrategyInstrument *strategyInstrument);
