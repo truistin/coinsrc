@@ -726,7 +726,7 @@ void StrategyFR::OnTimerTradingLogic()
             if (!flag) LOG_FATAL << "";
         }
 
-        if (PERP == iter.second.type) {
+        if (PERP == it.second.type) {
             for (auto iter : BnApi::CmAcc_->info1_) {
                 if (it.first == iter.symbol) LOG_FATAL << "";
             }
