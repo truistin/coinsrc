@@ -713,7 +713,7 @@ int BnApi::QryPosiBySymbol(const Order &order) {
         int ret = assetInfo.decode(res.c_str());
         if (ret != 0) {
             LOG_ERROR << "BnApi GetSpotAsset ERROR: " << res;
-            return;
+            return -1;
         }
 
         for (auto& it : assetInfo.info_) {

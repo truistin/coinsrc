@@ -74,11 +74,11 @@ namespace spot {
 
             virtual void OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 
-			virtual void OnTimerTradingLogic(){};
+			virtual void OnTimerTradingLogic();
 
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument);
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
-			void OnForceCloseTimerInterval(){};
+			void OnForceCloseTimerInterval();
 			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
             StrategyFR(int strategyID, StrategyParameter *params);

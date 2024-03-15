@@ -596,7 +596,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
             double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.MvRatio * bal) ||
+                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal) ||
                     !over_max_delta_limit(sy1, sy2)) {
                     LOG_WARN << "";
                     return;
@@ -605,7 +605,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.real_pos) * sy1.mid_p;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                 qty = sy1.max_delta_limit
+                 qty = sy1.max_delta_limit;
 
                 if (SPOT == sy1.type) {
                     SetOrderOptions order;
@@ -640,7 +640,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
                 double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
                 if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
-                    if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.MvRatio * bal) ||
+                    if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal) ||
                         !over_max_delta_limit(sy1, sy2)) {
                         LOG_WARN << "";
                         return;
@@ -651,9 +651,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
 
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                 qty = sy1.max_delta_limit
+                 qty = sy1.max_delta_limit;
 
-                if (strcmp(sy1.type, SPOT.c_str() == 0)) {
+                if (SPOT == sy1.type) {
                     SetOrderOptions order;
                     order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                     string timeInForce = "GTX";
@@ -668,7 +668,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                         qty, order);
                 }
 
-                if (strcmp(sy1.type, SWAP.c_str() == 0)) {
+                if (SWAP == sy1.type) {
                     SetOrderOptions order;
                     order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                     string timeInForce = "GTX";
