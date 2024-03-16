@@ -595,7 +595,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         double bal = calc_balance();
         if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p - sy2.mid_p, 0)) {
             double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
-            if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
+            if (IS_DOUBLE_GREATER(spread_rate, sy1.FrOpenThresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal) ||
                     !over_max_delta_limit(sy1, sy2)) {
                     LOG_WARN << "";
@@ -639,7 +639,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p - sy2.mid_p, 0)) {
                 double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
-                if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
+                if (IS_DOUBLE_GREATER(spread_rate, sy1.FrOpenThresh)) {
                     if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal) ||
                         !over_max_delta_limit(sy1, sy2)) {
                         LOG_WARN << "";

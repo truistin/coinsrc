@@ -46,6 +46,7 @@ namespace spot
     const static uint16_t StartTradingDayLen = 30;
     const static uint16_t StatusMsgLen = 150;
     const static uint16_t StrategyNameLen = 50;
+    const static uint16_t StrategyTypeLen = 15;
     const static uint16_t SymbolLen = 40;
     const static uint16_t TimeInForceLen = 30;
     const static uint16_t TradeableTypeLen = 20;
@@ -284,6 +285,9 @@ namespace spot
       double PreTickSize;
       double QtyTickSize;
       double MaxDeltaLimit;
+      double FrOpenThresh;
+      double FrCloseThresh;
+      int OpenCloseFlag;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -394,11 +398,30 @@ namespace spot
         else
           MaxDeltaLimit = (double)*static_cast<int64_t*>(value);
       }
+      void setFrOpenThresh( void *value , uint16_t length = 0) {
+        if (length == 8)
+          FrOpenThresh = *static_cast<double*>(value);
+        else if (length == 0)
+          FrOpenThresh = (double)*static_cast<int*>(value);
+        else
+          FrOpenThresh = (double)*static_cast<int64_t*>(value);
+      }
+      void setFrCloseThresh( void *value , uint16_t length = 0) {
+        if (length == 8)
+          FrCloseThresh = *static_cast<double*>(value);
+        else if (length == 0)
+          FrCloseThresh = (double)*static_cast<int*>(value);
+        else
+          FrCloseThresh = (double)*static_cast<int64_t*>(value);
+      }
+      void setOpenCloseFlag( void *value , uint16_t length = 0) {
+        OpenCloseFlag = *static_cast<int*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]FrOpenThresh=[%f]FrCloseThresh=[%f]OpenCloseFlag=[%d]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,FrOpenThresh,FrCloseThresh,OpenCloseFlag);
         return buffer;
       }
 
@@ -421,6 +444,9 @@ namespace spot
         methodMap["PreTickSize"] = std::bind(&SymbolInfo::setPreTickSize, this, _1,_2);
         methodMap["QtyTickSize"] = std::bind(&SymbolInfo::setQtyTickSize, this, _1,_2);
         methodMap["MaxDeltaLimit"] = std::bind(&SymbolInfo::setMaxDeltaLimit, this, _1,_2);
+        methodMap["FrOpenThresh"] = std::bind(&SymbolInfo::setFrOpenThresh, this, _1,_2);
+        methodMap["FrCloseThresh"] = std::bind(&SymbolInfo::setFrCloseThresh, this, _1,_2);
+        methodMap["OpenCloseFlag"] = std::bind(&SymbolInfo::setOpenCloseFlag, this, _1,_2);
       }
 
       string toJson() const {
@@ -471,6 +497,11 @@ namespace spot
           doc.AddMember("QtyTickSize",QtyTickSize, allocator);
         if (!std::isnan(MaxDeltaLimit))
           doc.AddMember("MaxDeltaLimit",MaxDeltaLimit, allocator);
+        if (!std::isnan(FrOpenThresh))
+          doc.AddMember("FrOpenThresh",FrOpenThresh, allocator);
+        if (!std::isnan(FrCloseThresh))
+          doc.AddMember("FrCloseThresh",FrCloseThresh, allocator);
+        doc.AddMember("OpenCloseFlag",OpenCloseFlag, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;
@@ -824,6 +855,7 @@ namespace spot
       double Fee;
       int QryFlag;
       char CoinType[CoinTypeLen+1];
+      char StrategyType[StrategyTypeLen+1];
 
       void setStrategyID( void *value , uint16_t length = 0) {
         StrategyID = *static_cast<int*>(value);
@@ -999,11 +1031,14 @@ namespace spot
       void setCoinType( void *value , uint16_t length = 0) {
         memcpy(CoinType, static_cast<char*>(value), length <CoinTypeLen  ? length :CoinTypeLen);
       }
+      void setStrategyType( void *value , uint16_t length = 0) {
+        memcpy(StrategyType, static_cast<char*>(value), length <StrategyTypeLen  ? length :StrategyTypeLen);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "StrategyID=[%d]Direction=[%c]Offset=[%c]OrderStatus=[%c]OrderType=[%d]OrderRef=[%d]LimitPrice=[%f]VolumeTotalOriginal=[%f]VolumeRemained=[%f]InstrumentID=[%s]OrderMsgType=[%c]ExchangeCode=[%s]CounterType=[%s]OrderSysID=[%s]TradeID=[%I64d]InsertTime=[%s]UpdateTime=[%s]CancelTime=[%s]TradingDay=[%s]CancelAttempts=[%d]Volume=[%f]VolumeFilled=[%f]Price=[%f]OrdRejReason=[%d]FeeRate=[%f]TimeStamp=[%I64d]UserID=[%s]StatusMsg=[%s]EpochTimeReturn=[%I64d]EpochTimeReqBefore=[%I64d]EpochTimeReqAfter=[%I64d]TimeInForce=[%s]AvgPrice=[%f]Category=[%s]MTaker=[%s]Fee=[%f]QryFlag=[%d]CoinType=[%s]",
-                StrategyID,Direction,Offset,OrderStatus,OrderType,OrderRef,LimitPrice,VolumeTotalOriginal,VolumeRemained,InstrumentID,OrderMsgType,ExchangeCode,CounterType,OrderSysID,TradeID,InsertTime,UpdateTime,CancelTime,TradingDay,CancelAttempts,Volume,VolumeFilled,Price,OrdRejReason,FeeRate,TimeStamp,UserID,StatusMsg,EpochTimeReturn,EpochTimeReqBefore,EpochTimeReqAfter,TimeInForce,AvgPrice,Category,MTaker,Fee,QryFlag,CoinType);
+        SNPRINTF(buffer, sizeof buffer, "StrategyID=[%d]Direction=[%c]Offset=[%c]OrderStatus=[%c]OrderType=[%d]OrderRef=[%d]LimitPrice=[%f]VolumeTotalOriginal=[%f]VolumeRemained=[%f]InstrumentID=[%s]OrderMsgType=[%c]ExchangeCode=[%s]CounterType=[%s]OrderSysID=[%s]TradeID=[%I64d]InsertTime=[%s]UpdateTime=[%s]CancelTime=[%s]TradingDay=[%s]CancelAttempts=[%d]Volume=[%f]VolumeFilled=[%f]Price=[%f]OrdRejReason=[%d]FeeRate=[%f]TimeStamp=[%I64d]UserID=[%s]StatusMsg=[%s]EpochTimeReturn=[%I64d]EpochTimeReqBefore=[%I64d]EpochTimeReqAfter=[%I64d]TimeInForce=[%s]AvgPrice=[%f]Category=[%s]MTaker=[%s]Fee=[%f]QryFlag=[%d]CoinType=[%s]StrategyType=[%s]",
+                StrategyID,Direction,Offset,OrderStatus,OrderType,OrderRef,LimitPrice,VolumeTotalOriginal,VolumeRemained,InstrumentID,OrderMsgType,ExchangeCode,CounterType,OrderSysID,TradeID,InsertTime,UpdateTime,CancelTime,TradingDay,CancelAttempts,Volume,VolumeFilled,Price,OrdRejReason,FeeRate,TimeStamp,UserID,StatusMsg,EpochTimeReturn,EpochTimeReqBefore,EpochTimeReqAfter,TimeInForce,AvgPrice,Category,MTaker,Fee,QryFlag,CoinType,StrategyType);
         return buffer;
       }
 
@@ -1046,6 +1081,7 @@ namespace spot
         methodMap["Fee"] = std::bind(&Order::setFee, this, _1,_2);
         methodMap["QryFlag"] = std::bind(&Order::setQryFlag, this, _1,_2);
         methodMap["CoinType"] = std::bind(&Order::setCoinType, this, _1,_2);
+        methodMap["StrategyType"] = std::bind(&Order::setStrategyType, this, _1,_2);
       }
 
       string toJson() const {
@@ -1143,6 +1179,10 @@ namespace spot
         if (strlen(CoinType) != 0){
           int length = strlen(CoinType) < CoinTypeLen ? strlen(CoinType):CoinTypeLen;
           doc.AddMember("CoinType", spotrapidjson::Value().SetString(CoinType,length), allocator);
+        }
+        if (strlen(StrategyType) != 0){
+          int length = strlen(StrategyType) < StrategyTypeLen ? strlen(StrategyType):StrategyTypeLen;
+          doc.AddMember("StrategyType", spotrapidjson::Value().SetString(StrategyType,length), allocator);
         }
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("Order"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
