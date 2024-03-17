@@ -1041,8 +1041,8 @@ int BnApi::CancelAllOrders() {
                 cp = GetCMCurrencyPair(symbol);
             } else if (symbol.find("spot") != symbol.npos)
                 m_uri.api = BN_LEVERAGE_ORDER_API;
-                cp = GetCMCurrencyPair(symbol);    
-            else {
+                cp = GetCMCurrencyPair(symbol);
+            } else {
                 // ReqOrderInsert_spot(order);
                 // ReqOrderInsert_cm_spot(order);
                 LOG_FATAL<<"GetCMCurrencyPair FATAL: " << symbol;
