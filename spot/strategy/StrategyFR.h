@@ -86,6 +86,8 @@ namespace spot {
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
+			void ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy);
+
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
