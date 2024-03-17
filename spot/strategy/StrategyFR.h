@@ -88,7 +88,9 @@ namespace spot {
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
-			bool ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy, int flag);
+			int is_continue_mr(string symbol, double qty);
+
+			bool ClosePosition(const InnerMarketData &marketData, sy_info& sy, int flag);
 
 			void hedge(StrategyInstrument *strategyInstrument);
 
@@ -100,6 +102,8 @@ namespace spot {
 			double calc_mm();
 			double calc_balance();
 			void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num);
+			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
+			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 
 		private:
 			map<string, double>* margin_leverage;
@@ -113,6 +117,8 @@ namespace spot {
 			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
+
+			bool enable_maker;
 		};
     }
 }
