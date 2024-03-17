@@ -890,7 +890,6 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
-    if (!enable_maker) return;
     int64_t ts = CURR_MSTIME_POINT;
     if (marketData.EpochTime - ts > 30) {
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
@@ -906,6 +905,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     if (ClosePosition(marketData, sy1, 1)) return;
 
+    if (!enable_maker) return;
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
