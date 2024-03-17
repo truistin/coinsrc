@@ -1039,7 +1039,7 @@ int BnApi::CancelAllOrders() {
                 //btc_usdt_b_perp --> btcusdt_perp
                 m_uri.api = BN_CM_CANCEL_ALL_ORDER_API;
                 cp = GetCMCurrencyPair(symbol);
-            } else if (symbol.find("spot") != symbol.npos)
+            } else if (symbol.find("spot") != symbol.npos) {
                 m_uri.api = BN_LEVERAGE_ORDER_API;
                 cp = GetCMCurrencyPair(symbol);
             } else {
