@@ -37,9 +37,11 @@ namespace spot {
 				double bid_p;
 				double ask_v;
 				double bid_v;
-				int make_taker_flag;
-				int long_short_flag; // 1 Пе
+				double avg_price;
+				int make_taker_flag; // 1 maker
+				int long_short_flag; // 1 short
 				double max_delta_limit;
+				double force_close_amount;
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
@@ -86,7 +88,7 @@ namespace spot {
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
-			void ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy);
+			bool ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy, int flag);
 
 			void hedge(StrategyInstrument *strategyInstrument);
 

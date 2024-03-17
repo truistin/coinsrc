@@ -145,6 +145,8 @@ void StrategyFR::init()
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
         syInfo.max_delta_limit = it.second.MaxDeltaLimit;
+
+        syInfo.force_close_amount = it.second.ForceCloseAmount;
         make_taker->insert({it.second.Symbol, syInfo});
     }
 
@@ -159,21 +161,24 @@ void StrategyFR::init()
         }
     }
 
+    qryPosition();
+
     for (auto it : (*make_taker)) {
         it.second.ref = &(*make_taker)[it.second.ref_sy];
+        if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
-
-    qryPosition();
 }
 
 void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
+    over_max_delta_limit();
     hedge(strategyInstrument);
     return;
 }
 
 void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
+    over_max_delta_limit();
     hedge(strategyInstrument);
     return;
 }
@@ -583,6 +588,11 @@ bool StrategyFR::over_max_delta_limit(sy_info& sy1, sy_info& sy2)
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
 
+    if (SWAP == sy1.sy) {
+        sy2.avg_price = sy1.avg_price;
+    } else {
+        sy1.avg_price = sy2.avg_price;
+    }
     if (IS_DOUBLE_LESS(sy1.real_pos - sy2.real_pos, sy1.max_delta_limit)) {
         return false;
         LOG_INFO << "over_max_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
@@ -599,6 +609,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (IS_DOUBLE_LESS(abs(delta_posi), sy1.max_delta_limit)) return;
+    if (IS_DOUBLE_GREATER(abs(delta_posi), sy1.force_close_amount))
+        LOG_FATAL << "force close symbol: " << symbol << ", delta_posi: " << delta_posi;
      
     double taker_qty = abs(delta_posi);
 
@@ -714,15 +726,24 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     }
 }
 
-void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy)
+// flag 1 arb , 0 fr
+bool StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument, sy_info& sy, int flag)
 {
+    bool flag = false;
+
+    double thresh = sy.thresh;
+    string stType = "ArbClose";
+    if (flag == 0) {
+        thresh = sy.fr_close_thresh;
+        stType = "FrClose";
+    }
+
     sy_info* sy2 = sy.ref;
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0) &&
             IS_DOUBLE_LESS(sy.mid_p - sy2->mid_p, 0)) {
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
-            if (IS_DOUBLE_GREATER(spread_rate, sy.thresh)) {
-
+            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -740,7 +761,6 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
                 double qty = std::min(sy.real_pos, marketData.BidVolume1);
@@ -748,11 +768,13 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 setOrder(sy.inst, INNER_DIRECTION_Buy,
                     marketData.BidPrice1 - sy.prc_tick_size,
                     qty, order);
+
+                flag = true;
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0) &&
             IS_DOUBLE_GREATER(sy.mid_p - sy2->mid_p, 0)) {
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
-            if (IS_DOUBLE_GREATER(spread_rate, sy.thresh)) {
+            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -770,7 +792,6 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
                 double qty = std::min(sy.real_pos, marketData.BidVolume1);
@@ -778,13 +799,15 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     marketData.BidPrice1 - sy.prc_tick_size,
                     qty, order);
+
+                flag = true;
             }
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0) &&
             IS_DOUBLE_LESS(sy2->mid_p, sy.mid_p)) {
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
-            if (IS_DOUBLE_GREATER(spread_rate, sy2->thresh)) {
+            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -802,7 +825,6 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
                 double qty = std::min(sy2->real_pos, sy2->bid_v);
@@ -810,11 +832,13 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
+
+                flag = true;
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0) &&
             IS_DOUBLE_GREATER(sy2->mid_p, sy.mid_p)) {
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
-            if (IS_DOUBLE_GREATER(spread_rate, sy2->thresh)) {
+            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -832,7 +856,6 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
-                string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
                 double qty = std::min(sy2->real_pos, sy2->ask_v);
@@ -840,9 +863,12 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
+
+                flag = true;
             }
         }
     }
+    return flag;
 }
 
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
@@ -855,6 +881,13 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
 
+    if (sy1.close_flag) {
+        ClosePosition(marketData, strategyInstrument, sy1, 0);
+        return;
+    }
+
+    if (ClosePosition(marketData, strategyInstrument, sy1, 1)) return;
+
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
@@ -866,10 +899,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     return;
                 }
 
-                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                 qty = sy1.max_delta_limit;
+                //  qty = sy1.max_delta_limit;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -904,11 +937,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     return;
                 }
 
-                double u_posi = abs(sy1.real_pos) * sy1.mid_p;
+                double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
 
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                    qty = sy1.max_delta_limit;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -964,8 +996,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string stType = "FrOpen";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double u_posi = abs(sy1.ref->real_pos) * sy1.ref->mid_p;
+                double u_posi = abs(sy1.ref->real_pos) * sy1.ref->avg_price;
                 double qty = min((bal * sy1.ref->mv_ratio - u_posi) / sy1.ref->mid_p, sy1.ref->bid_v / 2);
+
+                if (IS_DOUBLE_LESS(qty, sy2.max_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -999,8 +1033,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string stType = "FrOpen";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double u_posi = abs(sy1.ref->real_pos) * sy1.ref->mid_p;
-                double qty = min((bal * sy1.ref->mv_ratio - u_posi) / sy1.ref->mid_p, sy1.ref->ask_v / 2);
+                double u_posi = abs(sy2->real_pos) * sy2->avg_price;
+                double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->ask_v / 2);
+
+                if (IS_DOUBLE_LESS(qty, sy2.max_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
@@ -1026,6 +1062,7 @@ void StrategyFR::OnForceCloseTimerInterval()
 
 void StrategyFR::OnTimerTradingLogic() 
 {
+    over_max_delta_limit();
     for (auto it : (*make_taker)) {
         if (SPOT == it.second.type) {
             auto iter = BnApi::BalMap_.find(it.first);
