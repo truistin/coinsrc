@@ -100,7 +100,7 @@ void StrategyFR::qryPosition() {
             auto it = BnApi::BalMap_.find(iter->instrument()->getInstrumentID());
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
     
-            double equity = it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest;
+            double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
 
             if (IS_DOUBLE_LESS(equity, 0)) {
                 iter->position().PublicPnlDaily().TodayShort = equity;
@@ -595,7 +595,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 {
     string symbol = strategyInstrument->getInstrumentID();
     sy_info& sy1 = (*make_taker)[symbol];
-    sy_info& sy2 = sy1.ref;
+    sy_info* sy2 = sy1.ref;
 
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (IS_DOUBLE_LESS(abs(delta_posi), sy1.max_delta_limit)) return;
@@ -606,31 +606,31 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     if (IS_DOUBLE_GREATER_EQUAL(delta_posi, sy1.max_delta_limit)) {
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2.type) 
+            if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2.type)
+            else if (SPOT == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
             setOrder(sy2->inst, INNER_DIRECTION_Sell,
-                            sy2.ask_p,
+                            sy2->ask_p,
                             taker_qty,
                             order);
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2.type) 
+            if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2.type)
+            else if (SPOT == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
-            setOrder(sy2.inst, INNER_DIRECTION_Sell,
-                            sy2.ask_p,
+            setOrder(sy2->inst, INNER_DIRECTION_Sell,
+                            sy2->ask_p,
                             taker_qty,
                             order);
-        } else if ((sy2.make_taker_flag == 1) && (sy2.long_short_flag == 1) && IS_DOUBLE_LESS(sy2.real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -643,7 +643,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.ask_p,
                             taker_qty,
                             order);
-        } else if ((sy2.make_taker_flag == 1) && (sy2.long_short_flag == 0) && IS_DOUBLE_GREATER(sy2.real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -660,31 +660,31 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, -sy1.max_delta_limit)) {
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2.type) 
+            if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2.type)
+            else if (SPOT == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
             setOrder(sy2->inst, INNER_DIRECTION_Buy,
-                            sy2.bid_p,
+                            sy2->bid_p,
                             taker_qty,
                             order);
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2.type) 
+            if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2.type)
+            else if (SPOT == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
-            setOrder(sy2.inst, INNER_DIRECTION_Buy,
-                            sy2.bid_p,
+            setOrder(sy2->inst, INNER_DIRECTION_Buy,
+                            sy2->bid_p,
                             taker_qty,
                             order);
-        } else if ((sy2.make_taker_flag == 1) && (sy2.long_short_flag == 1) && IS_DOUBLE_LESS(sy2.real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -697,7 +697,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.bid_p,
                             taker_qty,
                             order);
-        } else if ((sy2.make_taker_flag == 1) && (sy2.long_short_flag == 0) && IS_DOUBLE_GREATER(sy2.real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -719,8 +719,8 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
     sy_info* sy2 = sy.ref;
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0) &&
-            IS_DOUBLE_LESS(sy.mid_p - sy2.mid_p, 0)) {
-            double spread_rate = (sy2.mid_p - sy.mid_p) / sy.mid_p;
+            IS_DOUBLE_LESS(sy.mid_p - sy2->mid_p, 0)) {
+            double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy.thresh)) {
 
                 SetOrderOptions order;
@@ -750,8 +750,8 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                     qty, order);
             }
         } else if ((sy.long_short_flag == 0) && && IS_DOUBLE_GREATER(sy.real_pos, 0) &&
-            IS_DOUBLE_GREATER(sy.mid_p - sy2.mid_p, 0)) {
-            double spread_rate = (sy.mid_p - sy2.mid_p) / sy2.mid_p; 
+            IS_DOUBLE_GREATER(sy.mid_p - sy2->mid_p, 0)) {
+            double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
             if (IS_DOUBLE_GREATER(spread_rate, sy.thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -780,20 +780,20 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                     qty, order);
             }
         }
-    } else if (sy2.make_taker_flag == 1) {
-        if ((sy2.long_short_flag == 1) && IS_DOUBLE_LESS(sy2.real_pos, 0) &&
-            IS_DOUBLE_LESS(sy2.mid_p, sy.mid_p)) {
-            double spread_rate = (sy.mid_p - sy2.mid_p) / sy2.mid_p;
-            if (IS_DOUBLE_GREATER(spread_rate, sy2.thresh)) {
+    } else if (sy2->make_taker_flag == 1) {
+        if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0) &&
+            IS_DOUBLE_LESS(sy2->mid_p, sy.mid_p)) {
+            double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
+            if (IS_DOUBLE_GREATER(spread_rate, sy2->thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2.type) {
+                if (SPOT == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2.type) {
+                } else if (SWAP == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -805,25 +805,25 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2.real_pos, sy2.bid_v);
+                double qty = std::min(sy2->real_pos, sy2->bid_v);
 
-                setOrder(sy2.inst, INNER_DIRECTION_Buy,
-                    sy2.bid_p - sy2.prc_tick_size,
+                setOrder(sy2->inst, INNER_DIRECTION_Buy,
+                    sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
             }
-        }  else if ((sy2.long_short_flag == 0) && && IS_DOUBLE_GREATER(sy2.real_pos, 0) &&
-            IS_DOUBLE_GREATER(sy2.mid_p, sy.mid_p)) {
-            double spread_rate = (sy2.mid_p - sy.mid_p) / sy.mid_p; 
-            if (IS_DOUBLE_GREATER(spread_rate, sy2.thresh)) {
+        }  else if ((sy2->long_short_flag == 0) && && IS_DOUBLE_GREATER(sy2->real_pos, 0) &&
+            IS_DOUBLE_GREATER(sy2->mid_p, sy.mid_p)) {
+            double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
+            if (IS_DOUBLE_GREATER(spread_rate, sy2->thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2.type) {
+                if (SPOT == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2.type) {
+                } else if (SWAP == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -835,10 +835,10 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                 string stType = "ArbClose";
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2.real_pos, sy2->ask_v);
+                double qty = std::min(sy2->real_pos, sy2->ask_v);
 
-                setOrder(sy2.inst, INNER_DIRECTION_Sell,
-                    sy2->ask_p + sy2.prc_tick_size,
+                setOrder(sy2->inst, INNER_DIRECTION_Sell,
+                    sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
             }
         }
@@ -858,8 +858,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
-        if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p, sy2.mid_p)) {
-            double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (sy1.long_short_flag == 1 && IS_DOUBLE_GREATER(sy1.mid_p, sy2->mid_p)) {
+            double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
@@ -896,8 +896,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     qty, order);
             }
 
-        } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p, sy2.mid_p)) {
-            double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+        } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p, sy2->mid_p)) {
+            double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
@@ -935,9 +935,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     qty, order);
             }
         }
-    } else if (sy2.make_taker_flag == 1) {
-        if (sy2.long_short_flag == 0 &&  IS_DOUBLE_GREATER(sy1.mid_p, sy2.mid_p)) {
-            double spread_rate = (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+    } else if (sy2->make_taker_flag == 1) {
+        if (sy2->long_short_flag == 0 &&  IS_DOUBLE_GREATER(sy1.mid_p, sy2->mid_p)) {
+            double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.ref->real_pos) * sy1.ref->mid_p, sy1.ref->mv_ratio * bal)) {
                     LOG_WARN << "";
@@ -949,10 +949,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2.type) {
+                if (SPOT == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2.type) {
+                } else if (SWAP == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -967,12 +967,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.ref->real_pos) * sy1.ref->mid_p;
                 double qty = min((bal * sy1.ref->mv_ratio - u_posi) / sy1.ref->mid_p, sy1.ref->bid_v / 2);
 
-                setOrder(sy2.inst, INNER_DIRECTION_Buy,
-                    sy2.bid_p - sy2.prc_tick_size,
+                setOrder(sy2->inst, INNER_DIRECTION_Buy,
+                    sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
             }
-        } else if (sy2.long_short_flag == 1 && IS_DOUBLE_LESS(sy1.mid_p, sy2.mid_p)) {
-            double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+        } else if (sy2->long_short_flag == 1 && IS_DOUBLE_LESS(sy1.mid_p, sy2->mid_p)) {
+            double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.ref->real_pos) * sy1.ref->mid_p, sy1.ref->mv_ratio * bal)) {
                     LOG_WARN << "";
@@ -984,10 +984,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2.type) {
+                if (SPOT == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2.type) {
+                } else if (SWAP == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1002,8 +1002,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.ref->real_pos) * sy1.ref->mid_p;
                 double qty = min((bal * sy1.ref->mv_ratio - u_posi) / sy1.ref->mid_p, sy1.ref->ask_v / 2);
 
-                setOrder(sy2.inst, INNER_DIRECTION_Sell,
-                    sy2.ask_p + sy2.prc_tick_size,
+                setOrder(sy2->inst, INNER_DIRECTION_Sell,
+                    sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
             }
         }
