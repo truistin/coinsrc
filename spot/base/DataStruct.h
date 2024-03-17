@@ -266,6 +266,7 @@ namespace spot
 			char Category[CategoryLen+1];
 			char MTaker[MTakerLen+1];
 			char CoinType[CoinTypeLen+1];
+			char StType[StrategyTypeLen+1];
 			SetOrderOptions() {
 			    memset(this, 0, sizeof(SetOrderOptions));
 				checkStrategyCircuit = 1; 

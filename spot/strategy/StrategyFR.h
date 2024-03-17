@@ -38,13 +38,16 @@ namespace spot {
 				double ask_v;
 				double bid_v;
 				int make_taker_flag;
-				int long_short_flag;
+				int long_short_flag; // 1 Пе
 				double max_delta_limit;
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
 				double mv_ratio;
 				double thresh;
+				double fr_open_thresh;
+				double fr_close_thresh;
+				int close_flag;
 				int64_t exch_ts;
 				double real_pos;
 				sy_info* ref;
@@ -82,6 +85,7 @@ namespace spot {
 			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
+			void qryPosition();
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
@@ -105,7 +109,6 @@ namespace spot {
 			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
-			map<string, double>* delta_mp;
 		};
     }
 }

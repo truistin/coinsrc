@@ -68,6 +68,7 @@ void InstrumentOrder::setOrder(char direction, double price, double quantity, Se
 	memcpy(setOrderInfoIter->second->pOrder->TimeInForce, setOrderOptions.TimeInForce, TimeInForceLen);
 	memcpy(setOrderInfoIter->second->pOrder->Category, setOrderOptions.Category, min(uint16_t(CategoryLen), uint16_t(strlen(setOrderOptions.Category))));
 	memcpy(setOrderInfoIter->second->pOrder->CoinType, setOrderOptions.CoinType, min(uint16_t(CoinTypeLen), uint16_t(strlen(setOrderOptions.CoinType))));
+	memcpy(setOrderInfoIter->second->pOrder->StrategyType, setOrderOptions.StType, min(uint16_t(StrategyTypeLen), uint16_t(strlen(setOrderOptions.StType))));
 
 	std::string today = TradingDay::getToday();
 	memcpy(setOrderInfoIter->second->pOrder->TradingDay, today.c_str(), min(TradingDayLen, (uint16_t)today.size()));

@@ -46,7 +46,7 @@ namespace spot
     const static uint16_t StartTradingDayLen = 30;
     const static uint16_t StatusMsgLen = 150;
     const static uint16_t StrategyNameLen = 50;
-    const static uint16_t StrategyTypeLen = 15;
+    const static uint16_t StrategyTypeLen = 30;
     const static uint16_t SymbolLen = 40;
     const static uint16_t TimeInForceLen = 30;
     const static uint16_t TradeableTypeLen = 20;
@@ -287,7 +287,7 @@ namespace spot
       double MaxDeltaLimit;
       double FrOpenThresh;
       double FrCloseThresh;
-      int OpenCloseFlag;
+      int CloseFlag;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -414,14 +414,14 @@ namespace spot
         else
           FrCloseThresh = (double)*static_cast<int64_t*>(value);
       }
-      void setOpenCloseFlag( void *value , uint16_t length = 0) {
-        OpenCloseFlag = *static_cast<int*>(value);
+      void setCloseFlag( void *value , uint16_t length = 0) {
+        CloseFlag = *static_cast<int*>(value);
       }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]FrOpenThresh=[%f]FrCloseThresh=[%f]OpenCloseFlag=[%d]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,FrOpenThresh,FrCloseThresh,OpenCloseFlag);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]FrOpenThresh=[%f]FrCloseThresh=[%f]CloseFlag=[%d]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,FrOpenThresh,FrCloseThresh,CloseFlag);
         return buffer;
       }
 
@@ -446,7 +446,7 @@ namespace spot
         methodMap["MaxDeltaLimit"] = std::bind(&SymbolInfo::setMaxDeltaLimit, this, _1,_2);
         methodMap["FrOpenThresh"] = std::bind(&SymbolInfo::setFrOpenThresh, this, _1,_2);
         methodMap["FrCloseThresh"] = std::bind(&SymbolInfo::setFrCloseThresh, this, _1,_2);
-        methodMap["OpenCloseFlag"] = std::bind(&SymbolInfo::setOpenCloseFlag, this, _1,_2);
+        methodMap["CloseFlag"] = std::bind(&SymbolInfo::setCloseFlag, this, _1,_2);
       }
 
       string toJson() const {
@@ -501,7 +501,7 @@ namespace spot
           doc.AddMember("FrOpenThresh",FrOpenThresh, allocator);
         if (!std::isnan(FrCloseThresh))
           doc.AddMember("FrCloseThresh",FrCloseThresh, allocator);
-        doc.AddMember("OpenCloseFlag",OpenCloseFlag, allocator);
+        doc.AddMember("CloseFlag",CloseFlag, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;
