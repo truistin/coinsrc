@@ -749,7 +749,7 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                     marketData.BidPrice1 - sy.prc_tick_size,
                     qty, order);
             }
-        } else if ((sy.long_short_flag == 0) && && IS_DOUBLE_GREATER(sy.real_pos, 0) &&
+        } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0) &&
             IS_DOUBLE_GREATER(sy.mid_p - sy2->mid_p, 0)) {
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
             if (IS_DOUBLE_GREATER(spread_rate, sy.thresh)) {
@@ -811,7 +811,7 @@ void StrategyFR::ClosePosition(const InnerMarketData &marketData, StrategyInstru
                     sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
             }
-        }  else if ((sy2->long_short_flag == 0) && && IS_DOUBLE_GREATER(sy2->real_pos, 0) &&
+        }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0) &&
             IS_DOUBLE_GREATER(sy2->mid_p, sy.mid_p)) {
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
             if (IS_DOUBLE_GREATER(spread_rate, sy2->thresh)) {
