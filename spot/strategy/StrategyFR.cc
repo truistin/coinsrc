@@ -1307,36 +1307,10 @@ void StrategyFR::OnTimerTradingLogic()
     } else if (IS_DOUBLE_GREATER(mr, 9)) {
         enable_maker = true;
     }
-    // for (auto it : (*make_taker)) {
-    //     if (SPOT == it.second.type) {
-    //         auto iter = BnApi::BalMap_.find(it.first);
-    //         if (iter == BnApi::BalMap_.end()) LOG_FATAL << "";
-    //         double qty = iter->second.crossMarginFree + iter->second.crossMarginLocked - iter->second.crossMarginLocked - iter->second.crossMarginInterest;
-    //         if (IS_DOUBLE_GREATER(abs(it.second.real_pos - qty), it.second.max_delta_limit)) {
-    //             LOG_WARN << "";
-    //         }
-    //     }
 
-    //     if (SWAP == it.second.type) {
-    //         bool flag = false;
-    //         for (auto iter : BnApi::UmAcc_->info1_) {
-    //             if (it.first == iter.symbol) {
-    //                 if (IS_DOUBLE_GREATER(abs(it.second.real_pos - iter.positionAmt), it.second.max_delta_limit)) {
-    //                     LOG_WARN << "";
-    //                 }
-    //                 flag = true;
-    //             }
-    //         }
-    //         if (!flag) LOG_FATAL << "";
-    //     }
-
-    //     if (PERP == it.second.type) {
-    //         for (auto iter : BnApi::CmAcc_->info1_) {
-    //             if (it.first == iter.symbol) LOG_FATAL << "";
-    //         }
-    //     }
-    // }
-    
+    // mr 查询比较
+    // position 比较
+    // 
 
 }
 
