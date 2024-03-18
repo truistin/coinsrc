@@ -1077,7 +1077,6 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
 void StrategyFR::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    
     hedge(strategyInstrument);
     return;
 }
@@ -1293,7 +1292,6 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    over_max_delta_limit();
     double mr = calc_uniMMR();
 
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
