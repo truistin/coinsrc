@@ -37,7 +37,6 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     make_taker = new map<string, sy_info>;
 
     pre_sum_equity = 0;
-    enable_maker = true;
 }
 
 void StrategyFR::qryPosition() {
@@ -597,13 +596,13 @@ double StrategyFR::calc_uniMMR()
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
-int StrategyFR::is_continue_mr(string symbol, double qty)
+bool StrategyFR::is_continue_mr(string symbol, double qty)
 {
     double mr = calc_future_uniMMR(symbol, qty);
     if (IS_DOUBLE_GREATER(mr, 9)) {
-        return 2;
+        return true;
     }
-    else return INT_MIN;
+    return false;
 }
 
 bool StrategyFR::over_max_delta_limit(sy_info& sy1, sy_info& sy2) 
@@ -911,7 +910,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     if (ClosePosition(marketData, sy1, 1)) return;
 
-    if (!enable_maker) return;
+    if (!exist_continue_mr()) return;
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
@@ -926,7 +925,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (is_continue_mr(sy1.sy, qty) != 2) return;
+                if (!is_continue_mr(sy1.sy, qty)) return;
                 //  qty = sy1.max_delta_limit;
 
                 SetOrderOptions order;
@@ -952,6 +951,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy1.inst, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
+                LOG_INFO << "maker "
             }
 
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p, sy2->mid_p)) {
@@ -966,7 +966,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
 
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (is_continue_mr(sy1.sy, qty) != 2) return;
+                if (!is_continue_mr(sy1.sy, qty)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1024,7 +1024,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->bid_v / 2);
-                if (is_continue_mr(sy2->sy, qty) != 2) return;
+                if (!is_continue_mr(sy2->sy, qty)) return;
 
                 if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
@@ -1062,7 +1062,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->ask_v / 2);
-                if (is_continue_mr(sy2->sy, qty) != 2) return;
+                if (!is_continue_mr(sy2->sy, qty)) return;
 
                 if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
@@ -1152,10 +1152,6 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
             sy2->bid_p - sy2->prc_tick_size,
             abs(qty1), order1);
     }
-
-
-
-
 }
 
 // flag 1 arb , 0 fr
@@ -1290,24 +1286,29 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     }
 }
 
-void StrategyFR::OnTimerTradingLogic() 
+bool StrategyFR::exist_continue_mr()
 {
     double mr = calc_uniMMR();
-
+    LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
         for (auto iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
-            enable_maker = false;
+            return false;
         }
     } else if (IS_DOUBLE_LESS(mr, 3)) {
         for (auto iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
-            enable_maker = false;
+            return false;
         }
     } else if (IS_DOUBLE_GREATER(mr, 9)) {
-        enable_maker = true;
+        return true;
     }
+    return false
+} 
 
+void StrategyFR::OnTimerTradingLogic() 
+{
+    exist_continue_mr();
     // mr 查询比较
     // position 比较
     // 

@@ -88,8 +88,8 @@ namespace spot {
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
-			int is_continue_mr(string symbol, double qty);
-
+			bool is_continue_mr(string symbol, double qty);
+			bool exist_continue_mr();
 			bool ClosePosition(const InnerMarketData &marketData, sy_info& sy, int flag);
 
 			void hedge(StrategyInstrument *strategyInstrument);
@@ -117,8 +117,6 @@ namespace spot {
 			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
-
-			bool enable_maker;
 		};
     }
 }

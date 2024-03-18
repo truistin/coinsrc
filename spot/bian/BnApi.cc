@@ -324,6 +324,14 @@ void BnApi::GetUm_Cm_Account()
 
 void BnApi::GetLeverageBracket()
 {
+    for (auto it : mmr_table) {
+        double** data = it.data;
+        for (int i = 0; i < it.rows; ++i) {  
+            LOG_INFO << "mmr table name: "<< it.table_name << ", notionalFloor: " << data[i][0] << ", notionalCap: " << data[i][1]
+                << ", initialLeverage: " << data[i][2] << ", maintMarginRatio: " << data[i][3] << ", cum: " << data[i][4];
+        }
+    }  
+        
     for (auto it : originSymbolToSpotSymbol_) {
         m_uri.clear();
         m_uri.protocol = HTTP_PROTOCOL_HTTPS;
