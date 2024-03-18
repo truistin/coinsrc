@@ -173,8 +173,8 @@ void StrategyFR::init()
 void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
-    auto& sy2 = sy1.ref;
-    over_max_delta_limit(sy1, sy2);
+    auto sy2 = sy1.ref;
+    over_max_delta_limit(sy1, (*sy2));
 
     hedge(strategyInstrument);
     return;
@@ -183,8 +183,8 @@ void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyIn
 void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
-    auto& sy2 = sy1.ref;
-    over_max_delta_limit(sy1, sy2);
+    auto sy2 = sy1.ref;
+    over_max_delta_limit(sy1, (*sy2));
 
     hedge(strategyInstrument);
     return;
@@ -1024,9 +1024,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->bid_v / 2);
-                if (is_continue_mr(sy2.sy, qty) != 2) return;
+                if (is_continue_mr(sy2->sy, qty) != 2) return;
 
-                if (IS_DOUBLE_LESS(qty, sy2.max_delta_limit)) return;
+                if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -1062,9 +1062,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->ask_v / 2);
-                if (is_continue_mr(sy2.sy, qty) != 2) return;
+                if (is_continue_mr(sy2->sy, qty) != 2) return;
 
-                if (IS_DOUBLE_LESS(qty, sy2.max_delta_limit)) return;
+                if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
