@@ -1141,16 +1141,16 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 
     memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
 
-    double qty = sy2->real_pos;
+    double qty1 = sy2->real_pos;
 
-    if (IS_DOUBLE_GREATER(qty, 0)) {
+    if (IS_DOUBLE_GREATER(qty1, 0)) {
         setOrder(sy2->inst, INNER_DIRECTION_Sell,
             sy2->bid_p - sy2->prc_tick_size,
-            abs(qty), order1);
+            abs(qty1), order1);
     } else {
         setOrder(sy2->inst, INNER_DIRECTION_Buy,
             sy2->bid_p - sy2->prc_tick_size,
-            abs(qty), order1);
+            abs(qty1), order1);
     }
 
 
@@ -1301,7 +1301,7 @@ void StrategyFR::OnTimerTradingLogic()
         }
     } else if (IS_DOUBLE_LESS(mr, 3)) {
         for (auto iter : strategyInstrumentList()) {
-            Mr_Market_ClosePosition(tier);
+            Mr_Market_ClosePosition(iter);
             enable_maker = false;
         }
     } else if (IS_DOUBLE_GREATER(mr, 9)) {
