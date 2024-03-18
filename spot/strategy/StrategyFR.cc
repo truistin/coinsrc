@@ -172,14 +172,20 @@ void StrategyFR::init()
 
 void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    over_max_delta_limit();
+    auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
+    auto& sy2 = sy1.ref;
+    over_max_delta_limit(sy1, sy2);
+
     hedge(strategyInstrument);
     return;
 }
 
 void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    over_max_delta_limit();
+    auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
+    auto& sy2 = sy1.ref;
+    over_max_delta_limit(sy1, sy2);
+
     hedge(strategyInstrument);
     return;
 }
@@ -1071,6 +1077,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
 void StrategyFR::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
+    
     hedge(strategyInstrument);
     return;
 }

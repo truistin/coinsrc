@@ -104,7 +104,7 @@ namespace spot {
 			void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num);
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
-
+			double calc_uniMMR();
 		private:
 			map<string, double>* margin_leverage;
 			map<double, double>* margin_mmr;
