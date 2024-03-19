@@ -925,7 +925,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (!is_continue_mr(sy1.sy, qty)) return;
+                if (!is_continue_mr(sy1, qty)) return;
                 //  qty = sy1.max_delta_limit;
 
                 SetOrderOptions order;
@@ -966,7 +966,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
 
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (!is_continue_mr(sy1.sy, qty)) return;
+                if (!is_continue_mr(sy1, qty)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1024,7 +1024,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->bid_v / 2);
-                if (!is_continue_mr(sy2->sy, qty)) return;
+                if (!is_continue_mr(sy2, qty)) return;
 
                 if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
@@ -1062,7 +1062,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy2->ask_v / 2);
-                if (!is_continue_mr(sy2->sy, qty)) return;
+                if (!is_continue_mr(sy2, qty)) return;
 
                 if (IS_DOUBLE_LESS(qty, sy2->max_delta_limit)) return;
 
