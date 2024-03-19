@@ -95,9 +95,9 @@ namespace spot {
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
-			double calc_predict_mm(order_fr& order, double price_cent);
-			double calc_predict_equity(order_fr& order, double price_cent);
-			double calc_future_uniMMR(string symbol, double qty);
+			double calc_predict_mm(sy_info& info, order_fr& order, double price_cent);
+			double calc_predict_equity(sy_info& info, order_fr& order, double price_cent);
+			double calc_future_uniMMR(sy_info& info, double qty);
 			double calc_equity();
 			double calc_mm();
 			double calc_balance();

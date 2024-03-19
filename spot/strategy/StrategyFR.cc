@@ -203,28 +203,28 @@ double StrategyFR::get_usdt_equity()
     return equity;
 }
 
-double StrategyFR::calc_future_uniMMR(string symbol, double qty)
+double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
 {
     double usdt_equity = get_usdt_equity();
     double sum_equity = calc_equity();
     double IM = 0;
 
     order_fr order;
-    order.sy = symbol;
+    order.sy = info.sy;
     order.qty = qty;
 
-    double price = (*last_price_map)[symbol];
+    double price = (*last_price_map)[info.sy];
     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_future_umimmr has no mkprice: " << symbol << ", markprice: " << (*last_price_map)[symbol];
+        LOG_WARN << "calc_future_umimmr has no mkprice: " << info.sy << ", markprice: " << (*last_price_map)[info.sy];
         return 0;
     }
     double borrow = 0;
-    if (IS_DOUBLE_GREATER(qty, 0)) { // 借usdt
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 借usdt
         borrow = qty * price;
-        IM = IM + borrow / ((*margin_leverage)[symbol] - 1) + (qty * price / um_leverage);         
+        IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
     } else { // 借现贄1�7
-        borrow = -qty;
-        IM = IM + (price * (-qty) / ((*margin_leverage)[symbol] - 1)) + (-qty) * price / um_leverage;
+        borrow = qty;
+        IM = IM + (price * (qty) / ((*margin_leverage)[info.sy] - 1)) + (qty) * price / um_leverage;
     }
 
     order.borrow = borrow;
@@ -234,14 +234,14 @@ double StrategyFR::calc_future_uniMMR(string symbol, double qty)
         return 0;
     }
 
-    double predict_equity = calc_predict_equity(order, price_ratio);
-    double predict_mm = calc_predict_mm(order, price_ratio);
+    double predict_equity = calc_predict_equity(info, order, price_ratio);
+    double predict_mm = calc_predict_mm(info, order, price_ratio);
     double predict_mmr = predict_equity / predict_mm;
     return predict_mmr;
 
 }
 
-double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
+double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double price_cent)
 {
     double sum_equity = 0;
     double price = (*last_price_map)[order.sy];
@@ -252,12 +252,12 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
 
     double rate = collateralRateMap[order.sy];
 
-    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多＄1�7 合约做空
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 现货做多＄1�7 合约做空
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
     } else { // 现货做空＄1�7 合约做多
-        double qty = (-order.qty);
+        double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
         sum_equity = equity + uswap_unpnl;
@@ -355,7 +355,7 @@ double StrategyFR::calc_predict_equity(order_fr& order, double price_cent)
     return sum_equity;
 }
 
-double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
+double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_cent)
 {
     double sum_mm = 0;
     double price = (*last_price_map)[order.sy];
@@ -371,7 +371,7 @@ double StrategyFR::calc_predict_mm(order_fr& order, double price_cent)
         
     }
 
-    if (IS_DOUBLE_GREATER(order.qty, 0)) { // 现货做多，合约做穄1�7
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 现货做多，合约做穄1�7
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
     } else { // 现货做空，合约做处1�7
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
@@ -596,9 +596,9 @@ double StrategyFR::calc_uniMMR()
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
-bool StrategyFR::is_continue_mr(string symbol, double qty)
+bool StrategyFR::is_continue_mr(sy_info& info, double qty)
 {
-    double mr = calc_future_uniMMR(symbol, qty);
+    double mr = calc_future_uniMMR(info, qty);
     if (IS_DOUBLE_GREATER(mr, 2)) {
         return true;
     }
