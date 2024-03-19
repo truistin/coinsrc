@@ -599,7 +599,7 @@ double StrategyFR::calc_uniMMR()
 bool StrategyFR::is_continue_mr(string symbol, double qty)
 {
     double mr = calc_future_uniMMR(symbol, qty);
-    if (IS_DOUBLE_GREATER(mr, 9)) {
+    if (IS_DOUBLE_GREATER(mr, 2)) {
         return true;
     }
     return false;
