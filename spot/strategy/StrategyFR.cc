@@ -612,9 +612,9 @@ double StrategyFR::calc_uniMMR()
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
-bool StrategyFR::is_continue_mr(sy_info& info, double qty)
+bool StrategyFR::is_continue_mr(sy_info* info, double qty)
 {
-    double mr = calc_future_uniMMR(info, qty);
+    double mr = calc_future_uniMMR(*info, qty);
     if (IS_DOUBLE_GREATER(mr, 2)) {
         return true;
     }
@@ -967,7 +967,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy1.inst, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
-                LOG_INFO << "maker "
+                LOG_INFO << "maker ";
             }
 
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_LESS(sy1.mid_p, sy2->mid_p)) {

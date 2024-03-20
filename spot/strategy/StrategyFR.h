@@ -88,7 +88,7 @@ namespace spot {
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
-			bool is_continue_mr(sy_info&, double qty);
+			bool is_continue_mr(sy_info*, double qty);
 			bool exist_continue_mr();
 			bool ClosePosition(const InnerMarketData &marketData, sy_info& sy, int flag);
 
