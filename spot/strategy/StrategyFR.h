@@ -40,6 +40,7 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
+				double pos_thresh;
 				double max_delta_limit;
 				double force_close_amount;
 				double prc_tick_size;
@@ -108,6 +109,7 @@ namespace spot {
 			string GetCMSymbol(string inst);
 			string GetUMSymbol(string inst);
 			double getSpotAssetSymbol(string asset);
+			bool make_continue_mr();
 
 		private:
 			map<string, double>* margin_leverage;
