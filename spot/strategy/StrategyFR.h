@@ -105,6 +105,9 @@ namespace spot {
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 			double calc_uniMMR();
+			string GetCMSymbol(string inst);
+			string GetUMSymbol(string inst);
+
 		private:
 			map<string, double>* margin_leverage;
 			map<double, double>* margin_mmr;
@@ -117,6 +120,7 @@ namespace spot {
 			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
+			map<string, string>* symbol_map;
 		};
     }
 }
