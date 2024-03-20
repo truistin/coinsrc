@@ -107,6 +107,7 @@ namespace spot {
 			double calc_uniMMR();
 			string GetCMSymbol(string inst);
 			string GetUMSymbol(string inst);
+			double getSpotAssetSymbol(string asset);
 
 		private:
 			map<string, double>* margin_leverage;

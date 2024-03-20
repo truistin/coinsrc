@@ -293,7 +293,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             price = getSpotAssetSymbol(sy);
         } else {
-            price = getSpotAssetSymbol(sy); * (1 + price_cent);
+            price = getSpotAssetSymbol(sy) * (1 + price_cent);
         }
 
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
@@ -318,21 +318,21 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     }
 
     for (auto iter : BnApi::UmAcc_->info1_) {
-        double price = (*make_taker)[symbol_map[iter.symbol]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "UmAcc has no mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[symbol_map[iter.symbol]].mid_p;
+            LOG_WARN << "UmAcc has no mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
             return 0;
         }
-        double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*make_taker)[symbol_map[iter.symbol]].mid_p) / (iter.positionAmt + order.qty);
+        double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*make_taker)[(*symbol_map)[iter.symbol]].mid_p) / (iter.positionAmt + order.qty);
         double uswap_unpnl = (price - avgPrice) * iter.positionAmt;
         sum_equity += uswap_unpnl;
     }
 
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = (*make_taker)[symbol_map[iter.symbol]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "CmAcc has no mkprice: " << sy << ", markprice: " << (*make_taker)[symbol_map[iter.symbol]].mid_p;
+            LOG_WARN << "CmAcc has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
             return 0;
         }
         double perp_size = 0;
@@ -342,13 +342,13 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
             perp_size = 10;
         }
 
-        double quantity = perp_size * iter.positionAmt / iter.entryPrice + order.qty * perp_size / (*make_taker)[symbol_map[iter.symbol]].mid_p;
+        double quantity = perp_size * iter.positionAmt / iter.entryPrice + order.qty * perp_size / (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
 
         double turnover = perp_size * iter.positionAmt + order.qty * perp_size;
 
         double avgPrice = turnover / quantity;
         if (IS_DOUBLE_LESS_EQUAL(avgPrice, 0)) {
-            avgPrice = (*make_taker)[symbol_map[iter.symbol]].mid_p;
+            avgPrice = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
         }
 
         double cswap_unpnl = price * perp_size * iter.positionAmt * (1/avgPrice - 1/price);
@@ -396,9 +396,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = (*make_taker)[symbol_map[sy]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*make_taker)[symbol_map[sy]].mid_p;
+            LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
             return 0;
         }
         double qty = iter.positionAmt;
@@ -413,7 +413,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
-        double price = (*make_taker)[symbol_map[sy]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << price;
             return 0;
@@ -544,14 +544,14 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::UmAcc_->info1_) {
-        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[symbol_map[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[symbol_map[it.symbol]].mid_p;
+        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
+            LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             return 0;
         }
 
         string symbol = it.symbol;
         double qty = it.positionAmt;
-        double markPrice = (*make_taker)[symbol_map[symbol]].mid_p;
+        double markPrice = (*make_taker)[(*symbol_map)[symbol]].mid_p;
         double mmr_rate;
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
@@ -560,8 +560,8 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::CmAcc_->info1_) {
-        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[symbol_map[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[symbol_map[it.symbol]].mid_p;
+        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
+            LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             return 0;
         }
         string symbol = it.symbol;
@@ -573,7 +573,7 @@ double StrategyFR::calc_mm()
             qty = it.positionAmt * 10;
         }
 
-        double markPrice = (*make_taker)[symbol_map[symbol]].mid_p;
+        double markPrice = (*make_taker)[(*symbol_map)[symbol]].mid_p;
         double mmr_rate;
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty), mmr_rate, mmr_num);
