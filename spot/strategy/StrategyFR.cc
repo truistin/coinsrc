@@ -941,7 +941,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.AskVolume1 / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (!is_continue_mr(sy1, qty)) return;
+                if (!is_continue_mr(&sy1, qty)) return;
                 //  qty = sy1.max_delta_limit;
 
                 SetOrderOptions order;
@@ -982,7 +982,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, marketData.BidVolume1 / 2);
 
                 if (IS_DOUBLE_LESS(qty, sy1.max_delta_limit)) return;
-                if (!is_continue_mr(sy1, qty)) return;
+                if (!is_continue_mr(&sy1, qty)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1319,7 +1319,7 @@ bool StrategyFR::exist_continue_mr()
     } else if (IS_DOUBLE_GREATER(mr, 9)) {
         return true;
     }
-    return false
+    return false;
 } 
 
 void StrategyFR::OnTimerTradingLogic() 
