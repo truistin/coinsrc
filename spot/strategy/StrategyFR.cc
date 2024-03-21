@@ -803,7 +803,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy.real_pos, marketData.BidVolume1);
+                double qty = std::min(sy.real_pos, sy2->bid_v / 2);
 
                 setOrder(sy.inst, INNER_DIRECTION_Buy,
                     marketData.BidPrice1 - sy.prc_tick_size,
@@ -834,7 +834,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy.real_pos, marketData.AskVolume1);
+                double qty = std::min(sy.real_pos, sy2->ask_v / 2);
 
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy.prc_tick_size,
@@ -867,7 +867,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2->real_pos, sy2->bid_v);
+                double qty = std::min(sy2->real_pos, sy1->bid_v / 2);
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -898,7 +898,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2->real_pos, sy2->ask_v);
+                double qty = std::min(sy2->real_pos, sy1.ask_v / 2);
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
@@ -942,7 +942,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 }
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
-                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_p / 2);
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
                 if (!is_continue_mr(&sy1, qty)) return;
                 //  qty = sy1.pos_thresh;
@@ -1210,7 +1210,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy.real_pos, sy.bid_v);
+                double qty = std::min(sy.real_pos, sy2->bid_v / 2);
 
                 setOrder(sy.inst, INNER_DIRECTION_Buy,
                     sy.bid_p - sy.prc_tick_size,
@@ -1239,7 +1239,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy.real_pos, sy.ask_v);
+                double qty = std::min(sy.real_pos, sy2->ask_v / 2);
 
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     sy.ask_p + sy.prc_tick_size,
@@ -1270,7 +1270,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2->real_pos, sy2->bid_v);
+                double qty = std::min(sy2->real_pos, sy.bid_v / 2);
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -1299,7 +1299,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2->real_pos, sy2->ask_v);
+                double qty = std::min(sy2->real_pos, sy1.ask_v / 2);
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
