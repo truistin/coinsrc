@@ -166,8 +166,8 @@ void StrategyFR::init()
 
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
-        syInfo.pos_thresh = it.second.hedgeThresh;
-        syInfo.max_delta_limit = syInfo.MaxDeltaLimit
+        syInfo.pos_thresh = it.second.PosThresh;
+        syInfo.max_delta_limit = it.second.MaxDeltaLimit
 
         syInfo.force_close_amount = it.second.ForceCloseAmount;
         make_taker->insert({it.second.Symbol, syInfo});
@@ -512,6 +512,7 @@ double StrategyFR::getSpotAssetSymbol(string asset)
         return (*make_taker)[sy].mid_p;
     } else {
         LOG_FATAL << "asset sy: " << asset;
+        return 0;
     }
 }
 
