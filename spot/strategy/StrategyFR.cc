@@ -167,7 +167,7 @@ void StrategyFR::init()
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
         syInfo.pos_thresh = it.second.PosThresh;
-        syInfo.max_delta_limit = it.second.MaxDeltaLimit
+        syInfo.max_delta_limit = it.second.MaxDeltaLimit;
 
         syInfo.force_close_amount = it.second.ForceCloseAmount;
         make_taker->insert({it.second.Symbol, syInfo});
@@ -1015,7 +1015,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         }
     } else if (sy2->make_taker_flag == 1) {
         if (sy2->long_short_flag == 0 &&  IS_DOUBLE_GREATER(sy1.mid_p, sy2->mid_p)) {
-            if (IS_DOUBLE_GREATER(sy2->real_pos + sy1.real_pos, sy2.max_delta_limit)) return;
+            if (IS_DOUBLE_GREATER(sy2->real_pos + sy1.real_pos, sy2->max_delta_limit)) return;
 
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
@@ -1055,7 +1055,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     qty, order);
             }
         } else if (sy2->long_short_flag == 1 && IS_DOUBLE_LESS(sy1.mid_p, sy2->mid_p)) {
-            if (IS_DOUBLE_GREATER(-sy2->real_pos - sy1.real_pos, sy2.max_delta_limit)) return;
+            if (IS_DOUBLE_GREATER(-sy2->real_pos - sy1.real_pos, sy2->max_delta_limit)) return;
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
             if (IS_DOUBLE_GREATER(spread_rate, sy1.thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.ref->real_pos) * sy1.ref->mid_p, sy1.ref->mv_ratio * bal)) {
