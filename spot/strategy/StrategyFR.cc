@@ -792,7 +792,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
-                    return;
+                    return false;
                 }
 
                 double u_posi = abs(sy.real_pos) * sy.avg_price;
@@ -832,7 +832,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 if (IS_DOUBLE_LESS(closeflag == 0 && abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
-                    return;
+                    return false;
                 }
 
                 double u_posi = abs(sy.real_pos) * sy.avg_price;
@@ -876,7 +876,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 if (IS_DOUBLE_LESS(closeflag == 0 && abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
-                    return;
+                    return false;
                 }
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
@@ -912,9 +912,9 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
-                if (IS_DOUBLE_LESS(closeflag == 0 && abs(sy2->real_pos) * sy2->avg_price, sy2.mv_ratio * bal)) {
+                if (IS_DOUBLE_LESS(closeflag == 0 && abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
-                    return;
+                    return false;
                 }
 
 
@@ -1065,7 +1065,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
-            if (IS_DOUBLE_LESS(spread_rate, sy2.fr_open_thresh)) {
+            if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
@@ -1106,7 +1106,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
-            if (IS_DOUBLE_GREATER(spread_rate, sy2.fr_open_thresh)) {
+            if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
@@ -1214,12 +1214,12 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
 
     if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-        double qty = std::min(sy2->real_pos, sy->ask_v / 2);
+        double qty = std::min(sy2->real_pos, sy.ask_v / 2);
         setOrder(sy2->inst, INNER_DIRECTION_Sell,
             sy2->bid_p - sy2->prc_tick_size,
             abs(qty), order1);
     } else {
-        double qty = std::min(sy2->real_pos, sy->bid_v / 2);
+        double qty = std::min(sy2->real_pos, sy.bid_v / 2);
         setOrder(sy2->inst, INNER_DIRECTION_Buy,
             sy2->bid_p - sy2->prc_tick_size,
             abs(qty), order1);
