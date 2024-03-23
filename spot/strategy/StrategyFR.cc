@@ -6,6 +6,7 @@
 #include "spot/cache/CacheAllocator.h"
 #include "spot/utility/TradingDay.h"
 #include "spot/bian/BnApi.h"
+#include <spot/utility/MeasureFunc.h>
 
 using namespace spot::strategy;
 // using namespace spot::risk;
@@ -139,6 +140,7 @@ string StrategyFR::GetCMSymbol(string inst) {
 
 void StrategyFR::init() 
 {
+    MeasureFunc::addMeasureData(1, "StrategyFR OnRtnInnerMarketDataTradingLogic time calc", 100);
     for (auto iter : strategyInstrumentList()) {
         string sy = iter->instrument()->getInstrumentID();
         if (sy.find("swap") != std::string::npos) {
@@ -789,7 +791,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
-
+                if (IsCancelExistOrders(sy, INNER_DIRECTION_Buy)) return;
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
@@ -826,7 +828,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy, INNER_DIRECTION_Sell)) return;
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -869,7 +871,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
@@ -908,7 +910,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -951,10 +953,33 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     return flag;
 }
 
-//open fr_thresh 可以理解为当maker做空, maker比taker 最少要高多少(at least larger than taker)，当maker做多，则是maker比taker最多能高多少(at least large than taker)
+bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
+{
+    if (side == INNER_DIRECTION_Buy) {
+        if (sy->buyMap->size() != 0) {
+            for (auto it : (*sy->buyMap)) {
+                sy->inst->cancelOrder(it->second);
+            }
+            return true;
+        }
+    } else if (side == INNER_DIRECTION_Sell) {
+        if (sy->sellMap->size() != 0) {
+            for (auto it : (*sy->sellMap)) {
+                sy->inst->cancelOrder(it->second);
+            }
+            return true;
+        }
+    } else {
+        LOG_FATAL << "side fatal: " << side;
+    }
+    return false
 
+}
+
+//open fr_thresh 可以理解为当maker做空, maker比taker 最少要高多少(at least larger than taker)，当maker做多，则是maker比taker最多能高多少(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
+    MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
     if (marketData.EpochTime - ts > 30) {
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
@@ -970,11 +995,18 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     if (ClosePosition(marketData, sy1, 1)) return;
 
-    if (!make_continue_mr()) return;
+    double mr = 0;
+    if (!make_continue_mr(mr)) {
+        action_mr(mr);
+        return;
+    }
+
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
         if (sy1.long_short_flag == 1) {
+            if (IsCancelExistOrders(sy1, INNER_DIRECTION_Sell)) return;
+
             if (IS_DOUBLE_GREATER(-sy1.real_pos - sy2->real_pos, sy1.max_delta_limit)) return;
             
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
@@ -1018,6 +1050,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
 
         } else if (sy1.long_short_flag == 0) {
+            if (IsCancelExistOrders(sy1, INNER_DIRECTION_Buy)) return;
             if (IS_DOUBLE_GREATER(sy1.real_pos + sy2->real_pos, sy1.max_delta_limit)) return;
 
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
@@ -1061,6 +1094,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         }
     } else if (sy2->make_taker_flag == 1) {
         if (sy2->long_short_flag == 0) {
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
             if (IS_DOUBLE_GREATER(sy2->real_pos + sy1.real_pos, sy2->max_delta_limit)) return;
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
@@ -1102,6 +1136,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     qty, order);
             }
         } else if (sy2->long_short_flag == 1) {
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
             if (IS_DOUBLE_GREATER(-sy2->real_pos - sy1.real_pos, sy2->max_delta_limit)) return;
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
@@ -1238,7 +1273,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     sy_info* sy2 = sy.ref;
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy, INNER_DIRECTION_Buy)) return;
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
@@ -1268,7 +1303,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     qty, order);
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy, INNER_DIRECTION_Sell)) return;
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -1300,7 +1335,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
@@ -1330,7 +1365,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     qty, order);
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -1363,24 +1398,22 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     }
 }
 
-bool StrategyFR::make_continue_mr()
+bool StrategyFR::make_continue_mr(double& mr)
 {
-    double mr = calc_uniMMR();
+    mr = calc_uniMMR();
     if (IS_DOUBLE_GREATER(mr, 9)) {
         return true;
     }
     return false;
 }
 
-bool StrategyFR::exist_continue_mr()
+bool StrategyFR::action_mr(double mr)
 {
-    double mr = calc_uniMMR();
-    LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
         for (auto iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
-            return false;
         }
+        return false;
     } else if (IS_DOUBLE_LESS(mr, 3)) {
         for (auto iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
@@ -1394,7 +1427,9 @@ bool StrategyFR::exist_continue_mr()
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    exist_continue_mr();
+    double mr = calc_uniMMR();
+    LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
+    // action_mr(mr);
     // mr 查询比较
     // position 比较
     // 

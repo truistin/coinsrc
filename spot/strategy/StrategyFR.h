@@ -90,7 +90,7 @@ namespace spot {
             StrategyFR(int strategyID, StrategyParameter *params);
 			void qryPosition();
 			bool is_continue_mr(sy_info*, double qty);
-			bool exist_continue_mr();
+			bool action_mr(double mr);
 			bool ClosePosition(const InnerMarketData &marketData, sy_info& sy, int flag);
 
 			void hedge(StrategyInstrument *strategyInstrument);
@@ -109,7 +109,7 @@ namespace spot {
 			string GetCMSymbol(string inst);
 			string GetUMSymbol(string inst);
 			double getSpotAssetSymbol(string asset);
-			bool make_continue_mr();
+			bool make_continue_mr(double& mr);
 
 		private:
 			map<string, double>* margin_leverage;
