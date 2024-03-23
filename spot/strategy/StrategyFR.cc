@@ -958,14 +958,16 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (auto it : (*sy->buyMap)) {
-                sy->inst->cancelOrder(it.second->OrderList);
+                for (auto iter : it.second->OrderList)
+                    sy->inst->cancelOrder(iter);
             }
             return true;
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (auto it : (*sy->sellMap)) {
-                sy->inst->cancelOrder(it.second->OrderList);
+                for (auto iter : it.second->OrderList)
+                    sy->inst->cancelOrder(iter);
             }
             return true;
         }
