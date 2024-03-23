@@ -791,7 +791,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
-                if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return;
+                if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return false;
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
@@ -828,7 +828,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
-            if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return false;
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -871,7 +871,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return false;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
@@ -910,7 +910,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return false;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -958,21 +958,21 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (auto it : (*sy->buyMap)) {
-                sy->inst->cancelOrder(it->second);
+                sy->inst->cancelOrder(it.second);
             }
             return true;
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (auto it : (*sy->sellMap)) {
-                sy->inst->cancelOrder(it->second);
+                sy->inst->cancelOrder(it.second);
             }
             return true;
         }
     } else {
         LOG_FATAL << "side fatal: " << side;
     }
-    return false
+    return false;
 
 }
 
