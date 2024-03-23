@@ -97,8 +97,8 @@ void StrategyFR::qryPosition() {
             if (iter->query(order) != 0) {
                 LOG_FATAL << "qryPosition symbol: " << iter->instrument()->getInstrumentID();
             }
-
-            auto it = BnApi::BalMap_.find(iter->instrument()->getInstrumentID());
+            
+            auto it = BnApi::BalMap_.find((*symbol_map)[iter->instrument()->getInstrumentID()]);
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
     
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
@@ -138,15 +138,26 @@ string StrategyFR::GetCMSymbol(string inst) {
     return cp;
 }
 
+string StrategyFR::GetSPOTSymbol(string inst) {
+    //btc_usdt_binance_perp --> btcusdt_perp
+    string cp = inst.substr(0, inst.find_last_of('_'));
+    cp = cp.substr(0, cp.find_last_of('_'));
+    cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
+    return cp;
+}
+
 void StrategyFR::init() 
 {
-    MeasureFunc::addMeasureData(1, "StrategyFR OnRtnInnerMarketDataTradingLogic time calc", 100);
+    MeasureFunc::addMeasureData(1, "StrategyFR time calc", 10000);
     for (auto iter : strategyInstrumentList()) {
         string sy = iter->instrument()->getInstrumentID();
         if (sy.find("swap") != std::string::npos) {
             symbol_map->insert({GetUMSymbol(sy), sy});
         } else if (sy.find("perp") != std::string::npos) {
             symbol_map->insert({GetCMSymbol(sy), sy});
+        } else if (sy.find("spot") != std::string::npos) {
+            symbol_map->insert({GetSPOTSymbol(sy), sy});
         }
     }
 
@@ -651,7 +662,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (IS_DOUBLE_LESS(abs(delta_posi), sy1.pos_thresh)) return;
-    if (IS_DOUBLE_GREATER(abs(delta_posi), sy1.force_close_amount))
+    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, sy1.force_close_amount))
         LOG_FATAL << "force close symbol: " << symbol << ", delta_posi: " << delta_posi;
      
     double taker_qty = abs(delta_posi);
@@ -1435,6 +1446,27 @@ void StrategyFR::OnTimerTradingLogic()
     // mr 查询比较
     // position 比较
     // 
+
+    for (auto iter : strategyInstrumentList()) {
+        string sy = iter->instrument()->getInstrumentID();
+        double net = iter->position().getNetPosition(); 
+
+        if (iter->instrument()->getInstrumentID().find("spot") != string::npos) {
+            auto it = BnApi::BalMap_.find((*symbol_map)[iter->instrument()->getInstrumentID()]);
+            if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
+            double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
+
+            LOG_INFO << "fr onTime spot sy: " << iter->instrument()->getInstrumentID()
+                << ", mem val: " << net << ", qry posi"
+        }
+
+        if (iter->instrument()->getInstrumentID().find("swap") != string::npos) {
+            for (auto it : BnApi::UmAcc_->info1_) {
+            
+            }
+        }
+
+    }
 
 }
 
