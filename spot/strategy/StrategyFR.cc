@@ -1427,7 +1427,7 @@ bool StrategyFR::action_mr(double mr)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    double mr = calc_uniMMR();
+    // double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
     // mr ≤È—Ø±»Ωœ
