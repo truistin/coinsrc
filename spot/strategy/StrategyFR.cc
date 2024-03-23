@@ -958,14 +958,14 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (auto it : (*sy->buyMap)) {
-                sy->inst->cancelOrder(it.second);
+                sy->inst->cancelOrder(it.second->OrderList);
             }
             return true;
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (auto it : (*sy->sellMap)) {
-                sy->inst->cancelOrder(it.second);
+                sy->inst->cancelOrder(it.second->OrderList);
             }
             return true;
         }
@@ -1427,7 +1427,7 @@ bool StrategyFR::action_mr(double mr)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    // double mr = calc_uniMMR();
+    double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
     // mr ≤È—Ø±»Ωœ
