@@ -110,6 +110,7 @@ namespace spot {
 			double calc_uniMMR();
 			string GetCMSymbol(string inst);
 			string GetUMSymbol(string inst);
+			string GetSPOTSymbol(string inst);
 			double getSpotAssetSymbol(string asset);
 			bool make_continue_mr(double& mr);
 

@@ -1451,19 +1451,42 @@ void StrategyFR::OnTimerTradingLogic()
         string sy = iter->instrument()->getInstrumentID();
         double net = iter->position().getNetPosition(); 
 
-        if (iter->instrument()->getInstrumentID().find("spot") != string::npos) {
-            auto it = BnApi::BalMap_.find((*symbol_map)[iter->instrument()->getInstrumentID()]);
-            if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
+        if (sy.find("spot") != string::npos) {
+            string asset = GetSPOTSymbol(sy);
+            auto it = BnApi::BalMap_.find((*symbol_map)[asset]);
+            if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error: " << asset;
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
 
-            LOG_INFO << "fr onTime spot sy: " << iter->instrument()->getInstrumentID()
-                << ", mem val: " << net << ", qry posi"
+            LOG_INFO << "fr onTime spot sy: " << asset
+                << ", mem val: " << net << ", qry pos val: " << equity;
         }
 
-        if (iter->instrument()->getInstrumentID().find("swap") != string::npos) {
-            for (auto it : BnApi::UmAcc_->info1_) {
-            
+        if (sy.find("swap") != string::npos) {
+            string asset = GetUMSymbol(sy);
+            bool flag = false;
+            for (auto it : BnApi::UmAcc_->info1_) { 
+                if (sy == (*symbol_map)[asset]) {
+                    flag = true;
+                    LOG_INFO << "fr onTime swap sy: " << asset << ", mem val: " << net
+                        << ", qry pos val: " << it.positionAmt;
+                    break;
+                }
             }
+            if (!flag) LOG_FATAL << "onTime um can't find symbol: " << sy << ", asset: " << asset;
+        }
+
+        if (sy.find("perp") != string::npos) {
+            string asset = GetCMSymbol(sy);
+            bool flag = false;
+            for (auto it : BnApi::CmAcc_->info1_) { 
+                if (sy == (*symbol_map)[asset]) {
+                    flag = true;
+                    LOG_INFO << "fr onTime perp sy: " << asset << ", mem val: " << net
+                        << ", qry pos val: " << it.positionAmt;
+                    break;
+                }
+            }
+            if (!flag) LOG_FATAL << "onTime cm can't find symbol: " << sy << ", asset: " << asset;
         }
 
     }
