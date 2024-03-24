@@ -41,13 +41,13 @@ namespace spot {
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
 				double pos_thresh;
-				double max_delta_limit;
-				double force_close_amount;
+				double max_delta_limit; // fragment 
+				double force_close_amount; // adl 
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
 				double mv_ratio;
-				double thresh;
+				double thresh; // arb close
 				double fr_open_thresh;
 				double fr_close_thresh;
 				int close_flag;
@@ -55,7 +55,7 @@ namespace spot {
 				double real_pos;
 				sy_info* ref;
 				StrategyInstrument *inst;
-				OrderByPriceMap* sellMap;
+				OrderByPriceMap* sellMap; // pendingorders
 				OrderByPriceMap* buyMap;
 			public:
 				void update(double askp, double bidp, double askv, double bidv) {

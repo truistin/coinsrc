@@ -682,6 +682,11 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy2->ask_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy2 taker close long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
@@ -695,6 +700,11 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy2->ask_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy2 taker open short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
@@ -708,6 +718,12 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.ask_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy1 taker close long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
+
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
@@ -721,6 +737,11 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.ask_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy1 taker open short: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, -sy1.pos_thresh)) {
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
@@ -736,6 +757,11 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy2->bid_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy2 taker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
@@ -749,6 +775,12 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy2->bid_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy2 taker close short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
+
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
@@ -762,6 +794,12 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.bid_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy1 taker open long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
+                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
+
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
@@ -775,6 +813,11 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                             sy1.bid_p,
                             taker_qty,
                             order);
+            LOG_INFO << "hedge sy1 taker close short: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
+                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     }
 }
@@ -836,6 +879,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                     marketData.BidPrice1 - sy.prc_tick_size,
                     qty, order);
 
+                LOG_INFO << "ClosePosition sy maker close short : " << sy.sy << ", sy order side: " << INNER_DIRECTION_Buy
+                    << ", sy maker_taker_flag: " << sy.make_taker_flag
+                    << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                    << ", sy category: " << sy.Category << ", sy order price: "
+                    << marketData.BidPrice1 - sy.prc_tick_size << ", sy order qty: " << qty;                
+
                 flag = true;
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
@@ -876,6 +925,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy.prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "ClosePosition sy maker close long: " << sy.sy << ", sy order side: " << INNER_DIRECTION_Sell
+                    << ", sy maker_taker_flag: " << sy.make_taker_flag
+                    << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                    << ", sy category: " << sy.Category << ", sy order price: "
+                    << marketData.AskPrice1 + sy.prc_tick_size << ", sy order qty: " << qty;    
 
                 flag = true;
             }
@@ -918,6 +973,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                     sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
 
+                LOG_INFO << "ClosePosition sy2 maker close short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
+
                 flag = true;
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
@@ -956,6 +1017,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "ClosePosition sy2 maker close long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
 
                 flag = true;
             }
@@ -1059,6 +1126,13 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy1.inst, INNER_DIRECTION_Sell,
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "MarketDataTradingLogic sy1 maker open sell: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+                    << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                    << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                    << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty;    
+            
                 LOG_INFO << "maker ";
             }
 
@@ -1103,6 +1177,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy1.inst, INNER_DIRECTION_Buy,
                     marketData.BidPrice1 - sy1.prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "MarketDataTradingLogic sy1 maker open long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
+                    << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
+                    << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy1 category: " << sy1.Category << ", sy1 order price: "
+                    << marketData.BidPrice1 - sy1.prc_tick_size << ", sy1 order qty: " << qty;    
             }
         }
     } else if (sy2->make_taker_flag == 1) {
@@ -1147,6 +1227,13 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "ClosePosition sy2 maker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;  
+
             }
         } else if (sy2->long_short_flag == 1) {
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
@@ -1189,6 +1276,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
+                
+                LOG_INFO << "ClosePosition sy2 maker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
             }
         }
     }
@@ -1314,6 +1407,12 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 setOrder(sy.inst, INNER_DIRECTION_Buy,
                     sy.bid_p - sy.prc_tick_size,
                     qty, order);
+                
+                LOG_INFO << "Mr_ClosePosition sy maker close short : " << sy.sy << ", sy order side: " << INNER_DIRECTION_Buy
+                    << ", sy maker_taker_flag: " << sy.make_taker_flag
+                    << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                    << ", sy category: " << sy.Category << ", sy order price: "
+                    sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
             if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return;
@@ -1344,6 +1443,12 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     sy.ask_p + sy.prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "Mr_ClosePosition sy maker close long: " << sy.sy << ", sy order side: " << INNER_DIRECTION_Sell
+                    << ", sy maker_taker_flag: " << sy.make_taker_flag
+                    << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                    << ", sy category: " << sy.Category << ", sy order price: "
+                    << sy.ask_p + sy.prc_tick_size << ", sy order qty: " << qty;    
             }
         }
     } else if (sy2->make_taker_flag == 1) {
@@ -1376,6 +1481,12 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "Mr_ClosePosition sy2 maker close short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
@@ -1406,6 +1517,13 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
+
+                LOG_INFO << "Mr_ClosePosition sy2 maker close long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                    << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                    << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy2 category: " << sy2->Category << ", sy2 order price: "
+                    << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
+
             }
         }
     }
