@@ -1412,7 +1412,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << ", sy maker_taker_flag: " << sy.make_taker_flag
                     << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
                     << ", sy category: " << sy.type << ", sy order price: "
-                    sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
+                    << sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
             if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return;
