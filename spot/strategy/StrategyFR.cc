@@ -1277,7 +1277,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     sy2->ask_p + sy2->prc_tick_size,
                     qty, order);
                 
-                LOG_INFO << "ClosePosition sy2 maker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                LOG_INFO << "ClosePosition sy2 maker open short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
                     << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->Category << ", sy2 order price: "
