@@ -160,15 +160,17 @@ void Position::updateCPnlInfo(const Order &rtnOrder)
 	}
 	if (rtnOrder.Direction == INNER_DIRECTION_Buy)
 	{
-		double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
-		pnlDaily_.AvgBuyPrice = avgPrice(pnlDaily_.BuyQuantity, pnlDaily_.AvgBuyPrice, temVol, rtnOrder.Price);
-		pnlDaily_.BuyQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		// double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		pnlDaily_.AvgBuyPrice = avgPrice(pnlDaily_.BuyQuantity, pnlDaily_.AvgBuyPrice, rtnOrder.Volume, rtnOrder.Price);
+		// pnlDaily_.BuyQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		pnlDaily_.BuyQuantity += rtnOrder.Volume
 	}
 	else if (rtnOrder.Direction == INNER_DIRECTION_Sell)
 	{
-		double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
-		pnlDaily_.AvgSellPrice = avgPrice(pnlDaily_.SellQuantity, pnlDaily_.AvgSellPrice, temVol, rtnOrder.Price);
-		pnlDaily_.SellQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		// double temVol = rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		pnlDaily_.AvgSellPrice = avgPrice(pnlDaily_.SellQuantity, pnlDaily_.AvgSellPrice, rtnOrder.Volume, rtnOrder.Price);
+		// pnlDaily_.SellQuantity += rtnOrder.Volume * instrument_->getMultiplier() / rtnOrder.Price;
+		pnlDaily_.SellQuantity += rtnOrder.Volume
 	}
 	calcAggregateFee(rtnOrder);
 	pnlDaily_.Profit = (instrument_->orderBook()->midPrice() - pnlDaily_.AvgBuyPrice) * pnlDaily_.BuyQuantity
@@ -232,7 +234,7 @@ double Position::getTransactionFee(const SymbolTradingFee &tradingFee,double qua
 {
 	if (FEEFORMAT_PERCENTAGE.compare(tradingFee.FeeFormat) == 0)
 	{
-		return price*quantity*(tradingFee.FeeRate)*(instrument_->getMultiplier());
+		return price*quantity*(tradingFee.FeeRate);
 	}
 	return quantity*(tradingFee.FeeRate);
 }
@@ -240,7 +242,7 @@ double Position::getTransactionFee(InstrumentTradingFee *tradingFee, double quan
 {
 	if (FEEFORMAT_PERCENTAGE.compare(tradingFee->FeeFormat) == 0)
 	{
-		return price*quantity*(tradingFee->FeeRate)*(instrument_->getMultiplier());
+		return price*quantity*(tradingFee->FeeRate);
 	}
 	return quantity*(tradingFee->FeeRate);
 }
