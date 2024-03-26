@@ -1,5 +1,5 @@
-#ifndef SPOT_STRATEGY_STRATEGYFR_H
-#define SPOT_STRATEGY_STRATEGYFR_H
+#ifndef SPOT_STRATEGY_STRATEGYUCEASY_H
+#define SPOT_STRATEGY_STRATEGYUCEASY_H
 
 #include "spot/base/DataStruct.h"
 #include "spot/strategy/Strategy.h"
@@ -40,7 +40,7 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
-				double min_delta_limit;
+				double pos_thresh;
 				double max_delta_limit; // fragment 
 				double force_close_amount; // adl 
 				double prc_tick_size;
@@ -48,11 +48,13 @@ namespace spot {
 				double qty;
 				double mv_ratio;
 				double thresh; // arb close
-				double fr_open_thresh;
-				double fr_close_thresh;
+				double buy_thresh;
+				double sell_thresh;
 				int close_flag;
 				int64_t exch_ts;
 				double real_pos;
+				double pos_adj;
+				double ord_capital;
 				sy_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
@@ -67,7 +69,7 @@ namespace spot {
 				}
 		};
 
-        class StrategyFR : public StrategyCircuit {
+        class StrategyUCEasy : public StrategyCircuit {
         public:
             static Strategy *Create(int strategyID, StrategyParameter *params);
 
@@ -85,9 +87,9 @@ namespace spot {
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument);
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval();
-			bool check_min_delta_limit(sy_info& sy1, sy_info& sy2);
+			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
-            StrategyFR(int strategyID, StrategyParameter *params);
+            StrategyUCEasy(int strategyID, StrategyParameter *params);
 			bool IsCancelExistOrders(sy_info* sy, int side);
 
 			void qryPosition();
@@ -127,6 +129,10 @@ namespace spot {
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
 			map<string, string>* symbol_map;
+
+			double disaster_tol_thresh;
+			double thresh_min;
+			double thresh_max;
 		};
     }
 }

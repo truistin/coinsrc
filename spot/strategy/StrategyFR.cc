@@ -179,7 +179,7 @@ void StrategyFR::init()
 
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
-        syInfo.pos_thresh = it.second.PosThresh;
+        syInfo.min_delta_limit = it.second.MinDeltaLimit;
         syInfo.max_delta_limit = it.second.MaxDeltaLimit;
 
         syInfo.force_close_amount = it.second.ForceCloseAmount;
@@ -209,7 +209,7 @@ void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyIn
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
-    if (!over_max_delta_limit(sy1, (*sy2))) return;
+    if (!check_min_delta_limit(sy1, (*sy2))) return;
 
     hedge(strategyInstrument);
     return;
@@ -219,7 +219,7 @@ void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument 
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
-    if (!over_max_delta_limit(sy1, (*sy2))) return;
+    if (!check_min_delta_limit(sy1, (*sy2))) return;
 
     hedge(strategyInstrument);
     return;
@@ -255,10 +255,10 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
         return 0;
     }
     double borrow = 0;
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ½èusdt
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½ï¿½usdt
         borrow = qty * price;
         IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
-    } else { // ½èÏÖÙ—1„1¤77
+    } else { // ï¿½ï¿½ï¿½ï¿½Ù—1ï¿½1ï¿½77
         borrow = qty;
         IM = IM + (price * (qty) / ((*margin_leverage)[info.sy] - 1)) + (qty) * price / um_leverage;
     }
@@ -266,7 +266,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     order.borrow = borrow;
 
     if (IS_DOUBLE_GREATER(IM, sum_equity)) {
-        LOG_INFO << "ÏÖ»õ+ºÏÔ¼µÄ³õÊ¼±£Ö¤½ð > ÓÐÐ§±£Ö¤½ð£¬²»¿ÉÒÔÏÂ…`1„1¤77: " << IM << ", sum_equity: " << sum_equity;
+        LOG_INFO << "ï¿½Ö»ï¿½+ï¿½ï¿½Ô¼ï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ö¤ï¿½ï¿½ > ï¿½ï¿½Ð§ï¿½ï¿½Ö¤ï¿½ð£¬²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â…`1ï¿½1ï¿½77: " << IM << ", sum_equity: " << sum_equity;
         return 0;
     }
 
@@ -288,11 +288,11 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ÏÖ»õ×ö¶à¡ç1„1¤77 ºÏÔ¼×ö¿Õ
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½1ï¿½77 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // ÏÖ»õ×ö¿Õ¡ç1„1¤77 ºÏÔ¼×ö¶à
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ¡ï¿½1ï¿½1ï¿½77 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -387,9 +387,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ÏÖ»õ×ö¶à£¬ºÏÔ¼×ö·]1„1¤77
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½]1ï¿½1ï¿½77
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // ÏÖ»õ×ö¿Õ£¬ºÏÔ¼×ö´¦1„1¤77
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½1ï¿½1ï¿½77
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -402,7 +402,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         }
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ¸Ü¸ËÏÖ»õÎ¬³Ö±£Ö¤áˆ1„1¤77
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ï¿½Ü¸ï¿½ï¿½Ö»ï¿½Î¬ï¿½Ö±ï¿½Ö¤ï¿½1ï¿½1ï¿½77
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
@@ -532,7 +532,7 @@ double StrategyFR::getSpotAssetSymbol(string asset)
 double StrategyFR::calc_mm()
 {
     double sum_mm = 0;
-    // ÏÖ»õ¸Ü¸Ëmm
+    // ï¿½Ö»ï¿½ï¿½Ü¸ï¿½mm
     for (auto it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
@@ -636,19 +636,19 @@ bool StrategyFR::is_continue_mr(sy_info* info, double qty)
     return false;
 }
 
-bool StrategyFR::over_max_delta_limit(sy_info& sy1, sy_info& sy2) 
+bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2) 
 {
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
 
     if (SWAP == sy1.sy) {
-        sy2.avg_price = sy1.avg_price;
+        sy2.avg_price = sy1.EntryPrice;
     } else {
-        sy1.avg_price = sy2.avg_price;
+        sy1.avg_price = sy2.EntryPrice;
     }
-    if (IS_DOUBLE_LESS(sy1.real_pos + sy2.real_pos, sy1.pos_thresh)) {
+    if (IS_DOUBLE_LESS(sy1.real_pos + sy2.real_pos, sy1.min_delta_limit)) {
         return false;
-        LOG_INFO << "over_max_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
+        LOG_INFO << "check_min_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
     }
 
     return true;
@@ -661,14 +661,14 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     sy_info* sy2 = sy1.ref;
 
     double delta_posi = sy1.real_pos + sy2->real_pos;
-    if (IS_DOUBLE_LESS(abs(delta_posi), sy1.pos_thresh)) return;
+    if (IS_DOUBLE_LESS(abs(delta_posi), sy1.min_delta_limit)) return;
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, sy1.force_close_amount))
         LOG_FATAL << "force close symbol: " << symbol << ", delta_posi: " << delta_posi;
      
     double taker_qty = abs(delta_posi);
 
     SetOrderOptions order;
-    if (IS_DOUBLE_GREATER_EQUAL(delta_posi, sy1.pos_thresh)) {
+    if (IS_DOUBLE_GREATER_EQUAL(delta_posi, sy1.min_delta_limit)) {
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
@@ -743,7 +743,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
-    } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, -sy1.pos_thresh)) {
+    } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, -sy1.min_delta_limit)) {
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
@@ -823,7 +823,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ¿ÉÒÔÀí½âÎªµ±maker×ö¿Õ  maker±Ètaker ×î¶àÄÜ¸ß¶àÉÙ(at most larger than taker)£¬µ±maker×ö¶à£¬ÔòÊÇmaker±Ètaker×îÉÙÒª¸ß¶àÉÙ(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿½(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -1056,7 +1056,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 
 }
 
-//open fr_thresh ¿ÉÒÔÀí½âÎªµ±maker×ö¿Õ, maker±Ètaker ×îÉÙÒª¸ß¶àÉÙ(at least larger than taker)£¬µ±maker×ö¶à£¬ÔòÊÇmaker±Ètaker×î¶àÄÜ¸ß¶àÉÙ(at least large than taker)
+//open fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½, makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿½(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1099,9 +1099,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
-                if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
+                if (IS_DOUBLE_LESS(qty, sy1.min_delta_limit)) return;
                 if (!is_continue_mr(&sy1, qty)) return;
-                //  qty = sy1.pos_thresh;
+                //  qty = sy1.min_delta_limit;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1151,7 +1151,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->bid_v / 2);
 
-                if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
+                if (IS_DOUBLE_LESS(qty, sy1.min_delta_limit)) return;
                 if (!is_continue_mr(&sy1, qty)) return;
 
                 SetOrderOptions order;
@@ -1222,7 +1222,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.bid_v / 2);
                 if (!is_continue_mr(sy2, qty)) return;
 
-                if (IS_DOUBLE_LESS(qty, sy2->pos_thresh)) return;
+                if (IS_DOUBLE_LESS(qty, sy2->min_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -1271,7 +1271,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.ask_v / 2);
                 if (!is_continue_mr(sy2, qty)) return;
 
-                if (IS_DOUBLE_LESS(qty, sy2->pos_thresh)) return;
+                if (IS_DOUBLE_LESS(qty, sy2->min_delta_limit)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
@@ -1368,7 +1368,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ¿ÉÒÔÀí½âÎªµ±maker×ö¿Õ  maker±Ètaker ×î¶àÄÜ¸ß¶àÉÙ(at most larger than taker)£¬µ±maker×ö¶à£¬ÔòÊÇmaker±Ètaker×îÉÙÒª¸ß¶àÉÙ(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿½(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
@@ -1561,8 +1561,8 @@ void StrategyFR::OnTimerTradingLogic()
     double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
-    // mr ²éÑ¯±È½Ï
-    // position ±È½Ï
+    // mr ï¿½ï¿½Ñ¯ï¿½È½ï¿½
+    // position ï¿½È½ï¿½
     // 
 
     for (auto iter : strategyInstrumentList()) {

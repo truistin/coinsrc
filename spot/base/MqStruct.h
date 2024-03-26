@@ -285,11 +285,12 @@ namespace spot
       double PreTickSize;
       double QtyTickSize;
       double MaxDeltaLimit;
-      double FrOpenThresh;
-      double FrCloseThresh;
+      double OpenThresh;
+      double CloseThresh;
       int CloseFlag;
       double ForceCloseAmount;
-      double PosThresh;
+      double MinDeltaLimit;
+      double PosAdj;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -400,21 +401,21 @@ namespace spot
         else
           MaxDeltaLimit = (double)*static_cast<int64_t*>(value);
       }
-      void setFrOpenThresh( void *value , uint16_t length = 0) {
+      void setOpenThresh( void *value , uint16_t length = 0) {
         if (length == 8)
-          FrOpenThresh = *static_cast<double*>(value);
+          OpenThresh = *static_cast<double*>(value);
         else if (length == 0)
-          FrOpenThresh = (double)*static_cast<int*>(value);
+          OpenThresh = (double)*static_cast<int*>(value);
         else
-          FrOpenThresh = (double)*static_cast<int64_t*>(value);
+          OpenThresh = (double)*static_cast<int64_t*>(value);
       }
-      void setFrCloseThresh( void *value , uint16_t length = 0) {
+      void setCloseThresh( void *value , uint16_t length = 0) {
         if (length == 8)
-          FrCloseThresh = *static_cast<double*>(value);
+          CloseThresh = *static_cast<double*>(value);
         else if (length == 0)
-          FrCloseThresh = (double)*static_cast<int*>(value);
+          CloseThresh = (double)*static_cast<int*>(value);
         else
-          FrCloseThresh = (double)*static_cast<int64_t*>(value);
+          CloseThresh = (double)*static_cast<int64_t*>(value);
       }
       void setCloseFlag( void *value , uint16_t length = 0) {
         CloseFlag = *static_cast<int*>(value);
@@ -427,19 +428,27 @@ namespace spot
         else
           ForceCloseAmount = (double)*static_cast<int64_t*>(value);
       }
-      void setPosThresh( void *value , uint16_t length = 0) {
+      void setMinDeltaLimit( void *value , uint16_t length = 0) {
         if (length == 8)
-          PosThresh = *static_cast<double*>(value);
+          MinDeltaLimit = *static_cast<double*>(value);
         else if (length == 0)
-          PosThresh = (double)*static_cast<int*>(value);
+          MinDeltaLimit = (double)*static_cast<int*>(value);
         else
-          PosThresh = (double)*static_cast<int64_t*>(value);
+          MinDeltaLimit = (double)*static_cast<int64_t*>(value);
+      }
+      void setPosAdj( void *value , uint16_t length = 0) {
+        if (length == 8)
+          PosAdj = *static_cast<double*>(value);
+        else if (length == 0)
+          PosAdj = (double)*static_cast<int*>(value);
+        else
+          PosAdj = (double)*static_cast<int64_t*>(value);
       }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]FrOpenThresh=[%f]FrCloseThresh=[%f]CloseFlag=[%d]ForceCloseAmount=[%f]PosThresh=[%f]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,FrOpenThresh,FrCloseThresh,CloseFlag,ForceCloseAmount,PosThresh);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]ForceCloseAmount=[%f]MinDeltaLimit=[%f]PosAdj=[%f]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,ForceCloseAmount,MinDeltaLimit,PosAdj);
         return buffer;
       }
 
@@ -462,11 +471,12 @@ namespace spot
         methodMap["PreTickSize"] = std::bind(&SymbolInfo::setPreTickSize, this, _1,_2);
         methodMap["QtyTickSize"] = std::bind(&SymbolInfo::setQtyTickSize, this, _1,_2);
         methodMap["MaxDeltaLimit"] = std::bind(&SymbolInfo::setMaxDeltaLimit, this, _1,_2);
-        methodMap["FrOpenThresh"] = std::bind(&SymbolInfo::setFrOpenThresh, this, _1,_2);
-        methodMap["FrCloseThresh"] = std::bind(&SymbolInfo::setFrCloseThresh, this, _1,_2);
+        methodMap["OpenThresh"] = std::bind(&SymbolInfo::setOpenThresh, this, _1,_2);
+        methodMap["CloseThresh"] = std::bind(&SymbolInfo::setCloseThresh, this, _1,_2);
         methodMap["CloseFlag"] = std::bind(&SymbolInfo::setCloseFlag, this, _1,_2);
         methodMap["ForceCloseAmount"] = std::bind(&SymbolInfo::setForceCloseAmount, this, _1,_2);
-        methodMap["PosThresh"] = std::bind(&SymbolInfo::setPosThresh, this, _1,_2);
+        methodMap["MinDeltaLimit"] = std::bind(&SymbolInfo::setMinDeltaLimit, this, _1,_2);
+        methodMap["PosAdj"] = std::bind(&SymbolInfo::setPosAdj, this, _1,_2);
       }
 
       string toJson() const {
@@ -517,15 +527,17 @@ namespace spot
           doc.AddMember("QtyTickSize",QtyTickSize, allocator);
         if (!std::isnan(MaxDeltaLimit))
           doc.AddMember("MaxDeltaLimit",MaxDeltaLimit, allocator);
-        if (!std::isnan(FrOpenThresh))
-          doc.AddMember("FrOpenThresh",FrOpenThresh, allocator);
-        if (!std::isnan(FrCloseThresh))
-          doc.AddMember("FrCloseThresh",FrCloseThresh, allocator);
+        if (!std::isnan(OpenThresh))
+          doc.AddMember("OpenThresh",OpenThresh, allocator);
+        if (!std::isnan(CloseThresh))
+          doc.AddMember("CloseThresh",CloseThresh, allocator);
         doc.AddMember("CloseFlag",CloseFlag, allocator);
         if (!std::isnan(ForceCloseAmount))
           doc.AddMember("ForceCloseAmount",ForceCloseAmount, allocator);
-        if (!std::isnan(PosThresh))
-          doc.AddMember("PosThresh",PosThresh, allocator);
+        if (!std::isnan(MinDeltaLimit))
+          doc.AddMember("MinDeltaLimit",MinDeltaLimit, allocator);
+        if (!std::isnan(PosAdj))
+          doc.AddMember("PosAdj",PosAdj, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;
