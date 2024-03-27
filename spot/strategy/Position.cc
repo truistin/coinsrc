@@ -184,7 +184,7 @@ void Position::updatePnlInfo(const Order &rtnOrder)
 	} else {
 		updateUPnlInfo(rtnOrder);
 	}
-	LOG_INFO << "Position symbol: " << rtnOrder.InstrumentID
+	LOG_INFO << "CM Position symbol: " << rtnOrder.InstrumentID
 		<< ", timeInForce: " << rtnOrder.TimeInForce
 		<< ", side: " <<  rtnOrder.Direction
 		<< ", Profit: " <<  pnlDaily_.Profit
