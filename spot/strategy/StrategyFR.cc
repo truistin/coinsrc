@@ -1303,7 +1303,7 @@ void StrategyFR::OnForceCloseTimerInterval()
 void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-    string stType = "FrClose";
+    string stType = "Mr_Market_Close";
 
     sy_info* sy2 = sy.ref;
 
