@@ -16,171 +16,28 @@ Strategy *StrategyUCEasy::Create(int strategyID, StrategyParameter *params) {
 
 StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
         : StrategyCircuit(strategyID, params) {
-    memset(&sy1, 0, sizeof(SyInfo));
-    memset(&sy2, 0, sizeof(SyInfo));
-    on_time_60 = CURR_MSTIME_POINT;
-    risk_ = new spotRisk(this);
-    last_taker_time = 0;
-    delta_pos_notional = 0;
-    enable_taker = *parameters()->getInt("enable_taker");
-    enable_hedge = *parameters()->getInt("enable_hedge");
-    enable_maker = *parameters()->getInt("enable_maker");
-    symbol2_taker_time_gap = *parameters()->getDouble("symbol2_taker_time_gap");
+    um_leverage = *parameters()->getDouble("um_leverage");
+    price_ratio = *parameters()->getDouble("price_ratio");
 
-    taker_level_limit = *parameters()->getInt("taker_level_limit");
-    hedge_time_gap = *parameters()->getDouble("hedge_time_gap");
-    hedge_pos_thresh2 = *parameters()->getDouble("hedge_pos_thresh2");
-    hedge_taker_ratio = *parameters()->getDouble("hedge_taker_ratio");
+    margin_leverage = new map<string, double>; // {'BTC':10, 'ETH':10,'ETC':10,'default':5}
+    margin_leverage->insert({"BTC", 10});
+    margin_leverage->insert({"ETH", 10});
+    margin_leverage->insert({"ETC", 10});
+    margin_leverage->insert({"default", 5});
 
-    taker_threshold_perc = *parameters()->getDouble("taker_threshold_perc");
-    taker_threshold_incr = *parameters()->getDouble("taker_threshold_incr");
-    symbol2_taker_notional = *parameters()->getDouble("symbol2_taker_notional");
-    max_delta_limit = *parameters()->getDouble("max_delta_limit");
-    arbitrage_mode = *parameters()->getInt("arbitrage_mode");
-    symbol2_multiplier = *parameters()->getDouble("symbol2_multiplier");
-    symbol2_pos_adj = *parameters()->getDouble("symbol2_pos_adj");
+    margin_mmr = new map<double, double>;
+    margin_mmr->insert({3, 0.1}); // {3:0.1, 5:0.08, 10:0.05}
+    margin_mmr->insert({5, 0.08});
+    margin_mmr->insert({10, 0.05});
 
-    max_position_limit = *parameters()->getDouble("max_position_limit");
-    disaster_tol_thresh = *parameters()->getDouble("disaster_tol_thresh");
-    maker_threshold = *parameters()->getDouble("maker_threshold");
-    thresh_max = *parameters()->getDouble("thresh_max");
-    thresh_min = *parameters()->getDouble("thresh_min");
-    batch_sensitivity = *parameters()->getDouble("batch_sensitivity");
-    cancel_order_interval = *parameters()->getInt("cancel_order_interval");
-    symbol2_maker_notional = *parameters()->getDouble("symbol2_maker_notional");
+    pridict_borrow = new map<string, double>;
+    make_taker = new map<string, sy_info>;
+    symbol_map = new map<string, string>;
 
-    order_distance = *parameters()->getDouble("order_distance");
-    order_level = *parameters()->getInt("order_level");
-    level_tolerance = *parameters()->getInt("level_tolerance");
-    news = *parameters()->getInt("news");
-    news_thresh = *parameters()->getDouble("news_thresh");
-    ob_tolerance_seconds = *parameters()->getDouble("ob_tolerance_seconds");
-    trade_tolerance_seconds = *parameters()->getDouble("trade_tolerance_seconds");
-    special_trade_tolerance_seconds = *parameters()->getDouble("special_trade_tolerance_seconds");
-    tolerance_delay = *parameters()->getDouble("tolerance_delay");
-    delay_plus = *parameters()->getDouble("delay_plus");
-    pos_adj_amount = *parameters()->getDouble("pos_adj_amount");
-    step_thresh = *parameters()->getDouble("step_thresh");
-    time_gap = *parameters()->getInt("time_gap");
+    pre_sum_equity = 0;
 
-    buy_open_flag = *parameters()->getInt("buy_open_flag");
-    sell_open_flag = *parameters()->getInt("sell_open_flag");
-
-    last_time_stamp = CURR_STIME_POINT;
-
-    stop_trade = true;
-    first_time60 = true;
-    last_hedge_time = 0;
-    symbol1 = parameters()->getString("symbol1");
-    symbol2 = parameters()->getString("symbol2");
-    memcpy(sy1.symbol, symbol1.c_str(), min(uint16_t(symbol1.size()), uint16_t(InstrumentIDLen)));
-    memcpy(sy2.symbol, symbol2.c_str(), min(uint16_t(symbol2.size()), uint16_t(InstrumentIDLen)));
-
-    exch1 = parameters()->getString("exch1");
-    exch2 = parameters()->getString("exch2");
-    kMinPrice = 0.0;
-    kMaxPrice = 1000000000000.0;
-
-
-    // ceil(abs(log10(self.si.qty_tick_size)))
-    
-    sy1.prc_tick_size = *parameters()->getDouble("sy1_prc_tick_size");
-    sy2.prc_tick_size = *parameters()->getDouble("sy2_prc_tick_size");
-    sy1.qty_tick_size = *parameters()->getDouble("sy1_qty_tick_size");
-    sy2.qty_tick_size = *parameters()->getDouble("sy2_qty_tick_size");
-
-    sy1.prx_decimal = ceil(abs(log10(sy1.prc_tick_size)));
-    sy2.prx_decimal = ceil(abs(log10(sy2.prc_tick_size)));
-    sy1.qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
-    sy2.qty_decimal = ceil(abs(log10(sy2.qty_tick_size)));
-
-    sy1.min_qty = *parameters()->getDouble("sy1_min_qty");
-    sy2.min_qty = *parameters()->getDouble("sy2_min_qty");
-    sy1.max_qty = *parameters()->getDouble("sy1_max_qty");
-    sy2.max_qty = *parameters()->getDouble("sy2_max_qty");
-
-    LOG_INFO << "initial arb: " << ", symbol1: " << symbol1 << ", symbol2: " << symbol2
-        << ", exch1: " << exch1 << ", exch2: " << exch2
-        << ", sy1.prx_decimal: " << sy1.prx_decimal
-        << ", sy2.prx_decimal: " << sy2.prx_decimal
-        << ", sy1.qty_decimal: " << sy1.qty_decimal
-        << ", sy2.qty_decimal: " << sy2.qty_decimal
-        << ", sy1.min_qty: " << sy1.min_qty
-        << ", sy2.min_qty: " << sy2.min_qty
-        << ", sy1.max_qty: " << sy1.max_qty
-        << ", sy2.max_qty: " << sy2.max_qty
-        << ", sy1.prc_tick_size: " << sy1.prc_tick_size
-        << ", sy2.prc_tick_size: " << sy2.prc_tick_size
-        << ", sy1.qty_tick_size: " << sy1.qty_tick_size
-        << ", sy2.qty_tick_size: " << sy2.qty_tick_size
-        << ", enable_taker: " << enable_taker
-        << ", enable_hedge: " << enable_hedge
-        << ", enable_maker: " << enable_maker
-        << ", symbol2_taker_time_gap: " << symbol2_taker_time_gap
-                
-        << ", taker_level_limit: " << taker_level_limit
-        << ", hedge_time_gap: " << hedge_time_gap
-        << ", hedge_pos_thresh2: " << hedge_pos_thresh2
-        << ", hedge_taker_ratio: " << hedge_taker_ratio
-
-        << ", taker_threshold_perc: " << taker_threshold_perc
-        << ", taker_threshold_incr: " << taker_threshold_incr
-        << ", symbol2_taker_notional: " << symbol2_taker_notional
-        << ", max_delta_limit: " << max_delta_limit
-        << ", arbitrage_mode: " << arbitrage_mode
-        << ", symbol2_multiplier: " << symbol2_multiplier
-        << ", symbol2_pos_adj: " << symbol2_pos_adj
-
-        << ", max_position_limit: " << max_position_limit
-        << ", disaster_tol_thresh: " << disaster_tol_thresh
-        << ", maker_threshold: " << maker_threshold
-        << ", thresh_max: " << thresh_max
-        << ", thresh_min: " << thresh_min
-        << ", batch_sensitivity: " << batch_sensitivity
-        << ", cancel_order_interval: " << cancel_order_interval
-        << ", symbol2_maker_notional: " << symbol2_maker_notional
-
-        << ", order_distance: " << order_distance
-        << ", order_level: " << order_level
-        << ", level_tolerance: " << level_tolerance
-        << ", news: " << news
-        << ", news_thresh: " << news_thresh
-        << ", ob_tolerance_seconds: " << ob_tolerance_seconds
-        << ", trade_tolerance_seconds: " << trade_tolerance_seconds
-        << ", special_trade_tolerance_seconds: " << special_trade_tolerance_seconds
-        << ", tolerance_delay: " << tolerance_delay
-        << ", delay_plus: " << delay_plus
-        << ", pos_adj_amount: " << pos_adj_amount
-        << ", step_thresh: " << step_thresh
-        << ", buy_open_flag: " << buy_open_flag
-        << ", sell_open_flag: " << sell_open_flag
-        << ", time_gap: " << time_gap;
-
-    cSize_ = 1;
-	rSize_ = 1;
-}
-
-void StrategyUCEasy::initInstrument() {
-    for (auto it : strategyInstrumentList())
-	{
-		it->tradeable(true);
-	}
-    for (auto iter : strategyInstrumentList()) {
-        if (strcmp(sy1.symbol, iter->instrument()->getInstrumentID().c_str()) == 0) {
-            sy1.strategyInstrument = iter;
-            buyPriceMap1 = sy1.strategyInstrument->buyOrders();
-            sellPriceMap1 = sy1.strategyInstrument->sellOrders();
-        }
-        if (strcmp(sy2.symbol, iter->instrument()->getInstrumentID().c_str()) == 0) {
-            sy2.strategyInstrument = iter;
-            buyPriceMap2 = sy2.strategyInstrument->buyOrders();
-            sellPriceMap2 = sy2.strategyInstrument->sellOrders();
-        }
-    }
-}
-void StrategyUCEasy::resetRcSize() {
-	cSize_ = 1;
-	rSize_ = 1;
+	thresh_min = -0.2;
+	thresh_max = 0.2;
 }
 
 void StrategyUCEasy::qryPosition() {
@@ -297,7 +154,6 @@ void StrategyUCEasy::initSymbol(){
 }
 
 void StrategyUCEasy::init() {
-    initInstrument();
     initSymbol();
     qryPosition();
     for (auto it : (*make_taker)) {
@@ -319,6 +175,113 @@ bool StrategyUCEasy::vaildPrice(SyInfo& sy) {
 
 }
 
+bool StrategyUCEasy::IsCancelExistOrders(sy_info* sy)
+{
+    if (sy->buyMap->size() != 0) {
+        for (auto it : (*sy->buyMap)) {
+            for (auto iter : it.second->OrderList) {
+                if (strcmp(iter.TimeInForce, "GTX") == 0) sy->inst->cancelOrder(iter);
+            }
+                
+        }
+        return true;
+    }
+
+    if (sy->sellMap->size() != 0) {
+        for (auto it : (*sy->sellMap)) {
+            for (auto iter : it.second->OrderList)
+                if (strcmp(iter.TimeInForce, "GTX") == 0) sy->inst->cancelOrder(iter);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
+{
+    sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
+    string stType = "FrClose";
+
+    sy_info* sy2 = sy.ref;
+
+    SetOrderOptions order;
+    order.orderType = ORDERTYPE_MARKET; // ?
+
+    if (SPOT == sy.type) {
+        string Category = LEVERAGE;
+        memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    } else if (SWAP == sy.type) {
+        string Category = LINEAR;
+        memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    } else {
+        LOG_FATAL << "";
+    }
+
+    memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+
+    memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
+
+    if (IS_DOUBLE_GREATER(sy.real_pos, 0)) {
+        double qty = std::min(sy.real_pos, sy2->ask_v / 2);
+        setOrder(sy.inst, INNER_DIRECTION_Sell,
+            sy.bid_p - sy.prc_tick_size,
+            abs(qty), order);
+    } else {
+        double qty = std::min(sy.real_pos, sy2->bid_v / 2);
+        setOrder(sy.inst, INNER_DIRECTION_Buy,
+            sy.bid_p - sy.prc_tick_size,
+            abs(qty), order);
+    }
+
+    SetOrderOptions order1;
+    order1.orderType = ORDERTYPE_MARKET; // ?
+
+    if (SPOT == sy2->type) {
+        string Category = LEVERAGE;
+        memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    } else if (SWAP == sy2->type) {
+        string Category = LINEAR;
+        memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    } else {
+        LOG_FATAL << "";
+    }
+
+    memcpy(order1.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+
+    memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
+
+    if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
+        double qty = std::min(sy2->real_pos, sy.ask_v / 2);
+        setOrder(sy2->inst, INNER_DIRECTION_Sell,
+            sy2->bid_p - sy2->prc_tick_size,
+            abs(qty), order1);
+    } else {
+        double qty = std::min(sy2->real_pos, sy.bid_v / 2);
+        setOrder(sy2->inst, INNER_DIRECTION_Buy,
+            sy2->bid_p - sy2->prc_tick_size,
+            abs(qty), order1);
+    }
+}
+
+bool StrategyUCEasy::action_mr(double mr)
+{
+    if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
+        for (auto iter : strategyInstrumentList()) {
+            Mr_ClosePosition(iter);
+        }
+        return false;
+    } else if (IS_DOUBLE_LESS(mr, 3)) {
+        for (auto iter : strategyInstrumentList()) {
+            Mr_Market_ClosePosition(iter);
+            return false;
+        }
+    } else if (IS_DOUBLE_GREATER(mr, 9)) {
+        return true;
+    }
+    return false;
+} 
+
 void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -330,8 +293,6 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
 
-    if (ClosePosition(marketData, sy1, 1)) return;
-
     double mr = 0;
     if (!make_continue_mr(mr)) {
         action_mr(mr);
@@ -341,8 +302,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) return;
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(&sy1)) return;
 
             if (IS_DOUBLE_GREATER(abs(sy1.real_pos + sy2->real_pos), sy1.max_delta_limit)) return;
             
@@ -428,8 +388,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
             
             }
     } else if (sy2->make_taker_flag == 1) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(sy2)) return;
 
             if (IS_DOUBLE_GREATER(abs(sy2->real_pos + sy1.real_pos), sy2->max_delta_limit)) return;
 
@@ -549,25 +508,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
 
     SetOrderOptions order;
     if (IS_DOUBLE_GREATER_EQUAL(delta_posi, sy1.min_delta_limit)) {
-        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
-            order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
-                memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (PERP == sy2->type)
-                memcpy(order.Category, INVERSE.c_str(), min(uint16_t(CategoryLen), uint16_t(INVERSE.size())));
-
-            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
-
-            setOrder(sy2->inst, INNER_DIRECTION_Sell,
-                            sy2->ask_p,
-                            taker_qty,
-                            order);
-            LOG_INFO << "hedge sy2 taker close long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
-                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
-                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
-                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
-                << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
+        if ((sy1.make_taker_flag == 1)) {        
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -585,26 +526,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
-            order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
-                memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (PERP == sy1.type)
-                memcpy(order.Category, INVERSE.c_str(), min(uint16_t(CategoryLen), uint16_t(INVERSE.size())));
-
-            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
-
-            setOrder(sy1.inst, INNER_DIRECTION_Sell,
-                            sy1.ask_p,
-                            taker_qty,
-                            order);
-            LOG_INFO << "hedge sy1 taker close long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
-                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
-                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
-                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
-                << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -624,25 +546,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, -sy1.min_delta_limit)) {
-        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, 0)) {
-            order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
-                memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (PERP == sy2->type)
-                memcpy(order.Category, INVERSE.c_str(), min(uint16_t(CategoryLen), uint16_t(INVERSE.size())));
-
-            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
-
-            setOrder(sy2->inst, INNER_DIRECTION_Buy,
-                            sy2->bid_p,
-                            taker_qty,
-                            order);
-            LOG_INFO << "hedge sy2 taker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
-                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
-                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
-                << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
-                << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, 0)) {          
+        if ((sy1.make_taker_flag == 1)) {        
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -661,26 +565,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
 
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) { 
-            order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
-                memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (PERP == sy1.type)
-                memcpy(order.Category, INVERSE.c_str(), min(uint16_t(CategoryLen), uint16_t(INVERSE.size())));
-
-            memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
-
-            setOrder(sy1.inst, INNER_DIRECTION_Buy,
-                            sy1.bid_p,
-                            taker_qty,
-                            order);
-            LOG_INFO << "hedge sy1 taker open long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
-                << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
-                << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
-                << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
-                << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) { 
+        } else if ((sy2->make_taker_flag == 1)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -702,111 +587,43 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
     }
 }
 
-void StrategyUCEasy::update_thresh() 
+void StrategyUCEasy::update_thresh(StrategyInstrument *strategyInstrument) 
 {
-    // if (IS_DOUBLE_LESS_EQUAL(pos_adj_amount * symbol2_pos_adj, 0)) {
-    //     LOG_FATAL << "pos_adj_amount: " << pos_adj_amount << ", symbol2_pos_adj: " << symbol2_pos_adj;
-    // }    
-    pos_adj = sy2.real_pos / pos_adj_amount * symbol2_pos_adj;
-
-    buy_thresh = - min(max(maker_threshold + pos_adj, thresh_min), thresh_max);
-    sell_thresh = min(max(maker_threshold - pos_adj, thresh_min), thresh_max);
-
-    buy_thresh = buy_thresh + step_thresh;
-    sell_thresh = sell_thresh + step_thresh;
-
-    if (IS_DOUBLE_GREATER(abs(sy2.real_pos) * sy2.mid_price, max_position_limit)) {  //# äťä˝cap
-        if (IS_DOUBLE_GREATER(sy2.real_pos, 0))
-            buy_thresh  -= disaster_tol_thresh;
-        else
-            sell_thresh += disaster_tol_thresh;
+    string symbol = strategyInstrument->getInstrumentID();
+    sy_info* sy = &(*make_taker)[symbol];
+    if (sy->make_taker_flag == 0) {
+        sy = sy->ref;
     }
-    else if (IS_DOUBLE_GREATER(abs(delta_pos_notional), max_delta_limit)) {
-        if (IS_DOUBLE_GREATER(delta_pos_notional, 0))
-            buy_thresh -= disaster_tol_thresh;
-        else
-            sell_thresh += disaster_tol_thresh;
-    }
+    
+    double pos_adj = sy->real_pos / sy->pos_adj;
+    double step_thresh = abs(sy->buy_thresh);
 
-    LOG_INFO << "update_thresh maker_threshold: " << maker_threshold 
+    double buy_thresh = - min(max(sy->thresh + pos_adj, thresh_min), thresh_max);
+    double sell_thresh = min(max(sy->thresh - pos_adj, thresh_min), thresh_max);
+
+    sy->buy_thresh = buy_thresh + step_thresh;
+    sy->sell_thresh = sell_thresh + step_thresh;
+
+    LOG_INFO << "update_thresh maker_threshold: " << sy->thresh 
         << ", sy1.real_pos: " << sy1.real_pos
-        << ", sy2.real_pos: "  << sy2.real_pos << ", pos_adj_amount: " << pos_adj_amount << ", symbol2_pos_adj: " << symbol2_pos_adj
+        << ", sy2.real_pos: "  << sy2.real_pos
         << ", pos_adj: " << pos_adj 
         << ", buy_thresh: " << buy_thresh
-        << ", sell_thresh: " << sell_thresh
-        << ", delta_pos_notional: " << delta_pos_notional;
+        << ", sell_thresh: " << sell_thresh;
 }
 
 void StrategyUCEasy::OnForceCloseTimerInterval() 
 {
     for (auto iter : strategyInstrumentList()) {
         hedge(iter);
-    }
-}
-
-void StrategyUCEasy::OnTimerTradingLogic()
-{
-    if (CURR_MSTIME_POINT - on_time_60 < 60000) return;
-    on_time_60 = CURR_MSTIME_POINT;
-    uint64_t now_ns = CURR_NSTIME_POINT;
-
-    try {
-        if (first_time60) {     
-            if (IS_DOUBLE_ZERO(sy1.bid_price) || IS_DOUBLE_ZERO(sy2.bid_price)) return;
-            
-            check_min_delta_limit();
-            update_thresh();
-            LOG_INFO << "start_trade delta_pos: " << delta_pos_notional
-                << ", arbitrage_mode: " << arbitrage_mode
-                << ", sy1.bid_price: " << sy1.bid_price
-                << ", sy2.bid_price: " << sy2.bid_price
-                << ", sy1.real_pos: " << sy1.real_pos
-                << ", sy2.real_pos: " << sy2.real_pos;
-            first_time60 = false;
-        }
-        stop_trade = false;
-        double spread = 0;
-        // if (IS_DOUBLE_LESS_EQUAL(sy2.mid_price, 0)) {
-        //     LOG_FATAL << "mid_price: " << sy2.mid_price << ", ask_price: " << sy2.ask_price
-        //         << ", bid_price: " << sy2.bid_price;
-        // }
-        if (IS_DOUBLE_ZERO(sy2.mid_price))
-            spread = 0;
-        else
-            spread = round_p((sy1.mid_price * symbol2_multiplier - sy2.mid_price) / sy2.mid_price, 4);
-
-        check_min_delta_limit();
-
-        LOG_INFO << "OnTimerTradingLogic time: " << now_ns
-            << ", symbol1_bid: " << sy1.bid_price
-            << ", symbol1_ask: " << sy1.ask_price
-            << ", symbol2_bid: " << sy2.bid_price
-            << ", symbol2_ask: " << sy2.ask_price
-            << ", buy_thresh: " << round_p(10000 * buy_thresh, 1)
-            << ", sell_thresh: " <<  round_p(10000 * sell_thresh, 1)
-            << ", delta_adj: " << 0
-            << ", pos_adj: " <<  round_p(10000 * pos_adj, 1)
-            << ", symbol2 bid_quote: " <<  po_best_price(buyPriceMap2, 0)
-            << ", symbol2 ask_quote: " <<  po_best_price(sellPriceMap2, 1)
-            << ", fair_bid: " << sy2.bid_fair_price
-            << ", fair_ask: " << sy2.ask_fair_price
-            << ", sy1.real_pos: " << sy1.real_pos
-            << ", sy2.real_pos: " << sy2.real_pos
-            << ", sy1.mid_price: " << sy1.mid_price
-            << ", delta_pos_notional: " << delta_pos_notional
-            << ", spread: " << spread;
-    }
-
-    catch (std::exception ex) {
-        LOG_ERROR << "OnTimerTradingLogic exception occur:" << ex.what();
-
+        update_thresh(iter);
     }
 }
 
 void StrategyUCEasy::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     check_min_delta_limit();
-    update_thresh();
+    update_thresh(strategyInstrument);
     hedge(strategyInstrument);
     LOG_INFO << "OnPartiallyFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
@@ -818,7 +635,7 @@ void StrategyUCEasy::OnPartiallyFilledTradingLogic(const Order &rtnOrder, Strate
 void StrategyUCEasy::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
     check_min_delta_limit();
-    update_thresh();
+    update_thresh(strategyInstrument);
     hedge(strategyInstrument);
     LOG_INFO << "OnFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 

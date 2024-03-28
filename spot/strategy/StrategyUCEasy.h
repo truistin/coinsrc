@@ -82,7 +82,7 @@ namespace spot {
 
             virtual void OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 
-			virtual void OnTimerTradingLogic();
+			virtual void OnTimerTradingLogic(){};
 
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument){};
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
@@ -91,12 +91,10 @@ namespace spot {
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
 			bool IsCancelExistOrders(sy_info* sy, int side);
-
+			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
 			bool is_continue_mr(sy_info*, double qty);
 			bool action_mr(double mr);
-			bool ClosePosition(const InnerMarketData &marketData, sy_info& sy, int flag);
-
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
@@ -107,8 +105,6 @@ namespace spot {
 			double calc_mm();
 			double calc_balance();
 			void get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num);
-			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
-			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 			double calc_uniMMR();
 			string GetCMSymbol(string inst);
 			string GetUMSymbol(string inst);
