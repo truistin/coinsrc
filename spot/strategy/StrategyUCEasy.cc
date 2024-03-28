@@ -201,15 +201,15 @@ bool StrategyUCEasy::IsCancelExistOrders(sy_info* sy)
 void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-    string stType = "FrClose";
+    string stType = "Mr_Markeet_Close";
 
     sy_info* sy2 = sy.ref;
 
     SetOrderOptions order;
     order.orderType = ORDERTYPE_MARKET; // ?
 
-    if (SPOT == sy.type) {
-        string Category = LEVERAGE;
+    if (PERP == sy.type) {
+        string Category = INVERSE;
         memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
     } else if (SWAP == sy.type) {
         string Category = LINEAR;
@@ -234,34 +234,34 @@ void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrum
             abs(qty), order);
     }
 
-    SetOrderOptions order1;
-    order1.orderType = ORDERTYPE_MARKET; // ?
+    // SetOrderOptions order1;
+    // order1.orderType = ORDERTYPE_MARKET; // ?
 
-    if (SPOT == sy2->type) {
-        string Category = LEVERAGE;
-        memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-    } else if (SWAP == sy2->type) {
-        string Category = LINEAR;
-        memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-    } else {
-        LOG_FATAL << "";
-    }
+    // if (PERP == sy2->type) {
+    //     string Category = INVERSE;
+    //     memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    // } else if (SWAP == sy2->type) {
+    //     string Category = LINEAR;
+    //     memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+    // } else {
+    //     LOG_FATAL << "";
+    // }
 
-    memcpy(order1.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+    // memcpy(order1.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
 
-    memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
+    // memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
 
-    if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-        double qty = std::min(sy2->real_pos, sy.ask_v / 2);
-        setOrder(sy2->inst, INNER_DIRECTION_Sell,
-            sy2->bid_p - sy2->prc_tick_size,
-            abs(qty), order1);
-    } else {
-        double qty = std::min(sy2->real_pos, sy.bid_v / 2);
-        setOrder(sy2->inst, INNER_DIRECTION_Buy,
-            sy2->bid_p - sy2->prc_tick_size,
-            abs(qty), order1);
-    }
+    // if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
+    //     double qty = std::min(sy2->real_pos, sy.ask_v / 2);
+    //     setOrder(sy2->inst, INNER_DIRECTION_Sell,
+    //         sy2->bid_p - sy2->prc_tick_size,
+    //         abs(qty), order1);
+    // } else {
+    //     double qty = std::min(sy2->real_pos, sy.bid_v / 2);
+    //     setOrder(sy2->inst, INNER_DIRECTION_Buy,
+    //         sy2->bid_p - sy2->prc_tick_size,
+    //         abs(qty), order1);
+    // }
 }
 
 bool StrategyUCEasy::action_mr(double mr)
