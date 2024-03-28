@@ -270,8 +270,8 @@ void StrategyUCEasy::initSymbol(){
         syInfo.mv_ratio = it.second.MvRatio;
         syInfo.thresh = it.second.Thresh;
 
-        syInfo.fr_open_thresh = it.second.OpenThresh;
-        syInfo.fr_close_thresh = it.second.CloseThresh;
+        syInfo.buy_thresh = it.second.OpenThresh;
+        syInfo.sell_thresh = it.second.CloseThresh;
         syInfo.close_flag = it.second.CloseFlag;
 
         syInfo.prc_tick_size = it.second.PreTickSize;
@@ -341,15 +341,15 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
-        if (sy1.long_short_flag == 1) {
             if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) return;
 
-            if (IS_DOUBLE_GREATER(-sy1.real_pos - sy2->real_pos, sy1.max_delta_limit)) return;
+            if (IS_DOUBLE_GREATER(abs(sy1.real_pos + sy2->real_pos), sy1.max_delta_limit)) return;
             
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
 
-            if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.avg_price, sy1.mv_ratio * bal)) {
+            if (IS_DOUBLE_GREATER(spread_rate, sy1.sell_thresh)) {
+                if (IS_DOUBLE_GREATER(-sy1.real_pos * sy1.avg_price, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -381,31 +381,23 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
                     marketData.AskPrice1 + sy1.prc_tick_size,
                     qty, order);
 
-                LOG_INFO << "MarketDataTradingLogic sy1 maker open sell: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+                LOG_INFO << "MarketDataTradingLogic sy1 maker sell: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
                     << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
                     << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty;    
             
-            }
-
-        } else if (sy1.long_short_flag == 0) {
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) return;
-            if (IS_DOUBLE_GREATER(sy1.real_pos + sy2->real_pos, sy1.max_delta_limit)) return;
-
-            double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
-
-            if (IS_DOUBLE_LESS(spread_rate, sy1.fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.avg_price, sy1.mv_ratio * bal)) {
+            } else if (IS_DOUBLE_LESS(spread_rate, sy1.buy_thresh)) {
+                if (IS_DOUBLE_GREATER(sy1.real_pos * sy1.avg_price, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
-                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->bid_v / 2);
-
+                double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
                 if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
                 if (!is_continue_mr(&sy1, qty)) return;
+                //  qty = sy1.pos_thresh;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -425,25 +417,26 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
                 setOrder(sy1.inst, INNER_DIRECTION_Buy,
-                    marketData.BidPrice1 - sy1.prc_tick_size,
+                    marketData.BidPrice1 + sy1.prc_tick_size,
                     qty, order);
 
-                LOG_INFO << "MarketDataTradingLogic sy1 maker open long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
+                LOG_INFO << "MarketDataTradingLogic sy1 maker sell: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
                     << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
-                    << marketData.BidPrice1 - sy1.prc_tick_size << ", sy1 order qty: " << qty;    
+                    << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty;    
+            
             }
-        }
     } else if (sy2->make_taker_flag == 1) {
-        if (sy2->long_short_flag == 0) {
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
-            if (IS_DOUBLE_GREATER(sy2->real_pos + sy1.real_pos, sy2->max_delta_limit)) return;
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
+
+            if (IS_DOUBLE_GREATER(abs(sy2->real_pos + sy1.real_pos), sy2->max_delta_limit)) return;
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
-            if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
+            if (IS_DOUBLE_LESS(spread_rate, sy2->buy_thresh)) {
+                if (IS_DOUBLE_GREATER(sy2->real_pos * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -480,16 +473,9 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;  
-
-            }
-        } else if (sy2->long_short_flag == 1) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
-            if (IS_DOUBLE_GREATER(-sy2->real_pos - sy1.real_pos, sy2->max_delta_limit)) return;
-
-            double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
-
-            if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
+            
+            } else if (IS_DOUBLE_GREATER(spread_rate, sy1.sell_thresh)) {
+                if (IS_DOUBLE_GREATER(-sy2->real_poss * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -527,8 +513,8 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
             }
-        }
     }
+    
     return;
 }
 
