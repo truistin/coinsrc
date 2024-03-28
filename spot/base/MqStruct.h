@@ -285,8 +285,8 @@ namespace spot
       double PreTickSize;
       double QtyTickSize;
       double MaxDeltaLimit;
-      double OpenThresh;
-      double CloseThresh;
+      double BuyThresh;
+      double SellThresh;
       int CloseFlag;
       double ForceCloseAmount;
       double MinDeltaLimit;
@@ -401,21 +401,21 @@ namespace spot
         else
           MaxDeltaLimit = (double)*static_cast<int64_t*>(value);
       }
-      void setOpenThresh( void *value , uint16_t length = 0) {
+      void setBuyThresh( void *value , uint16_t length = 0) {
         if (length == 8)
-          OpenThresh = *static_cast<double*>(value);
+          BuyThresh = *static_cast<double*>(value);
         else if (length == 0)
-          OpenThresh = (double)*static_cast<int*>(value);
+          BuyThresh = (double)*static_cast<int*>(value);
         else
-          OpenThresh = (double)*static_cast<int64_t*>(value);
+          BuyThresh = (double)*static_cast<int64_t*>(value);
       }
-      void setCloseThresh( void *value , uint16_t length = 0) {
+      void setSellThresh( void *value , uint16_t length = 0) {
         if (length == 8)
-          CloseThresh = *static_cast<double*>(value);
+          SellThresh = *static_cast<double*>(value);
         else if (length == 0)
-          CloseThresh = (double)*static_cast<int*>(value);
+          SellThresh = (double)*static_cast<int*>(value);
         else
-          CloseThresh = (double)*static_cast<int64_t*>(value);
+          SellThresh = (double)*static_cast<int64_t*>(value);
       }
       void setCloseFlag( void *value , uint16_t length = 0) {
         CloseFlag = *static_cast<int*>(value);
@@ -447,8 +447,8 @@ namespace spot
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]ForceCloseAmount=[%f]MinDeltaLimit=[%f]PosAdj=[%f]",
-                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,ForceCloseAmount,MinDeltaLimit,PosAdj);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]TickSize=[%f]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]OrderQty=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]BuyThresh=[%f]SellThresh=[%f]CloseFlag=[%d]ForceCloseAmount=[%f]MinDeltaLimit=[%f]PosAdj=[%f]",
+                Symbol,ExchangeCode,Multiplier,TickSize,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,OrderQty,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,BuyThresh,SellThresh,CloseFlag,ForceCloseAmount,MinDeltaLimit,PosAdj);
         return buffer;
       }
 
@@ -471,8 +471,8 @@ namespace spot
         methodMap["PreTickSize"] = std::bind(&SymbolInfo::setPreTickSize, this, _1,_2);
         methodMap["QtyTickSize"] = std::bind(&SymbolInfo::setQtyTickSize, this, _1,_2);
         methodMap["MaxDeltaLimit"] = std::bind(&SymbolInfo::setMaxDeltaLimit, this, _1,_2);
-        methodMap["OpenThresh"] = std::bind(&SymbolInfo::setOpenThresh, this, _1,_2);
-        methodMap["CloseThresh"] = std::bind(&SymbolInfo::setCloseThresh, this, _1,_2);
+        methodMap["BuyThresh"] = std::bind(&SymbolInfo::setBuyThresh, this, _1,_2);
+        methodMap["SellThresh"] = std::bind(&SymbolInfo::setSellThresh, this, _1,_2);
         methodMap["CloseFlag"] = std::bind(&SymbolInfo::setCloseFlag, this, _1,_2);
         methodMap["ForceCloseAmount"] = std::bind(&SymbolInfo::setForceCloseAmount, this, _1,_2);
         methodMap["MinDeltaLimit"] = std::bind(&SymbolInfo::setMinDeltaLimit, this, _1,_2);
@@ -527,10 +527,10 @@ namespace spot
           doc.AddMember("QtyTickSize",QtyTickSize, allocator);
         if (!std::isnan(MaxDeltaLimit))
           doc.AddMember("MaxDeltaLimit",MaxDeltaLimit, allocator);
-        if (!std::isnan(OpenThresh))
-          doc.AddMember("OpenThresh",OpenThresh, allocator);
-        if (!std::isnan(CloseThresh))
-          doc.AddMember("CloseThresh",CloseThresh, allocator);
+        if (!std::isnan(BuyThresh))
+          doc.AddMember("BuyThresh",BuyThresh, allocator);
+        if (!std::isnan(SellThresh))
+          doc.AddMember("SellThresh",SellThresh, allocator);
         doc.AddMember("CloseFlag",CloseFlag, allocator);
         if (!std::isnan(ForceCloseAmount))
           doc.AddMember("ForceCloseAmount",ForceCloseAmount, allocator);
