@@ -330,11 +330,6 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
 
-    if (sy1.close_flag) {
-        ClosePosition(marketData, sy1, 0);
-        return;
-    }
-
     if (ClosePosition(marketData, sy1, 1)) return;
 
     double mr = 0;
