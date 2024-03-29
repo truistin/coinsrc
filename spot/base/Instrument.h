@@ -106,7 +106,7 @@ namespace spot
 		}
 		inline double Instrument::getTickSize()
 		{
-			return symbolInfo_.TickSize;
+			return symbolInfo_.PreTickSize;
 		}
 		inline double Instrument::getMargin()
 		{
