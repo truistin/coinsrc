@@ -640,9 +640,9 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
     sy2.real_pos = sy2.inst->position().getNetPosition();
 
     if (SWAP == sy1.sy) {
-        sy2.avg_price = sy1.EntryPrice;
+        sy2.avg_price = sy1.inst->EntryPrice;
     } else {
-        sy1.avg_price = sy2.EntryPrice;
+        sy1.avg_price = sy2.inst->EntryPrice;
     }
     if (IS_DOUBLE_LESS(abs((sy1.real_pos + sy2.real_pos) * sy1.mid_p), sy1.min_amount)) {
         return false;
