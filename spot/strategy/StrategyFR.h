@@ -49,7 +49,7 @@ namespace spot {
 				double mv_ratio;
 				double thresh; // arb close
 				double fr_open_thresh;
-				double fr_close_thresh;
+				double close_thresh;
 				int close_flag;
 				int64_t exch_ts;
 				double real_pos;
