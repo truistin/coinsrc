@@ -211,6 +211,10 @@ void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyIn
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
+    if (sy2 == nullptr) {
+        LOG_ERROR << "OnPartiallyFilledTradingLogic sy2 nullptr: " << symbol;
+        return;
+    }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
 
     hedge(strategyInstrument);
@@ -221,6 +225,10 @@ void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument 
 {
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
+    if (sy2 == nullptr) {
+        LOG_ERROR << "OnFilledTradingLogic sy2 nullptr: " << symbol;
+        return;
+    }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
 
     hedge(strategyInstrument);
@@ -661,7 +669,10 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     string symbol = strategyInstrument->getInstrumentID();
     sy_info& sy1 = (*make_taker)[symbol];
     sy_info* sy2 = sy1.ref;
-
+    if (sy2 == nullptr) {
+        LOG_ERROR << "hedge sy2 nullptr: " << symbol;
+        return;
+    }
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (sy1.make_taker_flag == 0) {
         if (IS_DOUBLE_LESS(abs(delta_posi * sy1.mid_p), sy1.min_amount)) return;
@@ -884,6 +895,10 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     }
 
     sy_info* sy2 = sy.ref;
+    if (sy2 == nullptr) {
+        LOG_ERROR << "ClosePosition sy2 nullptr: " << symbol;
+        return;
+    }
     double delta_posi = sy.real_pos + sy2->real_pos;
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy.mid_p, 3 * sy.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << sy.sy << ", delta_posi: " << delta_posi;
@@ -1153,6 +1168,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     }
 
     sy_info* sy2 = sy1.ref;
+    if (sy2 == nullptr) {
+        LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << symbol;
+        return;
+    }
     double bal = calc_balance();
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
@@ -1401,7 +1420,10 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     string stType = "Mr_Market_Close";
 
     sy_info* sy2 = sy.ref;
-
+    if (sy2 == nullptr) {
+        LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << symbol;
+        return;
+    }
     SetOrderOptions order;
     order.orderType = ORDERTYPE_MARKET; // ?
 
@@ -1440,6 +1462,10 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     string stType = "FrClose";
 
     sy_info* sy2 = sy.ref;
+    if (sy2 == nullptr) {
+        LOG_ERROR << "Mr_ClosePosition sy2 nullptr: " << symbol;
+        return;
+    }
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
             if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return;
@@ -1626,7 +1652,7 @@ void StrategyFR::OnTimerTradingLogic()
 
         if (sy.find("spot") != string::npos) {
             string asset = GetSPOTSymbol(sy);
-            auto it = BnApi::BalMap_.find((*symbol_map)[asset]);
+            auto it = BnApi::BalMap_.find(asset);
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error: " << asset;
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
 
