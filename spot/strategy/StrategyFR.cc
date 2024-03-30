@@ -1429,17 +1429,13 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-
-    double thresh = sy.close_thresh;
     string stType = "FrClose";
 
     sy_info* sy2 = sy.ref;
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
             if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return;
-            double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
 
-            if (IS_DOUBLE_LESS(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1470,12 +1466,10 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
                     << ", sy category: " << sy.type << ", sy order price: "
                     << sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
-            }
+
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
             if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return;
-            double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
-            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1506,14 +1500,12 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
                     << ", sy category: " << sy.type << ", sy order price: "
                     << sy.ask_p + sy.prc_tick_size << ", sy order qty: " << qty;    
-            }
+            
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
-            double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
 
-            if (IS_DOUBLE_LESS(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1544,12 +1536,10 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
-            }
+            
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
-            double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
-            if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1581,7 +1571,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
 
-            }
+            
         }
     }
 }
