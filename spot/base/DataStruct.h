@@ -101,6 +101,7 @@ static const std::string FEEFORMAT_PERCENTAGE = "Percentage";
 static const std::string AssetType_TD = "TD";
 static const std::string AssetType_FuturePerpetual = "PERPETUAL";
 static const std::string AssetType_Perp = "PERP";
+static const std::string AssetType_Spot = "SPOT";
 static const std::string AssetType_FutureSwap = "SWAP";
 static const std::string AssetType_Future = "Future";
 static const std::string AssetType_FutureOption = "Option";

@@ -133,11 +133,10 @@ void StrategyUCEasy::initSymbol(){
 
         syInfo.prc_tick_size = it.second.PreTickSize;
         syInfo.qty_tick_size = it.second.QtyTickSize;
-        syInfo.pos_thresh = it.second.PosThresh;
+        syInfo.min_delta_limit = it.second.MinAmount;
         syInfo.max_delta_limit = it.second.MaxDeltaLimit;
-        syInfo.ord_capital = it.second.OrdCapital;
+        syInfo.pos_adj = it.second.PosAdj;
 
-        syInfo.force_close_amount = it.second.ForceCloseAmount;
         make_taker->insert({it.second.Symbol, syInfo});
     }
 
@@ -224,44 +223,167 @@ void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrum
 
     if (IS_DOUBLE_GREATER(sy.real_pos, 0)) {
         double qty = std::min(sy.real_pos, sy2->ask_v / 2);
+        qty = min (qty, sy2.fragment/sy2.mid_p);
+
+        double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
+        qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
         setOrder(sy.inst, INNER_DIRECTION_Sell,
             sy.bid_p - sy.prc_tick_size,
             abs(qty), order);
     } else {
         double qty = std::min(sy.real_pos, sy2->bid_v / 2);
+        qty = min (qty, sy2.fragment/sy2.mid_p);
+
+        double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
+        qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
         setOrder(sy.inst, INNER_DIRECTION_Buy,
             sy.bid_p - sy.prc_tick_size,
             abs(qty), order);
     }
+}
 
-    // SetOrderOptions order1;
-    // order1.orderType = ORDERTYPE_MARKET; // ?
+// flag 1 arb , 0 fr
+//close arb_thresh/fr_thresh   maker taker(at most larger than taker)    (at least large than taker)
+void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
+{
+    sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
 
-    // if (PERP == sy2->type) {
-    //     string Category = INVERSE;
-    //     memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-    // } else if (SWAP == sy2->type) {
-    //     string Category = LINEAR;
-    //     memcpy(order1.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-    // } else {
-    //     LOG_FATAL << "";
-    // }
+    sy_info* sy2 = sy.ref;
+    if (sy.make_taker_flag == 1) {
+        if (IS_DOUBLE_LESS(sy.real_pos, 0)) {
+            if (IsCancelExistOrders(&sy)) return;
 
-    // memcpy(order1.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
+            SetOrderOptions order;
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "GTX";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-    // memcpy(order1.StType, stType.c_str(), min(sizeof(order1.StType) - 1, stType.size()));
+            if (SPOT == sy.type) {
+                string Category = LEVERAGE;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else if (SWAP == sy.type) {
+                string Category = LINEAR;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else {
+                LOG_FATAL << "";
+            }
 
-    // if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-    //     double qty = std::min(sy2->real_pos, sy.ask_v / 2);
-    //     setOrder(sy2->inst, INNER_DIRECTION_Sell,
-    //         sy2->bid_p - sy2->prc_tick_size,
-    //         abs(qty), order1);
-    // } else {
-    //     double qty = std::min(sy2->real_pos, sy.bid_v / 2);
-    //     setOrder(sy2->inst, INNER_DIRECTION_Buy,
-    //         sy2->bid_p - sy2->prc_tick_size,
-    //         abs(qty), order1);
-    // }
+            memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+            double qty = std::min(sy.real_pos, sy2->bid_v / 2);
+
+            setOrder(sy.inst, INNER_DIRECTION_Buy,
+                sy.bid_p - sy.prc_tick_size,
+                qty, order);
+            
+            LOG_INFO << "Mr_ClosePosition sy maker close short : " << sy.sy << ", sy order side: " << INNER_DIRECTION_Buy
+                << ", sy maker_taker_flag: " << sy.make_taker_flag
+                << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                << ", sy category: " << sy.type << ", sy order price: "
+                << sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
+        } else if (IS_DOUBLE_GREATER(sy.real_pos, 0)) {
+            if (IsCancelExistOrders(&sy)) return;
+
+            SetOrderOptions order;
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "GTX";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+
+            if (SPOT == sy.type) {
+                string Category = LEVERAGE;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else if (SWAP == sy.type) {
+                string Category = LINEAR;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else {
+                LOG_FATAL << "";
+            }
+
+            memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+            double qty = std::min(sy.real_pos, sy2->ask_v / 2);
+            qty = min (qty, sy.fragment/sy2.mid_p)
+
+            double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
+            qty = round1(qty, sy.qty_tick_size, qty_decimal);
+
+
+            setOrder(sy.inst, INNER_DIRECTION_Sell,
+                sy.ask_p + sy.prc_tick_size,
+                qty, order);
+
+            LOG_INFO << "Mr_ClosePosition sy maker close long: " << sy.sy << ", sy order side: " << INNER_DIRECTION_Sell
+                << ", sy maker_taker_flag: " << sy.make_taker_flag
+                << ", sy long_short_flag: " << sy.long_short_flag << ", sy real_pos: " << sy.real_pos
+                << ", sy category: " << sy.type << ", sy order price: "
+                << sy.ask_p + sy.prc_tick_size << ", sy order qty: " << qty;    
+        }
+    } else if (sy2->make_taker_flag == 1) {
+        if (IS_DOUBLE_LESS(sy2->real_pos, 0)) {
+            if (IsCancelExistOrders(&sy)) return;
+            SetOrderOptions order;
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "GTX";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+
+            if (SPOT == sy2->type) {
+                string Category = LEVERAGE;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else if (SWAP == sy2->type) {
+                string Category = LINEAR;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else {
+                LOG_FATAL << "";
+            }
+
+            memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+            double qty = std::min(sy2->real_pos, sy.bid_v / 2);
+
+            setOrder(sy2->inst, INNER_DIRECTION_Buy,
+                sy2->bid_p - sy2->prc_tick_size,
+                qty, order);
+
+            LOG_INFO << "Mr_ClosePosition sy2 maker close short: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy2 category: " << sy2->type << ", sy2 order price: "
+                << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
+        }  else if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
+            if (IsCancelExistOrders(&sy)) return;
+            SetOrderOptions order;
+            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
+            string timeInForce = "GTX";
+            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+
+            if (SPOT == sy2->type) {
+                string Category = LEVERAGE;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else if (SWAP == sy2->type) {
+                string Category = LINEAR;
+                memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
+            } else {
+                LOG_FATAL << "";
+            }
+
+            memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
+
+            double qty = std::min(sy2->real_pos, sy.ask_v / 2);
+
+            setOrder(sy2->inst, INNER_DIRECTION_Sell,
+                sy2->ask_p + sy2->prc_tick_size,
+                qty, order);
+
+            LOG_INFO << "Mr_ClosePosition sy2 maker close long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Sell
+                << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
+                << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                << ", sy2 category: " << sy2->type << ", sy2 order price: "
+                << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
+
+        }
+    }
 }
 
 bool StrategyUCEasy::action_mr(double mr)
@@ -316,7 +438,12 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
-                if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
+                qty = min (qty, sy2.fragment/sy2.mid_p)
+
+                double qty_decimal = ceil(abs(log10(sy2.qty_tick_size)));
+                qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
+
                 if (!is_continue_mr(&sy1, qty)) return;
                 //  qty = sy1.pos_thresh;
 
@@ -355,7 +482,12 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
-                if (IS_DOUBLE_LESS(qty, sy1.pos_thresh)) return;
+
+                qty = min (qty, sy2.fragment/sy2.mid_p)
+
+                double qty_decimal = ceil(abs(log10(sy2.qty_tick_size)));
+                qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
                 if (!is_continue_mr(&sy1, qty)) return;
                 //  qty = sy1.pos_thresh;
 
@@ -419,9 +551,12 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.bid_v / 2);
-                if (!is_continue_mr(sy2, qty)) return;
+                qty = min (qty, sy2.fragment/sy2.mid_p)
 
-                if (IS_DOUBLE_LESS(qty, sy2->pos_thresh)) return;
+                double qty_decimal = ceil(abs(log10(sy2.qty_tick_size)));
+                qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
+                if (!is_continue_mr(sy2, qty)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -458,9 +593,13 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.ask_v / 2);
-                if (!is_continue_mr(sy2, qty)) return;
 
-                if (IS_DOUBLE_LESS(qty, sy2->pos_thresh)) return;
+                qty = min (qty, sy2.fragment/sy2.mid_p)
+
+                double qty_decimal = ceil(abs(log10(sy2.qty_tick_size)));
+                qty = round1(qty, sy2.qty_tick_size, qty_decimal);
+
+                if (!is_continue_mr(sy2, qty)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
@@ -501,7 +640,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
 
     double delta_posi = sy1.real_pos * sy1.multiple + sy2.real_pos * sy2.entry_price;
     if (IS_DOUBLE_LESS(abs(delta_posi), sy1.min_delta_limit)) return;
-    if (IS_DOUBLE_GREATER(abs(delta_posi), sy1.force_close_amount))
+    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, sy1.fragment * 5))
         LOG_FATAL << "force close symbol: " << symbol << ", delta_posi: " << delta_posi;
      
     double taker_qty = int(abs(delta_posi) / sy1.multiple);

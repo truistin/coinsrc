@@ -40,9 +40,8 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
-				double pos_thresh;
+				double min_delta_limit;
 				double max_delta_limit; // fragment 
-				double force_close_amount; // adl 
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
@@ -54,7 +53,6 @@ namespace spot {
 				int64_t exch_ts;
 				double real_pos;
 				double pos_adj;
-				double ord_capital;
 				sy_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
