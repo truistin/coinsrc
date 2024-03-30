@@ -999,7 +999,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((u_posi - bal * sy2->mv_ratio) / sy2->mid_p, sy.bid_v / 2);
-                qty = min (qty, sy2->fragment/sy2->mid_p)
+                qty = min (qty, sy2->fragment/sy2->mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
@@ -1051,7 +1051,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((u_posi - bal * sy2->mv_ratio) / sy2->mid_p, sy.ask_v / 2);
-                qty = min (qty, sy2->fragment/sy2->mid_p)
+                qty = min (qty, sy2->fragment/sy2->mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
@@ -1168,7 +1168,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->ask_v / 2);
-                qty = min (qty, sy1.fragment/sy1.mid_p)
+                qty = min (qty, sy1.fragment/sy1.mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
@@ -1223,7 +1223,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy1.real_pos) * sy1.avg_price;
                 double qty = min((bal * sy1.mv_ratio - u_posi) / sy1.mid_p, sy2->bid_v / 2);
-                qty = min (qty, sy1.fragment/sy1.mid_p)
+                qty = min (qty, sy1.fragment/sy1.mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
@@ -1298,7 +1298,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.bid_v / 2);
-                qty = min (qty, sy2->fragment/sy2->mid_p)
+                qty = min (qty, sy2->fragment/sy2->mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
@@ -1351,7 +1351,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 double u_posi = abs(sy2->real_pos) * sy2->avg_price;
                 double qty = min((bal * sy2->mv_ratio - u_posi) / sy2->mid_p, sy1.ask_v / 2);
-                qty = min (qty, sy2->fragment/sy2->mid_p)
+                qty = min (qty, sy2->fragment/sy2->mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
