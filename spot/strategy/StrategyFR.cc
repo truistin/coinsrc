@@ -886,7 +886,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
                 if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return false;
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
+                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -937,7 +937,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
+                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.avg_price, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -992,7 +992,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
 
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -1043,7 +1043,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -1161,7 +1161,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
 
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
+                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.avg_price, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -1216,7 +1216,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, sy1.fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
+                if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.avg_price, sy1.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -1271,7 +1271,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
@@ -1324,7 +1324,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
             if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
-                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+                if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->avg_price, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return;
                 }
