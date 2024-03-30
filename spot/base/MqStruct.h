@@ -287,7 +287,6 @@ namespace spot
       double OpenThresh;
       double CloseThresh;
       int CloseFlag;
-      double ForceCloseAmount;
       double MinAmount;
       double PosAdj;
 
@@ -411,14 +410,6 @@ namespace spot
       void setCloseFlag( void *value , uint16_t length = 0) {
         CloseFlag = *static_cast<int*>(value);
       }
-      void setForceCloseAmount( void *value , uint16_t length = 0) {
-        if (length == 8)
-          ForceCloseAmount = *static_cast<double*>(value);
-        else if (length == 0)
-          ForceCloseAmount = (double)*static_cast<int*>(value);
-        else
-          ForceCloseAmount = (double)*static_cast<int64_t*>(value);
-      }
       void setMinAmount( void *value , uint16_t length = 0) {
         if (length == 8)
           MinAmount = *static_cast<double*>(value);
@@ -438,8 +429,8 @@ namespace spot
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]Fragment=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]ForceCloseAmount=[%f]MinAmount=[%f]PosAdj=[%f]",
-                Symbol,ExchangeCode,Multiplier,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,Fragment,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,ForceCloseAmount,MinAmount,PosAdj);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]Fragment=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]MinAmount=[%f]PosAdj=[%f]",
+                Symbol,ExchangeCode,Multiplier,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,Fragment,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,MinAmount,PosAdj);
         return buffer;
       }
 
@@ -464,7 +455,6 @@ namespace spot
         methodMap["OpenThresh"] = std::bind(&SymbolInfo::setOpenThresh, this, _1,_2);
         methodMap["CloseThresh"] = std::bind(&SymbolInfo::setCloseThresh, this, _1,_2);
         methodMap["CloseFlag"] = std::bind(&SymbolInfo::setCloseFlag, this, _1,_2);
-        methodMap["ForceCloseAmount"] = std::bind(&SymbolInfo::setForceCloseAmount, this, _1,_2);
         methodMap["MinAmount"] = std::bind(&SymbolInfo::setMinAmount, this, _1,_2);
         methodMap["PosAdj"] = std::bind(&SymbolInfo::setPosAdj, this, _1,_2);
       }
@@ -520,8 +510,6 @@ namespace spot
         if (!std::isnan(CloseThresh))
           doc.AddMember("CloseThresh",CloseThresh, allocator);
         doc.AddMember("CloseFlag",CloseFlag, allocator);
-        if (!std::isnan(ForceCloseAmount))
-          doc.AddMember("ForceCloseAmount",ForceCloseAmount, allocator);
         if (!std::isnan(MinAmount))
           doc.AddMember("MinAmount",MinAmount, allocator);
         if (!std::isnan(PosAdj))
