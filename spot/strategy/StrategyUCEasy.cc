@@ -260,8 +260,8 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             string timeInForce = "GTX";
             memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-            if (SPOT == sy.type) {
-                string Category = LEVERAGE;
+            if (PERP == sy.type) {
+                string Category = INVERSE;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else if (SWAP == sy.type) {
                 string Category = LINEAR;
@@ -273,6 +273,10 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
 
             double qty = std::min(sy.real_pos, sy2->bid_v / 2);
+            qty = min (qty, sy.fragment/sy.mid_p)
+
+            double qty_decimal = ceil(abs(log10(sy.)));
+            qty = round1(qty, sy.qty_tick_size, qty_decimalqty_tick_size);
 
             setOrder(sy.inst, INNER_DIRECTION_Buy,
                 sy.bid_p - sy.prc_tick_size,
@@ -291,8 +295,8 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             string timeInForce = "GTX";
             memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-            if (SPOT == sy.type) {
-                string Category = LEVERAGE;
+            if (PERP == sy.type) {
+                string Category = INVERSE;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else if (SWAP == sy.type) {
                 string Category = LINEAR;
@@ -306,8 +310,8 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             double qty = std::min(sy.real_pos, sy2->ask_v / 2);
             qty = min (qty, sy.fragment/sy2.mid_p)
 
-            double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
-            qty = round1(qty, sy.qty_tick_size, qty_decimal);
+            double qty_decimal = ceil(abs(log10(sy.)));
+            qty = round1(qty, sy.qty_tick_size, qty_decimalqty_tick_size);
 
 
             setOrder(sy.inst, INNER_DIRECTION_Sell,
@@ -328,8 +332,8 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             string timeInForce = "GTX";
             memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-            if (SPOT == sy2->type) {
-                string Category = LEVERAGE;
+            if (PERP == sy2->type) {
+                string Category = INVERSE;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else if (SWAP == sy2->type) {
                 string Category = LINEAR;
@@ -358,8 +362,8 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             string timeInForce = "GTX";
             memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-            if (SPOT == sy2->type) {
-                string Category = LEVERAGE;
+            if (PERP == sy2->type) {
+                string Category = INVERSE;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else if (SWAP == sy2->type) {
                 string Category = LINEAR;
