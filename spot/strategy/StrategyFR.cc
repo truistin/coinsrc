@@ -212,7 +212,7 @@ void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyIn
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "OnPartiallyFilledTradingLogic sy2 nullptr: " << symbol;
+        LOG_ERROR << "OnPartiallyFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
         return;
     }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
@@ -226,7 +226,7 @@ void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument 
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "OnFilledTradingLogic sy2 nullptr: " << symbol;
+        LOG_ERROR << "OnFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
         return;
     }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
@@ -896,7 +896,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "ClosePosition sy2 nullptr: " << symbol;
+        LOG_ERROR << "ClosePosition sy2 nullptr: " << sy.sy;
         return;
     }
     double delta_posi = sy.real_pos + sy2->real_pos;
@@ -1169,7 +1169,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     sy_info* sy2 = sy1.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << symbol;
+        LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << sy1.sy;
         return;
     }
     double bal = calc_balance();
@@ -1421,7 +1421,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << symbol;
+        LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << sy.sy;
         return;
     }
     SetOrderOptions order;
@@ -1463,7 +1463,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "Mr_ClosePosition sy2 nullptr: " << symbol;
+        LOG_ERROR << "Mr_ClosePosition sy2 nullptr: " << sy.sy;
         return;
     }
     if (sy.make_taker_flag == 1) {
