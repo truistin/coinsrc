@@ -128,6 +128,7 @@ string StrategyFR::GetUMSymbol(string inst) {
     string cp = inst.substr(0, inst.find_last_of('_'));
     cp = cp.substr(0, cp.find_last_of('_'));
     cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     return cp;
 }
 
@@ -137,6 +138,7 @@ string StrategyFR::GetCMSymbol(string inst) {
     cp = cp.substr(0, cp.find_last_of('_'));
     cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
     cp = cp  + "_perp";
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     return cp;
 }
 
@@ -144,7 +146,7 @@ string StrategyFR::GetSPOTSymbol(string inst) {
     //btc_usdt_binance_perp --> btcusdt_perp
     string cp = inst.substr(0, inst.find_last_of('_'));
     cp = cp.substr(0, cp.find_last_of('_'));
-    cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
+    cp = cp.substr(0, cp.find_last_of('_'));
     transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
     return cp;
 }
