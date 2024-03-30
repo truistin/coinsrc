@@ -879,7 +879,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     double delta_posi = sy.real_pos + sy2->real_pos;
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy.mid_p, 3 * sy.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << sy.sy << ", delta_posi: " << delta_posi;
-        return;
+        return false;
     }
     if (sy.make_taker_flag == 1) { // sy1 maker
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, sy.qty_tick_size)) { // sy1 short
@@ -1134,9 +1134,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (!sy1.close_flag) { //fr close
         ClosePosition(marketData, sy1, 0);
         return;
-    } else { // arb close
-        ClosePosition(marketData, sy1, 1);
-    }
+    } 
+    // arb close
+    if(ClosePosition(marketData, sy1, 1)) return;
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
