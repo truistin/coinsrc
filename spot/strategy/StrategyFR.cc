@@ -54,6 +54,7 @@ void StrategyFR::qryPosition() {
             memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
         } else if (iter->instrument()->getInstrumentID().find("spot") != string::npos) {
             Category = LEVERAGE;
+            memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
         } else {
             LOG_FATAL << "qryPosition fatal: " << iter->instrument()->getInstrumentID();
         }
