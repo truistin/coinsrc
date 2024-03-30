@@ -662,7 +662,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     if (sy1.make_taker_flag == 0) {
         if (IS_DOUBLE_LESS(abs(delta_posi * sy1.mid_p), sy1.min_amount)) return;
     } else if(sy2->make_taker_flag == 0) {
-        if (IS_DOUBLE_LESS(abs(delta_posi * sy2.mid_p), sy2.min_amount)) return;
+        if (IS_DOUBLE_LESS(abs(delta_posi * sy2->mid_p), sy2.min_amount)) return;
     }
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << symbol << ", delta_posi: " << delta_posi;
