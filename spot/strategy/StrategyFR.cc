@@ -680,7 +680,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
             taker_qty = round1(taker_qty, sy2->qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return;
             
             setOrder(sy2->inst, INNER_DIRECTION_Sell,
                             sy2->ask_p,
@@ -703,7 +703,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
             taker_qty = round1(taker_qty, sy2->qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return;
 
             setOrder(sy2->inst, INNER_DIRECTION_Sell,
                             sy2->ask_p,
@@ -726,7 +726,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
             taker_qty = round1(taker_qty, sy1.qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return;
 
             setOrder(sy1.inst, INNER_DIRECTION_Sell,
                             sy1.ask_p,
@@ -749,7 +749,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
             taker_qty = round1(taker_qty, sy1.qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return;
 
             setOrder(sy1.inst, INNER_DIRECTION_Sell,
                             sy1.ask_p,
@@ -774,7 +774,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
             taker_qty = round1(taker_qty, sy2->qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return;
 
             setOrder(sy2->inst, INNER_DIRECTION_Buy,
                             sy2->bid_p,
@@ -797,7 +797,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
             taker_qty = round1(taker_qty, sy2->qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy2->mid_p, sy2->min_amount)) return;
 
             setOrder(sy2->inst, INNER_DIRECTION_Buy,
                             sy2->bid_p,
@@ -820,7 +820,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
             taker_qty = round1(taker_qty, sy1.qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return;
 
             setOrder(sy1.inst, INNER_DIRECTION_Buy,
                             sy1.bid_p,
@@ -843,7 +843,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
             double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
             taker_qty = round1(taker_qty, sy1.qty_tick_size, qty_decimal);
-            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return
+            if (IS_DOUBLE_LESS(taker_qty * sy1.mid_p, sy1.min_amount)) return;
 
             setOrder(sy1.inst, INNER_DIRECTION_Buy,
                             sy1.bid_p,
@@ -893,12 +893,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 double u_posi = abs(sy.real_pos) * sy.avg_price;
                 double qty = min((u_posi - bal * sy.mv_ratio) / sy.mid_p, sy2->bid_v / 2);
-                qty = min (qty, sy.fragment/sy.mid_p)
+                qty = min (qty, sy.fragment/sy.mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
                 qty = round1(qty, sy.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return false;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -944,12 +944,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
                 double u_posi = abs(sy.real_pos) * sy.avg_price;
                 double qty = min((u_posi - bal * sy.mv_ratio) / sy.mid_p, sy2->ask_v / 2);
-                qty = min (qty, sy.fragment/sy.mid_p)
+                qty = min (qty, sy.fragment/sy.mid_p);
 
                 double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
                 qty = round1(qty, sy.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return false;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1005,7 +1005,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
                 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return false;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1056,7 +1056,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return false;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1173,7 +1173,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return;
 
                 if (!is_continue_mr(&sy1, qty)) return;
                 //  qty = sy1.min_delta_limit;
@@ -1228,7 +1228,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return;
 
                 if (!is_continue_mr(&sy1, qty)) return;
 
@@ -1303,7 +1303,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return;
                 if (!is_continue_mr(sy2, qty)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
@@ -1356,7 +1356,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return;
                 if (!is_continue_mr(sy2, qty)) return;
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
