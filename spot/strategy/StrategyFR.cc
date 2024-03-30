@@ -100,7 +100,7 @@ void StrategyFR::qryPosition() {
             }
             
             string sy = GetSPOTSymbol(iter->instrument()->getInstrumentID());
-            auto it = BnApi::BalMap_.find((*symbol_map)[sy]);
+            auto it = BnApi::BalMap_.find(sy);
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
     
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
