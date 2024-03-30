@@ -290,11 +290,11 @@ public:
 		
 		spotrapidjson::Value& dataNodes1 = doc["positions"];
 		for (int i = 0; i < dataNodes1.Capacity(); i++) {
-			spotrapidjson::Value& symbol = dataNodes[i]["symbol"];
-			spotrapidjson::Value& positionAmt = dataNodes[i]["positionAmt"];
-			spotrapidjson::Value& entryPrice = dataNodes[i]["entryPrice"];
-			spotrapidjson::Value& side = dataNodes[i]["positionSide"];
-			spotrapidjson::Value& leverage = dataNodes[i]["leverage"];
+			spotrapidjson::Value& symbol = dataNodes1[i]["symbol"];
+			spotrapidjson::Value& positionAmt = dataNodes1[i]["positionAmt"];
+			spotrapidjson::Value& entryPrice = dataNodes1[i]["entryPrice"];
+			spotrapidjson::Value& side = dataNodes1[i]["positionSide"];
+			spotrapidjson::Value& leverage = dataNodes1[i]["leverage"];
 
 			BnUmPositionInfo info;
 			if (symbol.IsString()){
