@@ -482,7 +482,7 @@ bool Initializer::initSymbol(int strategyID)
 		{
 			LOG_FATAL << "symbolinfo cann't find symbol:" << symbolIter.Symbol;
 		}
-		if (AssetType_FutureSwap.compare(symbolInfo->Type) == 0 || AssetType_FuturePerpetual.compare(symbolInfo->Type) == 0
+		if (AssetType_FutureSwap.compare(symbolInfo->Type) == 0
 			|| AssetType_Perp.compare(symbolInfo->Type) == 0 || AssetType_Spot.compare(symbolInfo->Type) == 0)
 		{
 			ret = initInstrument(symbolIter.StrategyID, symbolIter.Symbol);
