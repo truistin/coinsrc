@@ -897,7 +897,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "ClosePosition sy2 nullptr: " << sy.sy;
-        return;
+        return false;
     }
     double delta_posi = sy.real_pos + sy2->real_pos;
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy.mid_p, 3 * sy.fragment)) {
