@@ -364,7 +364,7 @@ void BnApi::GetLeverageBracket()
     for (int i = 0; i < dataNodes.Capacity(); ++i) {
         spotrapidjson::Value &dataNode = dataNodes[i];
         for (auto it : mmr_table) {
-            if (dataNode["symbol"].GetString() == it.table_name) {
+            if (strcmp(dataNode["symbol"].GetString(), it.table_name) == 0) {
                 int size = stoi(dataNode["notionalCoef"].GetString());
                 if (size != it.rows) {
                     LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
