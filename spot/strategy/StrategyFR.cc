@@ -203,7 +203,8 @@ void StrategyFR::init()
 
     for (auto& it : (*make_taker)) {
         it.second.ref = &(*make_taker)[it.second.ref_sy];
-        LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref;
+        LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
+            << ", first: " << it.first;
         if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
 }
