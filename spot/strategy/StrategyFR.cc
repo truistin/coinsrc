@@ -527,18 +527,17 @@ double StrategyFR::calc_equity()
 }
 double StrategyFR::getSpotAssetSymbol(string asset)
 {
-    if (asset == "USDT") {
+    if (asset == "USDT" || asset == "USDC" || asset == "BUSD") {
         return 1;
-    } else if (asset.find("USD") == std::string::npos) {
-        string sy = asset + "_usdt_binance_spot";
-        transform(sy.begin(), sy.end(), sy.begin(), ::tolower);
-        return (*make_taker)[sy].mid_p;
-    } else {
-        LOG_FATAL << "asset sy: " << asset;
-        return 0;
-    }
-}
+    } 
+    
+    string sy = asset + "_usdt_binance_spot";
+    transform(sy.begin(), sy.end(), sy.begin(), ::tolower);
 
+    if (make_taker->find(sy) == make_taker->end) return 0;
+    return (*make_taker)[sy].mid_p;
+
+}
 double StrategyFR::calc_mm()
 {
     double sum_mm = 0;
@@ -547,7 +546,7 @@ double StrategyFR::calc_mm()
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
-            return 0;
+            continue;
         }
 
         double leverage = 0; 
@@ -571,7 +570,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::UmAcc_->info1_) {
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
-            return 0;
+            continue;
         }
 
         string symbol = it.symbol;
@@ -587,7 +586,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::CmAcc_->info1_) {
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
-            return 0;
+            continue;
         }
         string symbol = it.symbol;
         double qty = 0;
