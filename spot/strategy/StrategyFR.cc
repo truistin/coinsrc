@@ -260,15 +260,16 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     order.qty = qty;
 
     double price = info.mid_p;
-    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_future_umimmr has no mkprice: " << info.sy << ", markprice: " << info.mid_p;
-        return 0;
+    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_future_umimmr mkprice: " << info.sy << ", markprice: " << info.mid_p;
+    } else {
+        continue
     }
     double borrow = 0;
     if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ��usdt
         borrow = qty * price;
         IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
-    } else { // ����ٗ1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
+    } else { 
         borrow = qty;
         IM = IM + (price * (qty) / ((*margin_leverage)[info.sy] - 1)) + (qty) * price / um_leverage;
     }
@@ -276,7 +277,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     order.borrow = borrow;
 
     if (IS_DOUBLE_GREATER(IM, sum_equity)) {
-        LOG_INFO << "�ֻ�+��Լ�ĳ�ʼ��֤�� > ��Ч��֤�𣬲������`1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777: " << IM << ", sum_equity: " << sum_equity;
+        LOG_INFO << "IM: " << IM << ", sum_equity: " << sum_equity;
         return 0;
     }
 
@@ -298,11 +299,11 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ�����ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777 ��Լ����
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ�����ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777 ��Լ����
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // �ֻ����ա�1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777 ��Լ����
+    } else { // �ֻ����ա�1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777 ��Լ����
         double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -400,9 +401,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ����࣬��Լ���]1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ����࣬��Լ���]1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // �ֻ����գ���Լ����1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
+    } else { // �ֻ����գ���Լ����1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -416,7 +417,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         }
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // �ܸ��ֻ�ά�ֱ�֤ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // �ܸ��ֻ�ά�ֱ�֤ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
@@ -504,9 +505,10 @@ double StrategyFR::calc_equity()
     double sum_equity = 0;
     for (auto it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
-        if (IS_DOUBLE_LESS_EQUAL(price, 0)) {
-            LOG_WARN << "calc_equity asset has no mkprice: " << it.second.asset << ", markprice: " << price;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price, 0)) {
+            LOG_WARN << "calc_equity asset mkprice: " << it.second.asset << ", markprice: " << price;
+        } else {
+            continue
         }
         if (!IS_DOUBLE_ZERO(it.second.crossMarginAsset) ||  !IS_DOUBLE_ZERO(it.second.crossMarginBorrowed)) {
             double rate = collateralRateMap[it.second.asset];
@@ -886,7 +888,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
+//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -1150,7 +1152,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 
 }
 
-//open fr_thresh ��������Ϊ��maker����, maker��taker ����Ҫ�߶���(at least larger than taker)����maker���࣬����maker��taker����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at least large than taker)
+//open fr_thresh ��������Ϊ��maker����, maker��taker ����Ҫ�߶���(at least larger than taker)����maker���࣬����maker��taker����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1464,7 +1466,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
+//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
@@ -1654,7 +1656,7 @@ void StrategyFR::OnTimerTradingLogic()
     // mr ��ѯ�Ƚ�
     // position �Ƚ�
     // 
-
+    
     for (auto it : (*symbol_map)) {
         LOG_INFO << "onTime symbol_map: " << it.first << ", value: " << it.second;
     }

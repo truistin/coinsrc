@@ -255,6 +255,9 @@ void BnApi::GetSpotAsset()
 
     for (auto& it : assetInfo.info_) {
         BalMap_[it.asset] = it;
+        if (IS_DOUBLE_EQUAL(it.crossMarginFree + it.crossMarginLocked + it.crossMarginBorrowed + it.crossMarginInterest, 0)) {
+            continue
+        }
         LOG_INFO << "GetSpotAsset asset: " << it.asset << ", crossMarginFree: " << it.crossMarginFree
             << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
             << ", crossMarginInterest: " << it.crossMarginInterest << ", crossMarginAsset: " << it.crossMarginAsset;
