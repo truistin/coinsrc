@@ -1679,6 +1679,7 @@ void StrategyFR::OnTimerTradingLogic()
             // string asset = GetUMSymbol(sy);
             bool flag = false;
             for (auto it : BnApi::UmAcc_->info1_) { 
+                if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
                     LOG_INFO << "fr onTime swap sy: " << it.symbol << ", mem val: " << net
@@ -1693,6 +1694,7 @@ void StrategyFR::OnTimerTradingLogic()
             // string asset = GetCMSymbol(sy);
             bool flag = false;
             for (auto it : BnApi::CmAcc_->info1_) { 
+                if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
                     LOG_INFO << "fr onTime perp sy: " << it.symbol << ", mem val: " << net
