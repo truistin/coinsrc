@@ -1174,7 +1174,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (make_taker->find(marketData.InstrumentID) == make_taker->end()) return;
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
-
+    sy_info* sy2 = sy1.ref;
 
     LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
         << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
@@ -1185,7 +1185,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
     } 
     if (sy2->make_taker_flag ) {
-        double spread_rate = (sy2.mid_p - sy1->mid_p) / sy1->mid_p;
+        double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
         LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
     }
     
@@ -1203,7 +1203,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         return;
     }
 
-    sy_info* sy2 = sy1.ref;
+    
     if (sy2 == nullptr) {
         LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << sy1.sy;
         return;
