@@ -50,7 +50,7 @@ void MarketDataManager::OnRtnInnerMarketData(InnerMarketData &marketData)
 void MarketDataManager::OnRtnInnerMarketTrade(InnerMarketTrade &marketTrade)
 {
 	LOG_DEBUG << "MarketDataManager OnRtnInnerMarketTrade Price: " << marketTrade.Price
-		<< marketTrade.InstrumentID;
+		<< ", inst: " << marketTrade.InstrumentID;
 	auto instrument = InstrumentManager::getInstrument(marketTrade.InstrumentID);
 	if (!instrument)
 	{
