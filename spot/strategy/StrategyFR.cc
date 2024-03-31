@@ -1167,40 +1167,35 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 //open fr_thresh 锟斤拷锟斤拷锟斤拷锟斤拷为锟斤拷maker锟斤拷锟斤拷, maker锟斤拷taker 锟斤拷锟斤拷要锟竭讹拷锟斤拷(at least larger than taker)锟斤拷锟斤拷maker锟斤拷锟洁，锟斤拷锟斤拷maker锟斤拷taker锟斤拷锟斤拷芨叨锟斤拷锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
-    LOG_INFO << "marketData sy: " << marketData.InstrumentID <<", ask1: " << marketData.AskPrice1 << ", bid1: " << marketData.BidPrice1;
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
-    // if (marketData.EpochTime - ts > 30) {
-    //     LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
-    //     return;
-    // }
-    if (make_taker->find(marketData.InstrumentID) == make_taker->end()) {
-        LOG_INFO << "make take find sy err: " << marketData.InstrumentID;
+    if (marketData.EpochTime - ts > 300) {
+        LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
         return;
     }
-
-    for (auto& it : (*make_taker)) {
-        LOG_INFO << "maker taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
-            << ", inst: " << it.second.inst
-            << ", first: " << it.first;
+    if (make_taker->find(marketData.InstrumentID) == make_taker->end()) {
+        LOG_FATAL << "make take find sy err: " << marketData.InstrumentID;
+        return;
     }
 
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
 
-    LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
-        << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
-    LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy2->long_short_flag
-        << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
-    if (sy1.make_taker_flag) {
-        double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
-        LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
-    } 
-    if (sy2->make_taker_flag ) {
-        double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
-        LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
-    }
+    if (!IS_DOUBLE_NORMAL(sy1.mid_p) || !IS_DOUBLE_NORMAL(sy2->mid_p)) return;
+
+    // LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
+    //     << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
+    // LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy2->long_short_flag
+    //     << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
+    // if (sy1.make_taker_flag) {
+    //     double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
+    //     LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
+    // } 
+    // if (sy2->make_taker_flag ) {
+    //     double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
+    //     LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
+    // }
     
 
     if (!sy1.close_flag) { //fr close
