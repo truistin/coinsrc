@@ -557,10 +557,9 @@ double StrategyFR::calc_mm()
     // �ֻ��ܸ�mm
     for (auto it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "calc_mm asset mkprice: " << it.second.asset << ", markprice: " << price;
-        } else {
-            continue;
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_FATAL << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
+            return -1;
         }
 
         double leverage = 0; 
@@ -583,10 +582,9 @@ double StrategyFR::calc_mm()
 
     for (auto it : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
-        if (!IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm UmAcc asset mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
-        } else {
-            continue;
+        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
+            LOG_FATAL << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+            return -1;
         }
 
         string symbol = it.symbol;
@@ -602,9 +600,8 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::CmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm CmAcc asset mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
-        } else {
-            continue;
+            LOG_FATAL << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+            return -1;
         }
         string symbol = it.symbol;
         double qty = 0;
@@ -651,7 +648,7 @@ double StrategyFR::calc_uniMMR()
 {
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
-    if (uniAccount_mm == 0) return 10;
+    if (uniAccount_mm == 0) return 999;
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
