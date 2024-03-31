@@ -558,6 +558,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            if (make_taker->find(sy) == make_taker->end()) continue;
             LOG_FATAL << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
             return -1;
         }
