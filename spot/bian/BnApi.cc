@@ -332,90 +332,82 @@ void BnApi::GetLeverageBracket()
     //     }
     // }  
         
-    for (auto it : originSymbolToSpotSymbol_) {
-        m_uri.clear();
-        m_uri.protocol = HTTP_PROTOCOL_HTTPS;
-        m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
-        m_uri.method = METHOD_GET;
-        m_uri.domain = Bn_DOMAIN;
-        if (it.first.find("PERP") != std::string::npos) {
-            m_uri.api = BN_CM_BRACKET_API;
-        } else {
-            m_uri.api = BN_UM_BRACKET_API;
-        }
-        
-        uint64_t EpochTime = CURR_MSTIME_POINT;
-        m_uri.AddParam(("symbol"), (it.first));
-        m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
-        // SetPrivateParams(HTTP_GET, m_uri);
-        m_uri.Request();
-        
-        string &res = m_uri.result;
-        // LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
+    m_uri.clear();
+    m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+    m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
+    m_uri.method = METHOD_GET;
+    m_uri.domain = Bn_DOMAIN;
+    m_uri.api = BN_UM_BRACKET_API;
+    
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    // SetPrivateParams(HTTP_GET, m_uri);
+    m_uri.Request();
+    
+    string &res = m_uri.result;
+    // LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
 
-        if (res.empty()) {
-            LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res << ", symbol: " << it.first;
-            return;
-        }
-
-        Document doc;
-        doc.Parse(res.c_str(), res.size());
-        if (doc.HasParseError())
-        {
-            LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res << ", symbol: " << it.first;
-            return;
-        }
-
-        spotrapidjson::Value dataNodes = doc.GetArray();
-        for (int i = 0; i < dataNodes.Capacity(); ++i) {
-            spotrapidjson::Value &dataNode = dataNodes[i];
-            for (auto it : mmr_table) {
-                if (dataNode["symbol"].GetString() == it.table_name) {
-                    int size = stoi(dataNode["notionalCoef"].GetString());
-                    if (size != it.rows) {
-                        LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
-                    }
-                    spotrapidjson::Value bracketsArray = dataNode["brackets"].GetArray();
-                    for (int j = 0; j < bracketsArray.Capacity(); j++) {
-                        spotrapidjson::Value &Node = bracketsArray[j];
-                        LOG_INFO << "mmr table symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
-                            << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
-                            << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
-
-                        int64_t initialLeverage = Node["initialLeverage"].GetInt64();
-                        it.data[j][2] = initialLeverage;
-
-                        string name(it.table_name);
-                        if (name.find("PERP")) {
-                            int64_t  qtyCap = Node["qtyCap"].GetInt64();
-                            it.data[j][1] = qtyCap;
-
-                            int64_t qtyFloor = Node["qtyFloor"].GetInt64();
-                            it.data[j][0] = qtyFloor;
-                        } else {
-                            int64_t  notionalCap = Node["notionalCap"].GetInt64();
-                            it.data[j][1] = notionalCap;
-
-                            int64_t notionalFloor = Node["notionalFloor"].GetInt64();
-                            it.data[j][0] = notionalFloor;
-                        }
-
-                        double maintMarginRatio = Node["maintMarginRatio"].GetDouble();
-                        it.data[j][3] = maintMarginRatio;
-
-                        double cum = Node["cum"].GetDouble();
-                        it.data[j][4] = cum;
-
-                        LOG_INFO << "GetLeverageBracket symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
-                            << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
-                            << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
-                    }
-                }
-                continue;
-            }
-        }
-
+    if (res.empty()) {
+        LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res << ", symbol: " << it.first;
+        return;
     }
+
+    Document doc;
+    doc.Parse(res.c_str(), res.size());
+    if (doc.HasParseError())
+    {
+        LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res << ", symbol: " << it.first;
+        return;
+    }
+
+    spotrapidjson::Value dataNodes = doc.GetArray();
+    for (int i = 0; i < dataNodes.Capacity(); ++i) {
+        spotrapidjson::Value &dataNode = dataNodes[i];
+        for (auto it : mmr_table) {
+            if (dataNode["symbol"].GetString() == it.table_name) {
+                int size = stoi(dataNode["notionalCoef"].GetString());
+                if (size != it.rows) {
+                    LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
+                }
+                spotrapidjson::Value bracketsArray = dataNode["brackets"].GetArray();
+                for (int j = 0; j < bracketsArray.Capacity(); j++) {
+                    spotrapidjson::Value &Node = bracketsArray[j];
+                    LOG_INFO << "mmr table symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
+                        << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
+                        << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
+
+                    int64_t initialLeverage = Node["initialLeverage"].GetInt64();
+                    it.data[j][2] = initialLeverage;
+
+                    string name(it.table_name);
+                    if (name.find("PERP")) {
+                        int64_t  qtyCap = Node["qtyCap"].GetInt64();
+                        it.data[j][1] = qtyCap;
+
+                        int64_t qtyFloor = Node["qtyFloor"].GetInt64();
+                        it.data[j][0] = qtyFloor;
+                    } else {
+                        int64_t  notionalCap = Node["notionalCap"].GetInt64();
+                        it.data[j][1] = notionalCap;
+
+                        int64_t notionalFloor = Node["notionalFloor"].GetInt64();
+                        it.data[j][0] = notionalFloor;
+                    }
+
+                    double maintMarginRatio = Node["maintMarginRatio"].GetDouble();
+                    it.data[j][3] = maintMarginRatio;
+
+                    double cum = Node["cum"].GetDouble();
+                    it.data[j][4] = cum;
+
+                    LOG_INFO << "GetLeverageBracket symbol: " << it.table_name << ", notionalFloor: " << it.data[j][0]
+                        << ", notionalCap: " << it.data[j][1] << ", initialLeverage: " << it.data[j][2]
+                        << ", maintMarginRatio: " << it.data[j][3] << ", cum: " << it.data[j][4];
+                }
+            }
+            continue;
+        }
+    }    
 
 }
 
