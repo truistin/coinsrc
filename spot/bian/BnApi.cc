@@ -335,6 +335,8 @@ void BnApi::GetLeverageBracket()
     for (auto it : originSymbolToSpotSymbol_) {
         m_uri.clear();
         m_uri.protocol = HTTP_PROTOCOL_HTTPS;
+        m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
+        m_uri.method = METHOD_GET;
         m_uri.domain = Bn_DOMAIN;
         if (it.first.find("PERP") != std::string::npos) {
             m_uri.api = BN_CM_BRACKET_API;
@@ -345,7 +347,7 @@ void BnApi::GetLeverageBracket()
         uint64_t EpochTime = CURR_MSTIME_POINT;
         m_uri.AddParam(("symbol"), (it.first));
         m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
-        SetPrivateParams(HTTP_GET, m_uri);
+        // SetPrivateParams(HTTP_GET, m_uri);
         m_uri.Request();
         
         string &res = m_uri.result;
