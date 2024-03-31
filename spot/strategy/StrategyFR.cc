@@ -1178,6 +1178,13 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         LOG_INFO << "make take find sy err: " << marketData.InstrumentID;
         return;
     }
+
+    for (auto& it : (*make_taker)) {
+        LOG_INFO << "maker taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
+            << ", inst: " << it.second.inst
+            << ", first: " << it.first;
+    }
+
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
