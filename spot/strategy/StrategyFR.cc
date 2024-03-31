@@ -189,7 +189,7 @@ void StrategyFR::init()
     }
 
     for (const auto& iter : strategyInstrumentList()) {
-        for (const auto& it : (*make_taker)) {
+        for (auto& it : (*make_taker)) {
             if (it.first == iter->instrument()->getInstrumentID()) {
                 it.second.inst = iter;
                 it.second.sellMap = iter->sellOrders();
@@ -201,7 +201,7 @@ void StrategyFR::init()
 
     qryPosition();
 
-    for (const auto& it : (*make_taker)) {
+    for (auto& it : (*make_taker)) {
         it.second.ref = &(*make_taker)[it.second.ref_sy];
         LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref;
         if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
