@@ -263,7 +263,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
         LOG_WARN << "calc_future_umimmr mkprice: " << info.sy << ", markprice: " << info.mid_p;
     } else {
-        continue
+        continue;
     }
     double borrow = 0;
     if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ��usdt
@@ -455,7 +455,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
         } else {
-            continue
+            continue;
         }
         double qty = 0;
         if (sy == "BTCUSD_PERP") {
@@ -516,7 +516,7 @@ double StrategyFR::calc_equity()
         if (!IS_DOUBLE_LESS_EQUAL(price, 0)) {
             LOG_WARN << "calc_equity asset mkprice: " << it.second.asset << ", markprice: " << price;
         } else {
-            continue
+            continue;
         }
         if (!IS_DOUBLE_ZERO(it.second.crossMarginAsset) ||  !IS_DOUBLE_ZERO(it.second.crossMarginBorrowed)) {
             double rate = collateralRateMap[it.second.asset];
@@ -589,7 +589,7 @@ double StrategyFR::calc_mm()
         if (!IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_WARN << "calc_mm UmAcc asset mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
         } else {
-            continue
+            continue;
         }
 
         string symbol = it.symbol;
