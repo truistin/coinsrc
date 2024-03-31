@@ -367,7 +367,7 @@ void BnApi::GetLeverageBracket()
     for (int i = 0; i < dataNodes.Capacity(); ++i) {
         spotrapidjson::Value &dataNode = dataNodes[i];
         for (auto it : mmr_table) {
-            LOG_WARN << "bracket_symbol" << dataNode["symbol"].GetString();
+            //LOG_WARN << "bracket_symbol" << dataNode["symbol"].GetString();
             if (strcmp(dataNode["symbol"].GetString(), it.table_name) == 0) {
                 spotrapidjson::Value bracketsArray = dataNode["brackets"].GetArray();
                 for (int j = 0; j < bracketsArray.Capacity(); j++) {

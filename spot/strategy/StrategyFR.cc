@@ -651,6 +651,7 @@ double StrategyFR::calc_uniMMR()
 {
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
+    if (uniAccount_mm == 0) return 10;
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
