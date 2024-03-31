@@ -41,7 +41,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
 }
 
 void StrategyFR::qryPosition() {
-    for (auto& iter : strategyInstrumentList()) {
+    for (const auto& iter : strategyInstrumentList()) {
         Order order;
         order.QryFlag = QryType::QRYPOSI;
         order.setInstrumentID((void*)(iter->instrument()->getInstrumentID().c_str()), iter->instrument()->getInstrumentID().size());
@@ -165,7 +165,7 @@ void StrategyFR::init()
         }
     }
 
-    for (auto& it : InitialData::symbolInfoMap()) {
+    for (const auto& it : InitialData::symbolInfoMap()) {
         sy_info syInfo;
         memcpy(syInfo.sy, it.second.Symbol, min(sizeof(syInfo.sy), sizeof(it.second.Symbol)));
         memcpy(syInfo.ref_sy, it.second.RefSymbol, min(sizeof(syInfo.ref_sy), sizeof(it.second.RefSymbol)));
@@ -188,8 +188,8 @@ void StrategyFR::init()
         make_taker->insert({it.second.Symbol, syInfo});
     }
 
-    for (auto& iter : strategyInstrumentList()) {
-        for (auto& it : (*make_taker)) {
+    for (const auto& iter : strategyInstrumentList()) {
+        for (const auto& it : (*make_taker)) {
             if (it.first == iter->instrument()->getInstrumentID()) {
                 it.second.inst = iter;
                 it.second.sellMap = iter->sellOrders();
@@ -201,7 +201,7 @@ void StrategyFR::init()
 
     qryPosition();
 
-    for (auto& it : (*make_taker)) {
+    for (const auto& it : (*make_taker)) {
         it.second.ref = &(*make_taker)[it.second.ref_sy];
         LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref;
         if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
@@ -310,7 +310,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         sum_equity = equity + uswap_unpnl;
     }
 
-    for (auto it : BnApi::BalMap_) {
+    for (const auto& it : BnApi::BalMap_) {
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double rate = collateralRateMap[it.first];
 
@@ -344,7 +344,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         }
     }
 
-    for (auto& iter : BnApi::UmAcc_->info1_) {
+    for (const auto& iter : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
         if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
@@ -357,7 +357,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         sum_equity += uswap_unpnl;
     }
 
-    for (auto& iter : BnApi::CmAcc_->info1_) {
+    for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
@@ -410,7 +410,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
-    for (auto& it : BnApi::BalMap_) {
+    for (const auto& it : BnApi::BalMap_) {
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = getSpotAssetSymbol(it.first);
@@ -427,7 +427,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         }
     }
 
-    for (auto& iter : BnApi::UmAcc_->info1_) {
+    for (const auto& iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
@@ -446,7 +446,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
     }
 
-    for (auto& iter : BnApi::CmAcc_->info1_) {
+    for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
@@ -476,7 +476,7 @@ double StrategyFR::calc_balance()
 {
     double sum_usdt = 0;
     // um_account
-    for (auto& it : BnApi::UmAcc_->info_) {
+    for (const auto& it : BnApi::UmAcc_->info_) {
         string sy = it.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             sum_usdt += it.crossWalletBalance + it.crossUnPnl;
@@ -486,7 +486,7 @@ double StrategyFR::calc_balance()
     }
 
     // cm_account
-    for (auto& it : BnApi::CmAcc_->info_) {
+    for (const auto& it : BnApi::CmAcc_->info_) {
         string sy = it.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             LOG_FATAL << "";
@@ -494,7 +494,7 @@ double StrategyFR::calc_balance()
         sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
     }
 
-    for (auto& it : BnApi::BalMap_) {
+    for (const auto& it : BnApi::BalMap_) {
         string sy = it.second.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             sum_usdt += it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginLocked - it.second.crossMarginInterest;
@@ -509,7 +509,7 @@ double StrategyFR::calc_balance()
 double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
-    for (auto& it : BnApi::BalMap_) {
+    for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (!IS_DOUBLE_LESS_EQUAL(price, 0)) {
             LOG_WARN << "calc_equity asset mkprice: " << it.second.asset << ", markprice: " << price;
@@ -556,7 +556,7 @@ double StrategyFR::calc_mm()
 {
     double sum_mm = 0;
     // �ֻ��ܸ�mm
-    for (auto& it : BnApi::BalMap_) {
+    for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             if (make_taker->find(it.second.asset) == make_taker->end()) continue;
@@ -582,7 +582,7 @@ double StrategyFR::calc_mm()
         }
     }
 
-    for (auto& it : BnApi::UmAcc_->info1_) {
+    for (const auto& it : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_ERROR << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
@@ -599,7 +599,7 @@ double StrategyFR::calc_mm()
         sum_mm += mm;
     }
 
-    for (auto& it : BnApi::CmAcc_->info1_) {
+    for (const auto& it : BnApi::CmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_ERROR << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
@@ -628,7 +628,7 @@ double StrategyFR::calc_mm()
 void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num)
 {
     bool flag = false;
-    for (auto& it : mmr_table) {
+    for (const auto& it : mmr_table) {
         if (symbol == it.table_name) {
             double** data = it.data;
             for (int i = 0; i < it.rows; ++i) {  
@@ -1140,16 +1140,16 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 {
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
-            for (auto& it : (*sy->buyMap)) {
-                for (auto& iter : it.second->OrderList)
+            for (const auto& it : (*sy->buyMap)) {
+                for (const auto& iter : it.second->OrderList)
                     sy->inst->cancelOrder(iter);
             }
             return true;
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
-            for (auto& it : (*sy->sellMap)) {
-                for (auto& iter : it.second->OrderList)
+            for (const auto& it : (*sy->sellMap)) {
+                for (const auto& iter : it.second->OrderList)
                     sy->inst->cancelOrder(iter);
             }
             return true;
@@ -1429,7 +1429,7 @@ void StrategyFR::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrumen
 
 void StrategyFR::OnForceCloseTimerInterval() 
 {
-    for (auto& iter : strategyInstrumentList()) {
+    for (const auto& iter : strategyInstrumentList()) {
         hedge(iter);
     }
 }
@@ -1642,12 +1642,12 @@ bool StrategyFR::make_continue_mr(double& mr)
 bool StrategyFR::action_mr(double mr)
 {
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
-        for (auto& iter : strategyInstrumentList()) {
+        for (const auto& iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
         }
         return false;
     } else if (IS_DOUBLE_LESS(mr, 3)) {
-        for (auto& iter : strategyInstrumentList()) {
+        for (const auto& iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
             return false;
         }
@@ -1666,11 +1666,11 @@ void StrategyFR::OnTimerTradingLogic()
     // position �Ƚ�
     // 
     
-    for (auto& it : (*symbol_map)) {
+    for (const auto& it : (*symbol_map)) {
         LOG_INFO << "onTime symbol_map: " << it.first << ", value: " << it.second;
     }
 
-    for (auto& iter : strategyInstrumentList()) {
+    for (const auto& iter : strategyInstrumentList()) {
         string sy = iter->instrument()->getInstrumentID();
         double net = iter->position().getNetPosition(); 
 
@@ -1687,7 +1687,7 @@ void StrategyFR::OnTimerTradingLogic()
         if (sy.find("swap") != string::npos) {
             // string asset = GetUMSymbol(sy);
             bool flag = false;
-            for (auto& it : BnApi::UmAcc_->info1_) { 
+            for (const auto& it : BnApi::UmAcc_->info1_) { 
                 if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
@@ -1702,7 +1702,7 @@ void StrategyFR::OnTimerTradingLogic()
         if (sy.find("perp") != string::npos) {
             // string asset = GetCMSymbol(sy);
             bool flag = false;
-            for (auto& it : BnApi::CmAcc_->info1_) { 
+            for (const auto& it : BnApi::CmAcc_->info1_) { 
                 if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
