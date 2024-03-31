@@ -202,6 +202,7 @@ void StrategyFR::init()
     qryPosition();
 
     for (auto it : (*make_taker)) {
+        LOG_INFO << "make_taker ref: " << it.second.sy << ", ref: " << it.second.ref_sy;
         it.second.ref = &(*make_taker)[it.second.ref_sy];
         if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
