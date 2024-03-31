@@ -324,13 +324,13 @@ void BnApi::GetUm_Cm_Account()
 
 void BnApi::GetLeverageBracket()
 {
-    for (auto it : mmr_table) {
-        double** data = it.data;
-        for (int i = 0; i < it.rows; ++i) {  
-            LOG_INFO << "mmr table name: "<< it.table_name << ", notionalFloor: " << data[i][0] << ", notionalCap: " << data[i][1]
-                << ", initialLeverage: " << data[i][2] << ", maintMarginRatio: " << data[i][3] << ", cum: " << data[i][4];
-        }
-    }  
+    // for (auto it : mmr_table) {
+    //     double** data = it.data;
+    //     for (int i = 0; i < it.rows; ++i) {  
+    //         LOG_INFO << "mmr table name: "<< it.table_name << ", notionalFloor: " << data[i][0] << ", notionalCap: " << data[i][1]
+    //             << ", initialLeverage: " << data[i][2] << ", maintMarginRatio: " << data[i][3] << ", cum: " << data[i][4];
+    //     }
+    // }  
         
     for (auto it : originSymbolToSpotSymbol_) {
         m_uri.clear();
@@ -383,11 +383,20 @@ void BnApi::GetLeverageBracket()
                         int64_t initialLeverage = Node["initialLeverage"].GetInt64();
                         it.data[j][2] = initialLeverage;
 
-                        int64_t  notionalCap = Node["notionalCap"].GetInt64();
-                        it.data[j][1] = notionalCap;
+                        string name(it.table_name);
+                        if (name.find("PERP")) {
+                            int64_t  qtyCap = Node["qtyCap"].GetInt64();
+                            it.data[j][1] = qtyCap;
 
-                        int64_t notionalFloor = Node["notionalFloor"].GetInt64();
-                        it.data[j][0] = notionalFloor;
+                            int64_t qtyFloor = Node["qtyFloor"].GetInt64();
+                            it.data[j][0] = qtyFloor;
+                        } else {
+                            int64_t  notionalCap = Node["notionalCap"].GetInt64();
+                            it.data[j][1] = notionalCap;
+
+                            int64_t notionalFloor = Node["notionalFloor"].GetInt64();
+                            it.data[j][0] = notionalFloor;
+                        }
 
                         double maintMarginRatio = Node["maintMarginRatio"].GetDouble();
                         it.data[j][3] = maintMarginRatio;
