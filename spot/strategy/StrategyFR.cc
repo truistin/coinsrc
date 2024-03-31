@@ -292,9 +292,10 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 {
     double sum_equity = 0;
     double price = info.mid_p;
-    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_predict_equity has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
-        return 0;
+    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_predict_equity mkprice: " << order.sy << ", markprice: " << info.mid_p;
+    } else {
+        continue;
     }
 
     double rate = collateralRateMap[order.sy];
@@ -322,9 +323,10 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
             price = getSpotAssetSymbol(sy) * (1 + price_cent);
         }
 
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "BalMap calc_predict_equity has no mkprice: " << sy << ", markprice: " << getSpotAssetSymbol(sy);
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "BalMap calc_predict_equity mkprice: " << sy << ", markprice: " << getSpotAssetSymbol(sy);
+        } else {
+            continue;
         }
 
         if (!IS_DOUBLE_ZERO(it.second.crossMarginAsset) ||  !IS_DOUBLE_ZERO(it.second.crossMarginBorrowed)) {
@@ -346,9 +348,10 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     for (auto iter : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "UmAcc has no mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "UmAcc mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
+        } else {
+            continue;
         }
         double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*make_taker)[(*symbol_map)[iter.symbol]].mid_p) / (iter.positionAmt + order.qty);
         double uswap_unpnl = (price - avgPrice) * iter.positionAmt;
@@ -359,9 +362,10 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "CmAcc has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "CmAcc mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
+        } else {
+            continue;
         }
         double perp_size = 0;
         if (sy == "BTCUSD_PERP") {
@@ -389,9 +393,10 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 {
     double sum_mm = 0;
     double price = info.mid_p;
-    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_predict_mm has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
-        return 0;
+    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_predict_mm mkprice: " << order.sy << ", markprice: " << info.mid_p;
+    } else {
+        continue;
     }
     double leverage = 0;
     if (margin_leverage->find(order.sy) == margin_leverage->end()) {
@@ -411,9 +416,10 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = getSpotAssetSymbol(it.first);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "BalMap calc_predict_mm has no mkprice: " << it.first << ", markprice: " << price;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "BalMap calc_predict_mm mkprice: " << it.first << ", markprice: " << price;
+        } else {
+            continue;
         }
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
@@ -427,9 +433,10 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
+        } else {
+            continue;
         }
         double qty = iter.positionAmt;
         if (sy == order.sy) {
@@ -445,9 +452,10 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "CmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << price;
-            return 0;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
+        } else {
+            continue
         }
         double qty = 0;
         if (sy == "BTCUSD_PERP") {
@@ -552,8 +560,9 @@ double StrategyFR::calc_mm()
     // �ֻ��ܸ�mm
     for (auto it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
+        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "calc_mm asset mkprice: " << it.second.asset << ", markprice: " << price;
+        } else {
             continue;
         }
 
@@ -577,9 +586,10 @@ double StrategyFR::calc_mm()
 
     for (auto it : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
-        if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
-            continue;
+        if (!IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
+            LOG_WARN << "calc_mm UmAcc asset mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+        } else {
+            continue
         }
 
         string symbol = it.symbol;
@@ -595,7 +605,8 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::CmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+            LOG_WARN << "calc_mm CmAcc asset mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+        } else {
             continue;
         }
         string symbol = it.symbol;
