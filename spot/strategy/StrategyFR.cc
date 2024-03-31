@@ -1169,6 +1169,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 {
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
+    LOG_INFO << "market data beyond time: " << marketData.InstrumentID << ", EpochTime: " << marketData.EpochTime
+            << ", ts: " << ts;
     if (ts - marketData.EpochTime > 300) {
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", EpochTime: " << marketData.EpochTime
             << ", ts: " << ts;
