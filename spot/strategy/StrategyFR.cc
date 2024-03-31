@@ -1165,6 +1165,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 //open fr_thresh 锟斤拷锟斤拷锟斤拷锟斤拷为锟斤拷maker锟斤拷锟斤拷, maker锟斤拷taker 锟斤拷锟斤拷要锟竭讹拷锟斤拷(at least larger than taker)锟斤拷锟斤拷maker锟斤拷锟洁，锟斤拷锟斤拷maker锟斤拷taker锟斤拷锟斤拷芨叨锟斤拷锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
+    LOG_INFO << "marketData sy: " << marketData.InstrumentID <<", ask1: " << marketData.AskPrice1 << ", bid1: " << marketData.BidPrice1;
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
     if (marketData.EpochTime - ts > 30) {
