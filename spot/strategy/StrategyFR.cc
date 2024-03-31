@@ -559,7 +559,7 @@ double StrategyFR::calc_mm()
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             if (make_taker->find(it.second.asset) == make_taker->end()) continue;
-            LOG_FATAL << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
+            LOG_ERROR << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
             return -1;
         }
 
@@ -584,7 +584,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_FATAL << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+            LOG_ERROR << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             return -1;
         }
 
@@ -601,7 +601,7 @@ double StrategyFR::calc_mm()
     for (auto it : BnApi::CmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
-            LOG_FATAL << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
+            LOG_ERROR << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             return -1;
         }
         string symbol = it.symbol;
@@ -650,6 +650,7 @@ double StrategyFR::calc_uniMMR()
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
     if (uniAccount_mm == 0) return 999;
+    if (uniAccount_mm == -1) return 8;
     return (uniAccount_equity)/(uniAccount_mm);
 }
 
