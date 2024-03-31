@@ -275,7 +275,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.Request();
 
     string &res = m_uri.result;
-    cout << "GetUm_Cm_Account result: " << res;
+    // cout << "GetUm_Cm_Account result: " << res;
     if (res.empty()) {
         LOG_ERROR << "BnApi GetUm_Cm_Account decode failed res: " << res;
         return;
