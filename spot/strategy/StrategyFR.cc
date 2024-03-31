@@ -1178,14 +1178,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
         << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
-    LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy->long_short_flag
+    LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy2->long_short_flag
         << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
     if (sy1.make_taker_flag) {
         double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
         LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
     } 
     if (sy2->make_taker_flag ) {
-        double spread_rate = (sy2.mid_p - sy1.mid_p) / sy1.mid_p;
+        double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
         LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
     }
     
