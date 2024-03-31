@@ -1170,10 +1170,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     LOG_INFO << "marketData sy: " << marketData.InstrumentID <<", ask1: " << marketData.AskPrice1 << ", bid1: " << marketData.BidPrice1;
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
-    if (marketData.EpochTime - ts > 30) {
-        LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
-        return;
-    }
+    // if (marketData.EpochTime - ts > 30) {
+    //     LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
+    //     return;
+    // }
     if (make_taker->find(marketData.InstrumentID) == make_taker->end()) {
         LOG_INFO << "make take find sy err: " << marketData.InstrumentID;
         return;
