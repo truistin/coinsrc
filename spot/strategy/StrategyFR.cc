@@ -260,10 +260,9 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     order.qty = qty;
 
     double price = info.mid_p;
-    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_future_umimmr mkprice: " << info.sy << ", markprice: " << info.mid_p;
-    } else {
-        continue;
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_future_umimmr has no mkprice: " << info.sy << ", markprice: " << info.mid_p;
+        return 0;
     }
     double borrow = 0;
     if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ��usdt
@@ -292,10 +291,9 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 {
     double sum_equity = 0;
     double price = info.mid_p;
-    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_predict_equity mkprice: " << order.sy << ", markprice: " << info.mid_p;
-    } else {
-        continue;
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_predict_equity has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
+        return 0;
     }
 
     double rate = collateralRateMap[order.sy];
@@ -393,10 +391,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 {
     double sum_mm = 0;
     double price = info.mid_p;
-    if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
-        LOG_WARN << "calc_predict_mm mkprice: " << order.sy << ", markprice: " << info.mid_p;
-    } else {
-        continue;
+    if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        LOG_WARN << "calc_predict_mm has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
+        return 0;
     }
     double leverage = 0;
     if (margin_leverage->find(order.sy) == margin_leverage->end()) {
