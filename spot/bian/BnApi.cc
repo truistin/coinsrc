@@ -348,7 +348,7 @@ void BnApi::GetLeverageBracket()
     // LOG_INFO << "GetLeverageBracket res: " << res << ", symbol: " << it.first;
 
     if (res.empty()) {
-        LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res << ", symbol: " << it.first;
+        LOG_FATAL << "BnApi GetLeverageBracket decode failed res: " << res;
         return;
     }
 
@@ -356,7 +356,7 @@ void BnApi::GetLeverageBracket()
     doc.Parse(res.c_str(), res.size());
     if (doc.HasParseError())
     {
-        LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res << ", symbol: " << it.first;
+        LOG_WARN << "BianApi GetLeverageBracket Parse error. result:" << res;
         return;
     }
 
