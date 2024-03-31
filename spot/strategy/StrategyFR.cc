@@ -1656,7 +1656,7 @@ void StrategyFR::OnTimerTradingLogic()
     // 
 
     for (auto it : (*symbol_map)) {
-        LOG_INFO << "onTime symbol_map: " << it.first << ", value: " < it.second;
+        LOG_INFO << "onTime symbol_map: " << it.first << ", value: " << it.second;
     }
 
     for (auto iter : strategyInstrumentList()) {
