@@ -298,11 +298,11 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ¡ï¿½1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ¡ï¿½1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -403,9 +403,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½]1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½]1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -420,7 +420,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         }
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ï¿½Ü¸ï¿½ï¿½Ö»ï¿½Î¬ï¿½Ö±ï¿½Ö¤ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ï¿½Ü¸ï¿½ï¿½Ö»ï¿½Î¬ï¿½Ö±ï¿½Ö¤ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
@@ -896,7 +896,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -1160,7 +1160,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 
 }
 
-//open fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½, makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777(at least large than taker)
+//open fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½, makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1171,7 +1171,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     }
     if (make_taker->find(marketData.InstrumentID) == make_taker->end()) return;
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
-    sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
+    sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
 
     if (!sy1.close_flag) { //fr close
         ClosePosition(marketData, sy1, 0);
@@ -1474,7 +1474,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];

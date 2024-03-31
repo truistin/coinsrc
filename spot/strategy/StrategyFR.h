@@ -58,11 +58,12 @@ namespace spot {
 				OrderByPriceMap* sellMap; // pendingorders
 				OrderByPriceMap* buyMap;
 			public:
-				void update(double askp, double bidp, double askv, double bidv) {
+				void update(double askp, double bidp, double askv, double bidv, int64_t ts) {
 					ask_p = askp;
 					bid_p = bidp;
 					ask_v = askv;
 					bid_v = bidv;
+					exch_ts = ts;
 					mid_p = (askp + bidp) / 2;
 				}
 		};
