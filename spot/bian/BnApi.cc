@@ -366,7 +366,8 @@ void BnApi::GetLeverageBracket()
         for (auto it : mmr_table) {
             LOG_WARN << "bracket_symbol" << dataNode["symbol"].GetString();
             if (strcmp(dataNode["symbol"].GetString(), it.table_name) == 0) {
-                int size = stoi(dataNode["notionalCoef"].GetString());
+                string str(dataNode["notionalCoef"].GetString());
+                int size = stod(str);
                 if (size != it.rows) {
                     LOG_WARN << "GetLeverageBracket ERROR: " << it.table_name;
                 }
