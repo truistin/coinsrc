@@ -1679,7 +1679,7 @@ void StrategyFR::OnTimerTradingLogic()
             for (auto it : BnApi::UmAcc_->info1_) { 
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
-                    LOG_INFO << "fr onTime swap sy: " << asset << ", mem val: " << net
+                    LOG_INFO << "fr onTime swap sy: " << it.symbol << ", mem val: " << net
                         << ", qry pos val: " << it.positionAmt;
                     break;
                 }
@@ -1693,7 +1693,7 @@ void StrategyFR::OnTimerTradingLogic()
             for (auto it : BnApi::CmAcc_->info1_) { 
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
-                    LOG_INFO << "fr onTime perp sy: " << asset << ", mem val: " << net
+                    LOG_INFO << "fr onTime perp sy: " << it.symbol << ", mem val: " << net
                         << ", qry pos val: " << it.positionAmt;
                     break;
                 }
