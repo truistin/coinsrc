@@ -299,11 +299,11 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ�����ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777 ��Լ����
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ�����ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777 ��Լ����
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // �ֻ����ա�1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777 ��Լ����
+    } else { // �ֻ����ա�1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777 ��Լ����
         double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -404,9 +404,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ����࣬��Լ���]1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
+    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // �ֻ����࣬��Լ���]1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // �ֻ����գ���Լ����1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
+    } else { // �ֻ����գ���Լ����1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -421,7 +421,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         }
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // �ܸ��ֻ�ά�ֱ�֤ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // �ܸ��ֻ�ά�ֱ�֤ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777777
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
@@ -897,7 +897,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
+//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -1161,7 +1161,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 
 }
 
-//open fr_thresh ��������Ϊ��maker����, maker��taker ����Ҫ�߶���(at least larger than taker)����maker���࣬����maker��taker����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at least large than taker)
+//open fr_thresh ��������Ϊ��maker����, maker��taker ����Ҫ�߶���(at least larger than taker)����maker���࣬����maker��taker����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1173,6 +1173,21 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (make_taker->find(marketData.InstrumentID) == make_taker->end()) return;
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
+
+
+    LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
+        << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
+    LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy->long_short_flag
+        << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
+    if (sy1.make_taker_flag) {
+        double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
+        LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
+    } 
+    if (sy2->make_taker_flag ) {
+        double spread_rate = (sy2.mid_p - sy1->mid_p) / sy1->mid_p;
+        LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
+    }
+    
 
     if (!sy1.close_flag) { //fr close
         ClosePosition(marketData, sy1, 0);
@@ -1475,7 +1490,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
+//close arb_thresh/fr_thresh ��������Ϊ��maker����  maker��taker ����ܸ߶��ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777(at most larger than taker)����maker���࣬����maker��taker����Ҫ�߶���(at least large than taker)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
