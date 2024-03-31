@@ -341,7 +341,7 @@ void BnApi::GetLeverageBracket()
     
     uint64_t EpochTime = CURR_MSTIME_POINT;
     m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
-    // SetPrivateParams(HTTP_GET, m_uri);
+    SetPrivateParams(HTTP_GET, m_uri);
     m_uri.Request();
     
     string &res = m_uri.result;
