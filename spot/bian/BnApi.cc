@@ -377,7 +377,7 @@ void BnApi::GetLeverageBracket()
                     it.data[j][2] = initialLeverage;
 
                     string name(it.table_name);
-                    if (name.find("PERP")) {
+                    if (name.find("PERP") != string::npos) {
                         int64_t  qtyCap = Node["qtyCap"].GetInt64();
                         it.data[j][1] = qtyCap;
 
