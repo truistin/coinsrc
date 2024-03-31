@@ -310,6 +310,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     }
 
     for (auto it : BnApi::BalMap_) {
+        if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double rate = collateralRateMap[it.first];
 
         string sy = it.first;
@@ -342,6 +343,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     }
 
     for (auto iter : BnApi::UmAcc_->info1_) {
+        if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc has no mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
@@ -354,6 +356,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
+        if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
@@ -404,6 +407,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
     }
 
     for (auto it : BnApi::BalMap_) {
+        if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = getSpotAssetSymbol(it.first);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
@@ -420,6 +424,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 
     for (auto iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
+        if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
@@ -437,6 +442,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 
     for (auto iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
+        if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc calc_predict_mm has no mkprice: " << sy << ", markprice: " << price;
@@ -568,6 +574,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::UmAcc_->info1_) {
+        if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_WARN << "calc_mm UmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             continue;
@@ -584,6 +591,7 @@ double StrategyFR::calc_mm()
     }
 
     for (auto it : BnApi::CmAcc_->info1_) {
+        if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
             LOG_WARN << "calc_mm CmAcc asset has no mkprice: " << it.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[it.symbol]].mid_p;
             continue;
@@ -666,6 +674,7 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
 void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 {
     string symbol = strategyInstrument->getInstrumentID();
+    if (make_taker->find(symbol) == make_taker->end()) continue;
     sy_info& sy1 = (*make_taker)[symbol];
     sy_info* sy2 = sy1.ref;
     if (sy2 == nullptr) {
@@ -1150,6 +1159,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", ts: " << marketData.EpochTime;
         return;
     }
+    if (make_taker->find(marketData.InstrumentID) == make_taker->end()) continue;
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1);
 
