@@ -127,6 +127,8 @@ namespace spot {
 			double disaster_tol_thresh;
 			double thresh_min;
 			double thresh_max;
+
+			atomic<bool> en_maker;
 		};
     }
 }
