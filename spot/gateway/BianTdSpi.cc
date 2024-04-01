@@ -79,9 +79,17 @@ void BianTdSpi::Init()
 	std::thread BianTdRun(&BianTdSpi::Run, this);
 	pthread_setname_np(BianTdRun.native_handle(), "BianTdRun");
 	BianTdRun.detach();
+	PostponeListenKey();
 	// SLEEP(5000);
 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	traderApi_->CancelAllOrders();
+
+	traderApi_->GetSpotAsset();
+	traderApi_->GetUm_Cm_Account();
+
+	traderApi_->GetLeverageBracket();
+	traderApi_->GetCollateralRate();
+	traderApi_->GetAccountInfo();
 }
 
 void BianTdSpi::getListkey()
