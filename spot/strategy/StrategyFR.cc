@@ -206,7 +206,7 @@ void StrategyFR::init()
         LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
             << ", inst: " << it.second.inst
             << ", first: " << it.first;
-        if (SWAP == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
+        if (AssetType_FutureSwap == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
 }
 
@@ -268,7 +268,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
         return 0;
     }
     double borrow = 0;
-    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½ï¿½usdt
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // ï¿½ï¿½usdt
         borrow = qty * price;
         IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
     } else { 
@@ -301,11 +301,11 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
-    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ¡ï¿½1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ¡ï¿½1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777777777 ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
         double qty = (order.qty);
         double equity = qty * price - order.borrow * (1 + price_cent) * price;
         double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
@@ -406,9 +406,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½]1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77777777
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½]1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
-    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½1ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77777777
+    } else { // ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½1ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777777777
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
     }
 
@@ -420,7 +420,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
 
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ï¿½Ü¸ï¿½ï¿½Ö»ï¿½Î¬ï¿½Ö±ï¿½Ö¤ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77777777
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // ï¿½Ü¸ï¿½ï¿½Ö»ï¿½Î¬ï¿½Ö±ï¿½Ö¤ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777777777
         } else {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
         }
@@ -662,7 +662,7 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
 
-    if (SWAP == sy1.sy) {
+    if (AssetType_FutureSwap == sy1.type) {
         sy2.avg_price = sy1.inst->position().PublicPnlDaily().EntryPrice;
     } else {
         sy1.avg_price = sy2.inst->position().PublicPnlDaily().EntryPrice;
@@ -702,7 +702,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         // sy1 maker open_short  sy1.pos < 0 delta_pos > 0 sy2.close_long
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) {
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
+            if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -725,7 +725,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
+            if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -748,7 +748,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         // sy2 maker open_short sy2.pos<0 delta_pos>0 sy1.close_long
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
+            if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -771,7 +771,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
+            if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -796,7 +796,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) {
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
+            if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -819,7 +819,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         //sy1 maker open_long sy1.pos>0 delta_pos<0 sy2 close_short
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) {          
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy2->type) 
+            if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -842,7 +842,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
+            if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -865,7 +865,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
         //sy2 maker open_long sy2.pos>0 delta_pos<0 sy1 close_short
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) { 
             order.orderType = ORDERTYPE_MARKET; // ?
-            if (SWAP == sy1.type) 
+            if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
             else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
@@ -890,7 +890,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -942,7 +942,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy.type) {
+                } else if (AssetType_FutureSwap == sy.type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -994,7 +994,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy.type) {
+                } else if (AssetType_FutureSwap == sy.type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1050,7 +1050,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2->type) {
+                } else if (AssetType_FutureSwap == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1101,7 +1101,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2->type) {
+                } else if (AssetType_FutureSwap == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1166,7 +1166,7 @@ bool StrategyFR::vaildAllSymboPrice(int val) {
     return true;
 }
 
-//open fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½, makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777(at least large than taker)
+//open fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½, makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1478,7 +1478,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     if (AssetType_Spot == sy.type) {
         string Category = LEVERAGE;
         memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-    } else if (SWAP == sy.type) {
+    } else if (AssetType_FutureSwap == sy.type) {
         string Category = LINEAR;
         memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
     } else {
@@ -1503,7 +1503,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½77771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½7771ï¿„1ï¿½71ï¿„1ï¿½771ï¿„1ï¿½71ï¿„1ï¿½777777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
+//close arb_thresh/fr_thresh ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½makerï¿½ï¿½ï¿½ï¿½  makerï¿½ï¿½taker ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½ï¿½ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤777771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤77771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7771ï¿„1¤71ï¿„1¤771ï¿„1¤71ï¿„1¤7777777(at most larger than taker)ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½makerï¿½ï¿½takerï¿½ï¿½ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½ï¿½(at least large than taker)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
@@ -1526,7 +1526,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy.type) {
+                } else if (AssetType_FutureSwap == sy.type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1560,7 +1560,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy.type) {
+                } else if (AssetType_FutureSwap == sy.type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1596,7 +1596,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2->type) {
+                } else if (AssetType_FutureSwap == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1630,7 +1630,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2->type) {
+                } else if (AssetType_FutureSwap == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
