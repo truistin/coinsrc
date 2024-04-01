@@ -268,12 +268,13 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
         return 0;
     }
     double borrow = 0;
+    string symbol = GetSPOTSymbol(info.sy);
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // ��usdt
         borrow = qty * price;
-        IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
+        IM = IM + borrow / ((*margin_leverage)[symbol] - 1) + (qty * price / um_leverage);         
     } else { 
         borrow = qty;
-        IM = IM + (price * (qty) / ((*margin_leverage)[info.sy] - 1)) + (qty) * price / um_leverage;
+        IM = IM + (price * (qty) / ((*margin_leverage)[symbol] - 1)) + (qty) * price / um_leverage;
     }
 
     order.borrow = borrow;
@@ -399,10 +400,11 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         return 0;
     }
     double leverage = 0;
+    string symbol = GetSPOTSymbol(order.sy);
     if (margin_leverage->find(order.sy) == margin_leverage->end()) {
         leverage = (*margin_leverage)["default"];
     } else {
-        leverage = (*margin_leverage)[order.sy];
+        leverage = (*margin_leverage)[symbol];
         
     }
 
