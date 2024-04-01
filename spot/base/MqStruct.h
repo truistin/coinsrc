@@ -289,6 +289,8 @@ namespace spot
       int CloseFlag;
       double MinAmount;
       double PosAdj;
+      double UmLeverage;
+      double PriceRatio;
 
       void setSymbol( void *value , uint16_t length = 0) {
         memcpy(Symbol, static_cast<char*>(value), length <SymbolLen  ? length :SymbolLen);
@@ -426,11 +428,27 @@ namespace spot
         else
           PosAdj = (double)*static_cast<int64_t*>(value);
       }
+      void setUmLeverage( void *value , uint16_t length = 0) {
+        if (length == 8)
+          UmLeverage = *static_cast<double*>(value);
+        else if (length == 0)
+          UmLeverage = (double)*static_cast<int*>(value);
+        else
+          UmLeverage = (double)*static_cast<int64_t*>(value);
+      }
+      void setPriceRatio( void *value , uint16_t length = 0) {
+        if (length == 8)
+          PriceRatio = *static_cast<double*>(value);
+        else if (length == 0)
+          PriceRatio = (double)*static_cast<int*>(value);
+        else
+          PriceRatio = (double)*static_cast<int64_t*>(value);
+      }
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]Fragment=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]MinAmount=[%f]PosAdj=[%f]",
-                Symbol,ExchangeCode,Multiplier,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,Fragment,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,MinAmount,PosAdj);
+        SNPRINTF(buffer, sizeof buffer, "Symbol=[%s]ExchangeCode=[%s]Multiplier=[%d]Margin=[%f]Type=[%s]MaxOrderSize=[%f]MinOrderSize=[%f]CoinOrderSize=[%f]MTaker=[%d]LongShort=[%d]Fragment=[%f]MvRatio=[%f]RefSymbol=[%s]Thresh=[%f]PreTickSize=[%f]QtyTickSize=[%f]MaxDeltaLimit=[%f]OpenThresh=[%f]CloseThresh=[%f]CloseFlag=[%d]MinAmount=[%f]PosAdj=[%f]UmLeverage=[%f]PriceRatio=[%f]",
+                Symbol,ExchangeCode,Multiplier,Margin,Type,MaxOrderSize,MinOrderSize,CoinOrderSize,MTaker,LongShort,Fragment,MvRatio,RefSymbol,Thresh,PreTickSize,QtyTickSize,MaxDeltaLimit,OpenThresh,CloseThresh,CloseFlag,MinAmount,PosAdj,UmLeverage,PriceRatio);
         return buffer;
       }
 
@@ -457,6 +475,8 @@ namespace spot
         methodMap["CloseFlag"] = std::bind(&SymbolInfo::setCloseFlag, this, _1,_2);
         methodMap["MinAmount"] = std::bind(&SymbolInfo::setMinAmount, this, _1,_2);
         methodMap["PosAdj"] = std::bind(&SymbolInfo::setPosAdj, this, _1,_2);
+        methodMap["UmLeverage"] = std::bind(&SymbolInfo::setUmLeverage, this, _1,_2);
+        methodMap["PriceRatio"] = std::bind(&SymbolInfo::setPriceRatio, this, _1,_2);
       }
 
       string toJson() const {
@@ -514,6 +534,10 @@ namespace spot
           doc.AddMember("MinAmount",MinAmount, allocator);
         if (!std::isnan(PosAdj))
           doc.AddMember("PosAdj",PosAdj, allocator);
+        if (!std::isnan(UmLeverage))
+          doc.AddMember("UmLeverage",UmLeverage, allocator);
+        if (!std::isnan(PriceRatio))
+          doc.AddMember("PriceRatio",PriceRatio, allocator);
         outDoc.AddMember("Title", spotrapidjson::Value().SetString("SymbolInfo"), outAllocator);
         outDoc.AddMember("Content", doc, outAllocator);
         spotrapidjson::StringBuffer strbuf;
