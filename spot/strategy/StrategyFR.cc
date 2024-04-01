@@ -268,7 +268,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
         return 0;
     }
     double borrow = 0;
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟斤拷usdt
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟斤拷usdt
         borrow = qty * price;
         IM = IM + borrow / ((*margin_leverage)[info.sy] - 1) + (qty * price / um_leverage);         
     } else { 
@@ -301,7 +301,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     double rate = collateralRateMap[order.sy];
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟街伙拷锟斤拷锟斤拷锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777 锟斤拷约锟斤拷锟斤拷
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟街伙拷锟斤拷锟斤拷锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777 锟斤拷约锟斤拷锟斤拷
         double equity = order.qty * price * (1 + price_cent) * rate;
         double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
@@ -406,7 +406,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         
     }
 
-    if ((SPOT == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟街伙拷锟斤拷锟洁，锟斤拷约锟斤拷锟絔1锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777
+    if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (SWAP == info.type && info.long_short_flag == 1)) { // 锟街伙拷锟斤拷锟洁，锟斤拷约锟斤拷锟絔1锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
     } else { // 锟街伙拷锟斤拷锟秸ｏ拷锟斤拷约锟斤拷锟斤拷1锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777
         sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
@@ -714,7 +714,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2->type)
+            else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -737,7 +737,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2->type)
+            else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -760,7 +760,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy1.type)
+            else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -783,7 +783,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy1.type)
+            else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -808,7 +808,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2->type)
+            else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -831,7 +831,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy2->type)
+            else if (AssetType_Spot == sy2->type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -854,7 +854,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy1.type)
+            else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -877,7 +877,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
             order.orderType = ORDERTYPE_MARKET; // ?
             if (SWAP == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
-            else if (SPOT == sy1.type)
+            else if (AssetType_Spot == sy1.type)
                 memcpy(order.Category, LEVERAGE.c_str(), min(uint16_t(CategoryLen), uint16_t(LEVERAGE.size())));
 
             memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -949,7 +949,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy.type) {
+                if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy.type) {
@@ -1001,7 +1001,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy.type) {
+                if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy.type) {
@@ -1057,7 +1057,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy2->type) {
@@ -1108,7 +1108,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy2->type) {
@@ -1256,7 +1256,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy1.type) {
+                if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy1.type) {
@@ -1310,7 +1310,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy1.type) {
+                if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy1.type) {
@@ -1354,7 +1354,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy2->type) {
@@ -1407,10 +1407,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
-                } else if (SWAP == sy2->type) {
+                } else if (AssetType_FutureSwap == sy2->type) {
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
@@ -1473,7 +1473,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     SetOrderOptions order;
     order.orderType = ORDERTYPE_MARKET; // ?
 
-    if (SPOT == sy.type) {
+    if (AssetType_Spot == sy.type) {
         string Category = LEVERAGE;
         memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
     } else if (SWAP == sy.type) {
@@ -1521,7 +1521,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy.type) {
+                if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy.type) {
@@ -1555,7 +1555,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy.type) {
+                if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy.type) {
@@ -1591,7 +1591,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy2->type) {
@@ -1625,7 +1625,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 string timeInForce = "GTX";
                 memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
-                if (SPOT == sy2->type) {
+                if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else if (SWAP == sy2->type) {
