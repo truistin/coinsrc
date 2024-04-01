@@ -315,7 +315,8 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     }
 
     for (const auto& it : BnApi::BalMap_) {
-        if (symbol_map->find(it.first) == symbol_map->end()) continue;
+        string str(it.first);
+        if (str != "USDT" && str != "USDC" && str != "BUSD" && symbol_map->find(it.first) == symbol_map->end()) continue;
         double rate = collateralRateMap[it.first];
 
         string sy = it.first;
