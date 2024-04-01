@@ -416,11 +416,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
         double price = getSpotAssetSymbol(it.first);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "BalMap calc_predict_mm mkprice: " << it.first << ", markprice: " << price;
-        } else {
-            continue;
-        }
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) continue;
+
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // 锟杰革拷锟街伙拷维锟街憋拷证锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�777771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7777777
@@ -513,11 +510,8 @@ double StrategyFR::calc_equity()
     double sum_equity = 0;
     for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
-        if (!IS_DOUBLE_LESS_EQUAL(price, 0)) {
-            LOG_WARN << "calc_equity asset mkprice: " << it.second.asset << ", markprice: " << price;
-        } else {
-            continue;
-        }
+        if (IS_DOUBLE_LESS_EQUAL(price, 0)) continue;
+
         if (!IS_DOUBLE_ZERO(it.second.crossMarginAsset) ||  !IS_DOUBLE_ZERO(it.second.crossMarginBorrowed)) {
             double rate = collateralRateMap[it.second.asset];
             double equity = it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest;
@@ -560,11 +554,7 @@ double StrategyFR::calc_mm()
     // 锟街伙拷锟杰革拷mm
     for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            if (make_taker->find(it.second.asset) == make_taker->end()) continue;
-            LOG_ERROR << "calc_mm asset has no mkprice: " << it.second.asset << ", markprice: " << price;
-            return -1;
-        }
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) continue;
 
         double leverage = 0; 
         string symbol = it.first;
@@ -1164,6 +1154,18 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 
 }
 
+bool StrategyFR::vaildAllSymboPrice(int val) {
+    int64_t ts = CURR_MSTIME_POINT;
+    for (auto it : (*make_taker)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.second.mid_p, 0) || (ts - it.second.exch_ts) > val) {
+            LOG_WARN << "vaildAllSymboPrice sy: " << it.second.sy << ", mid_p: " << it.second.mid_p <<
+                ", ts: " << ts << ", exch ts: " << it.second.exch_ts;
+            return false;
+        }
+    }
+    return true;
+}
+
 //open fr_thresh 锟斤拷锟斤拷锟斤拷锟斤拷为锟斤拷maker锟斤拷锟斤拷, maker锟斤拷taker 锟斤拷锟斤拷要锟竭讹拷锟斤拷(at least larger than taker)锟斤拷锟斤拷maker锟斤拷锟洁，锟斤拷锟斤拷maker锟斤拷taker锟斤拷锟斤拷芨叨锟斤拷锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�7771锟�1锟�71锟�1锟�771锟�1锟�71锟�1锟�77777(at least large than taker)
 void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
@@ -1184,7 +1186,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
 
-    if (!IS_DOUBLE_NORMAL(sy1.mid_p) || !IS_DOUBLE_NORMAL(sy2->mid_p)) return;
+    if (!vaildAllSymboPrice(200)) return;
 
     // LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
     //     << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
@@ -1685,6 +1687,7 @@ bool StrategyFR::action_mr(double mr)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
+    if (!vaildAllSymboPrice(3000)) LOG_FATAL << "no mid price or slow mid price";
     double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);

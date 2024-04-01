@@ -114,6 +114,7 @@ namespace spot {
 			string GetSPOTSymbol(string inst);
 			double getSpotAssetSymbol(string asset);
 			bool make_continue_mr(double& mr);
+			bool vaildAllSymboPrice(int val);
 
 		private:
 			map<string, double>* margin_leverage;
