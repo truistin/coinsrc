@@ -326,9 +326,8 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
             price = getSpotAssetSymbol(sy) * (1 + price_cent);
         }
 
-        if (!IS_DOUBLE_NORMAL(price)) {
+        if (!IS_DOUBLE_NORMAL(price)) 
             LOG_WARN << "BalMap calc_predict_equity mkprice: " << sy << ", markprice: " << getSpotAssetSymbol(sy);
-        } else {
             continue;
         }
 
@@ -351,9 +350,8 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
-        } else {
             continue;
         }
         double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*make_taker)[(*symbol_map)[iter.symbol]].mid_p) / (iter.positionAmt + order.qty);
@@ -365,9 +363,8 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
-        } else {
             continue;
         }
         double perp_size = 0;
@@ -433,9 +430,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
-        } else {
             continue;
         }
         double qty = iter.positionAmt;
@@ -452,9 +448,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
-        if (!IS_DOUBLE_LESS_EQUAL(price , 0)) {
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
-        } else {
             continue;
         }
         double qty = 0;
