@@ -326,7 +326,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
             price = getSpotAssetSymbol(sy) * (1 + price_cent);
         }
 
-        if (!IS_DOUBLE_NORMAL(price)) 
+        if (!IS_DOUBLE_NORMAL(price)) {
             LOG_WARN << "BalMap calc_predict_equity mkprice: " << sy << ", markprice: " << getSpotAssetSymbol(sy);
             continue;
         }
