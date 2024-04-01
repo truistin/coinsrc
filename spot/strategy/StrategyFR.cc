@@ -897,12 +897,12 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
     double thresh = sy.close_thresh;
     string stType = "ArbClose";
-    if (closeflag == 0) { 
+    if (closeflag == 1) { 
         stType = "FrClose";
     }
 
     double bal = 0;
-    if (closeflag == 0) {
+    if (closeflag == 1) {
         bal = calc_balance();
     }
 
@@ -1203,11 +1203,11 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     
 
     if (!sy1.close_flag) { //fr close
-        ClosePosition(marketData, sy1, 0);
+        ClosePosition(marketData, sy1, 1);
         return;
     } 
     // arb close
-    if(ClosePosition(marketData, sy1, 1)) return;
+    if(ClosePosition(marketData, sy1, 0)) return;
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
