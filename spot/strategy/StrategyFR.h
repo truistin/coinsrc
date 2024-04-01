@@ -51,6 +51,8 @@ namespace spot {
 				double fr_open_thresh;
 				double close_thresh;
 				int close_flag;
+				int um_leverage;
+				double price_ratio;
 				int64_t exch_ts;
 				double real_pos;
 				sy_info* ref;
@@ -99,8 +101,8 @@ namespace spot {
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
-			double calc_predict_mm(sy_info& info, order_fr& order, double price_cent);
-			double calc_predict_equity(sy_info& info, order_fr& order, double price_cent);
+			double calc_predict_mm(sy_info& info, order_fr& order);
+			double calc_predict_equity(sy_info& info, order_fr& order);
 			double calc_future_uniMMR(sy_info& info, double qty);
 			double calc_equity();
 			double calc_mm();
@@ -122,10 +124,8 @@ namespace spot {
 
 		public:
 			map<string, double>* last_price_map;
-			double um_leverage;
 
 			double pre_sum_equity;
-			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, sy_info>* make_taker;
 			map<string, string>* symbol_map;

@@ -19,9 +19,6 @@ Strategy *StrategyFR::Create(int strategyID, StrategyParameter *params) {
 StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
         : StrategyCircuit(strategyID, params) 
 {
-    um_leverage = *parameters()->getDouble("um_leverage");
-    price_ratio = *parameters()->getDouble("price_ratio");
-
     margin_leverage = new map<string, double>; // {'BTC':10, 'ETH':10,'ETC':10,'default':5}
     margin_leverage->insert({"BTC", 10});
     margin_leverage->insert({"ETH", 10});
@@ -173,17 +170,37 @@ void StrategyFR::init()
 
         syInfo.long_short_flag = it.second.LongShort;
         syInfo.make_taker_flag = it.second.MTaker;
+        if (!IS_DOUBLE_NORMAL(it.second.MvRatio)) LOG_FATAL << "MvRatio ERR: " << it.second.MvRatio;
         syInfo.mv_ratio = it.second.MvRatio;
-        syInfo.thresh = it.second.Thresh;
 
+        // if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;
+        // syInfo.thresh = it.second.CloseThresh;
+
+        if (!IS_DOUBLE_NORMAL(it.second.OpenThresh)) LOG_FATAL << "OpenThresh ERR: " << it.second.OpenThresh;
         syInfo.fr_open_thresh = it.second.OpenThresh;
+
+        if (!IS_DOUBLE_NORMAL(it.second.CloseThresh)) LOG_FATAL << "CloseThresh ERR: " << it.second.CloseThresh;        
         syInfo.close_thresh = it.second.CloseThresh;
+        
         syInfo.close_flag = it.second.CloseFlag;
 
+        if (!IS_DOUBLE_NORMAL(it.second.PreTickSize)) LOG_FATAL << "PreTickSize ERR: " << it.second.PreTickSize;        
         syInfo.prc_tick_size = it.second.PreTickSize;
+
+        if (!IS_DOUBLE_NORMAL(it.second.QtyTickSize)) LOG_FATAL << "QtyTickSize ERR: " << it.second.QtyTickSize;        
         syInfo.qty_tick_size = it.second.QtyTickSize;
+
+        if (!IS_DOUBLE_NORMAL(it.second.MinAmount)) LOG_FATAL << "MinAmount ERR: " << it.second.MinAmount;        
         syInfo.min_amount = it.second.MinAmount;
+
+        if (!IS_DOUBLE_NORMAL(it.second.Fragment)) LOG_FATAL << "Fragment ERR: " << it.second.Fragment;        
         syInfo.fragment = it.second.Fragment;
+
+        if (it.second.UmLeverage == 0) LOG_FATAL << "UmLeverage ERR: " << it.second.UmLeverage;        
+        syInfo.um_leverage = it.second.UmLeverage;
+
+        if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
+        syInfo.price_ratio = it.second.PriceRatio;
 
         make_taker->insert({it.second.Symbol, syInfo});
     }
@@ -271,10 +288,10 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     string symbol = GetSPOTSymbol(info.sy);
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // ��usdt
         borrow = qty * price;
-        IM = IM + borrow / ((*margin_leverage)[symbol] - 1) + (qty * price / um_leverage);         
+        IM = IM + borrow / ((*margin_leverage)[symbol] - 1) + (qty * price / info.um_leverage); // the spot and swap need has the same um_leverage val      
     } else { 
         borrow = qty;
-        IM = IM + (price * (qty) / ((*margin_leverage)[symbol] - 1)) + (qty) * price / um_leverage;
+        IM = IM + (price * (qty) / ((*margin_leverage)[symbol] - 1)) + (qty) * price / info.um_leverage;
     }
 
     order.borrow = borrow;
@@ -284,14 +301,14 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
         return 0;
     }
 
-    double predict_equity = calc_predict_equity(info, order, price_ratio);
-    double predict_mm = calc_predict_mm(info, order, price_ratio);
+    double predict_equity = calc_predict_equity(info, order);
+    double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
     return predict_mmr;
 
 }
 
-double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double price_cent)
+double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
 {
     double sum_equity = 0;
     double price = info.mid_p;
@@ -304,13 +321,13 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     double rate = collateralRateMap[GetSPOTSymbol(order.sy)];
 
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // �ֻ�����ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777777 ��Լ����
-        double equity = order.qty * price * (1 + price_cent) * rate;
-        double uswap_unpnl = order.qty * price - (1 + price_cent) * price * order.qty;
+        double equity = order.qty * price * (1 + info.price_ratio) * rate;
+        double uswap_unpnl = order.qty * price - (1 + info.price_ratio) * price * order.qty;
         sum_equity += equity - order.borrow + uswap_unpnl;
     } else { // �ֻ����ա�1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777777 ��Լ����
         double qty = (order.qty);
-        double equity = qty * price - order.borrow * (1 + price_cent) * price;
-        double uswap_unpnl = order.qty * price * (1 + price_cent) - qty * price;
+        double equity = qty * price - order.borrow * (1 + info.price_ratio) * price;
+        double uswap_unpnl = order.qty * price * (1 + info.price_ratio) - qty * price;
         sum_equity = equity + uswap_unpnl;
     }
 
@@ -324,7 +341,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             price = getSpotAssetSymbol(sy);
         } else {
-            price = getSpotAssetSymbol(sy) * (1 + price_cent);
+            price = getSpotAssetSymbol(sy) * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
         }
 
         if (!IS_DOUBLE_NORMAL(price)) {
@@ -350,7 +367,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
 
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
-        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + (*make_taker)[(*symbol_map)[iter.symbol]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
             continue;
@@ -363,7 +380,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
-        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + (*make_taker)[(*symbol_map)[iter.symbol]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
             continue;
@@ -390,7 +407,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order, double pr
     return sum_equity;
 }
 
-double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_cent)
+double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
 {
     double sum_mm = 0;
     double price = info.mid_p;
@@ -410,7 +427,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // �ֻ����࣬��Լ���]1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777777
         sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
     } else { // �ֻ����գ���Լ����1ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777777
-        sum_mm = sum_mm + order.borrow * price * (*margin_mmr)[leverage];
+        sum_mm = sum_mm + order.borrow * price * (1 + info.price_ratio) * (*margin_mmr)[leverage];
     }
 
     for (const auto& it : BnApi::BalMap_) {
@@ -423,14 +440,14 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // �ܸ��ֻ�ά�ֱ�֤ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�7777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�77771ￄ1�71ￄ1�771ￄ1�71ￄ1�7771ￄ1�71ￄ1�771ￄ1�71ￄ1�777777777
         } else {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price;
+            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price * (1 + info.price_ratio);
         }
     }
 
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
-        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
             continue;
@@ -448,7 +465,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order, double price_
     for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
-        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + price_cent);
+        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
             continue;
