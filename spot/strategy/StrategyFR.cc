@@ -160,6 +160,8 @@ void StrategyFR::init()
         } else if (sy.find("spot") != std::string::npos) {
             symbol_map->insert({GetSPOTSymbol(sy), sy});
         }
+	
+		iter->tradeable(true);
     }
 
     for (const auto& it : InitialData::symbolInfoMap()) {
