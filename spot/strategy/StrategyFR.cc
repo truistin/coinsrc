@@ -227,6 +227,15 @@ void StrategyFR::init()
             << ", first: " << it.first;
         if (AssetType_FutureSwap == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
+
+    for (const auto& iter : (*make_taker)) {
+        std::string str = iter.first;
+        orderForm ord;
+        memcpy(ord.symbol, str.c_str(), min(sizeof(ord.symbol), str.size()));
+        ord.qty_decimal = ceil(abs(log10(iter.second.qty_tick_size)));
+        ord.price_decimal = ceil(abs(log10(iter.second.prc_tick_size)));
+        orderFormMap.insert(str, ord);
+    }
 }
 
 void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)

@@ -214,6 +214,12 @@ namespace spot
 		const static uint16_t TID_Init = 998;
 		const static uint16_t TID_InitFinished = 999;
 
+		struct orderForm {
+			char symbol[InstrumentIDLen+1];
+			int qty_decimal;
+			int price_decimal;
+		};
+
 		struct commQryPosiNode
 		{
 			char symbol[InstrumentIDLen+1];
@@ -329,7 +335,7 @@ namespace spot
 			char type_[63+1];
 			int subAll_;
 			int interfaceID_;
-			volatile int orderRef_; //锟斤拷锟睫革拷
+			volatile int orderRef_; //𸀹𸀑𸀏𸀹𸀑𸀏𸀹𸀑𸀏𸀯𸀊𸀹𸀑𸀏
 			void* pMdApi_;
 			void* pTdApi_;
 			void *pTdSpi_;
@@ -648,7 +654,7 @@ namespace spot
 			double Turnover;
 			char UpdateTime[UpdateTimeLen + 1];
 			uint64_t	UpdateMillisec;
-			///锟斤拷息id
+			///𸀹𸀑𸀏𸀹𸀑𸀏𸀡𷿺id
 			int MessageID;
 			uint64_t EpochTime;
 			volatile uint64_t LastSeqNum; //identify old package
@@ -846,10 +852,10 @@ namespace spot
 		enum ExecTypeState
 		{
 			Trade = 'T',
-			AdlTrade = 'A', // 鑷嫊锟???
-			Funding = 'F', //璩囬噾璨荤巼
-			BustTrade = 'B', // 寮峰钩
-			Delivery = 'D', // USDC浜ゅ壊
+			AdlTrade = 'A', // è𹻒𷿿𸀴𹻤𹻓𸀹𸀑???
+			Funding = 'F', //è𸀆𹻒é𹻒‘è𸀅𸀍𸀶𸂹𹻒
+			BustTrade = 'B', // 𸀴𸀎·𸀴𸀋𸀆
+			Delivery = 'D', // USDC𸀳𸀌¤𸀴‰𸀅
 			BlockTrade = 'E'
 		};
 
@@ -931,7 +937,9 @@ namespace spot
 	extern map<string, bool> gIsMarkPxQryInfoSuccess;
 
 	extern atomic<int> okAskPendingNum;
-	extern atomic<int> okBidPendingNum; 
+	extern atomic<int> okBidPendingNum;
+
+	extern map<string, orderForm> orderFormMap;
 
 /*
 	double btc_mmr[10][5] = {
