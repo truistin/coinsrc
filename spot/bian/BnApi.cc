@@ -738,7 +738,7 @@ int BnApi::QryPosiBySymbol(const Order &order) {
 
 }
 
-void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
+void BnApi::ConvertQuantity(const Order &order, Uri& m_uri) {
     auto it = orderFormMap.find(order.InstrumentID);
     if (it == orderFormMap.end()) {
         LOG_FATAL << "BianApi::ConvertQuantity error, not found InstrumentID: " << order.InstrumentID;
@@ -751,7 +751,7 @@ void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
     m_uri.AddParam(("quantity"), (buf2));
 }
 
-void BianApi::ConvertPrice(const Order &order, Uri& m_uri) {
+void BnApi::ConvertPrice(const Order &order, Uri& m_uri) {
     auto it = orderFormMap.find(order.InstrumentID);
     if (it == orderFormMap.end()) {
         LOG_FATAL << "BianApi::ConvertPrc error, not found InstrumentID: " << order.InstrumentID;
