@@ -908,156 +908,197 @@ public:
 		if (doc.HasMember("e"))
 		{
 			//spotrapidjson::Value& dataNode = doc["e"];
-			if (doc["e"].IsString()) {
-				//string str = dataNode["s"].GetString();
-				string str = doc["e"].GetString();
-				if (str != "ORDER_TRADE_UPDATE") {
-					LOG_WARN << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
-					return -1;
-				}
+			string str = doc["e"].GetString();
+			if (str == "ORDER_TRADE_UPDATE") {
+				return decodeUM_CM();
+			} else if (str == "executionReport") {
+				return decodeSpot();
 			}
+			LOG_FATAL << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
+			return -1;
+		}
 			//LOG_FATAL  << "BianTdSpi com_callbak_message return WR msg";
+	}
+
+	void decodeSpot() {
+		if (!doc.HasMember("E")) return -1
+		else {
+			eventTimeStamp = doc["E"].GetUint64();
+		}
+		if (doc.HasMember("T")) return -1
+		else {
+			matchTimeStamp = doc["T"].GetUint64();
+		}
+		if (dataNode.HasMember("t")) return -1;
+		else {
+			tradeID = dataNode["t"].GetUint64(); // GetUint64();
+		}
+		if (dataNode.HasMember("X")) return -1;
+		else {
+			string str = dataNode["X"].GetString();
+			memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
+		}
+		if (dataNode.HasMember("i")) return -1;
+		else {
+			ordId = dataNode["i"].GetUint64();
+		}
+		if (dataNode.HasMember("c")) return -1;
+		else {
+			string str = dataNode["c"].GetString();
+			memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
+		}
+		if (dataNode.HasMember("S")) return -1;
+		else {
+			string str = dataNode["S"].GetString();
+			memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
+		}
+		if (dataNode.HasMember("L")) return -1;
+		else {
+			string str = dataNode["L"].GetString();
+			memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
+		}
+		if (dataNode.HasMember("ap")) return -1;
+		else {
+			string str = dataNode["ap"].GetString();
+			memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
+			
+		}
+		if (dataNode.HasMember("l")) return -1;
+		else {
+				string str = dataNode["l"].GetString();
+				memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
+		}
+		if (dataNode.HasMember("z")) return -1;
+		else {
+			string str = dataNode["z"].GetString();
+			memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
+		}
+		if (dataNode.HasMember("n")) return -1;
+		else {
+			string str = dataNode["n"].GetString();
+			memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));		
+		}
+		if (dataNode.HasMember("T")) return -1;
+		else {
+			dealTimeStamp = dataNode["T"].GetUint64();
+		}
+		if (dataNode.HasMember("Z")) return -1;
+		else {
+			double amount = dataNode["Z"].GetString();
+			avgPrice = amount / volumeFilled;
 		}
 
-		if (doc.HasMember("E"))
-		{
+		return 0
+	}
+
+	void decodeUM_CM() {
+		if (doc.HasMember("E")) return -1;
+		else {
 			eventTimeStamp = doc["E"].GetUint64();
 		}
 
-		if (doc.HasMember("T"))
-		{
+		if (doc.HasMember("T")) return -1;
+		else {
 			matchTimeStamp = doc["T"].GetUint64();
 		}
 
-		if (doc.HasMember("o"))
-		{
+		if (doc.HasMember("o")) return -1;
+		else {
 			spotrapidjson::Value& dataNode = doc["o"];
-			if (dataNode.HasMember("s"))
-			{
-				if (dataNode["s"].IsString())
-				{
-					string str = dataNode["s"].GetString();
-					memcpy(instrument_id, str.c_str(), min(sizeof(instrument_id) - 1, str.size()));
-				}
-			}
+			// if (dataNode.HasMember("s"))
+			// {
+			// 	if (dataNode["s"].IsString())
+			// 	{
+			// 		string str = dataNode["s"].GetString();
+			// 		memcpy(instrument_id, str.c_str(), min(sizeof(instrument_id) - 1, str.size()));
+			// 	}
+			// }
 			// to do
-			if (dataNode.HasMember("t"))
-			{
+			if (dataNode.HasMember("t")) return -1;
+			else {
 				tradeID = dataNode["t"].GetUint64(); // GetUint64();
 			}
-			if (dataNode.HasMember("X"))
-			{
-				if (dataNode["X"].IsString())
-				{
-					string str = dataNode["X"].GetString();
-					memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
-				}
+			if (dataNode.HasMember("X")) return -1;
+			else {
+				string str = dataNode["X"].GetString();
+				memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
 			}
-			if (dataNode.HasMember("i"))
-			{
+			if (dataNode.HasMember("i")) return -1;
+			else {
 				ordId = dataNode["i"].GetUint64();
 			}
-			if (dataNode.HasMember("c"))
-			{
-				if (dataNode["c"].IsString())
-				{
+			if (dataNode.HasMember("c")) return -1;
+			else {
 					string str = dataNode["c"].GetString();
 					memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
-				}
 			}
-			if (dataNode.HasMember("S"))
-			{
-				if (dataNode["S"].IsString())
-				{
+			if (dataNode.HasMember("S")) return -1;
+			else {
 					string str = dataNode["S"].GetString();
 					memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
-				}
 			}
-			if (dataNode.HasMember("ps"))
-			{
-				if (dataNode["ps"].IsString())
-				{
-					string str = dataNode["ps"].GetString();
-					memcpy(posSide, str.c_str(), min(sizeof(posSide) - 1, str.size()));
-				}
+			// if (dataNode.HasMember("ps"))
+			// {
+			// 	if (dataNode["ps"].IsString())
+			// 	{
+			// 		string str = dataNode["ps"].GetString();
+			// 		memcpy(posSide, str.c_str(), min(sizeof(posSide) - 1, str.size()));
+			// 	}
+			// }
+			// if (dataNode.HasMember("p"))
+			// {
+			// 	if (dataNode["p"].IsString())
+			// 	{
+			// 		string str = dataNode["p"].GetString();
+			// 		memcpy(limitPrice, str.c_str(), min(sizeof(limitPrice) - 1, str.size()));
+			// 	}
+			// }
+			if (dataNode.HasMember("L")) return -1;
+			else {
+				string str = dataNode["L"].GetString();
+				memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
 			}
-			if (dataNode.HasMember("p"))
-			{
-				if (dataNode["p"].IsString())
-				{
-					string str = dataNode["p"].GetString();
-					memcpy(limitPrice, str.c_str(), min(sizeof(limitPrice) - 1, str.size()));
-				}
+			if (dataNode.HasMember("ap")) return -1;
+			else {
+				string str = dataNode["ap"].GetString();
+				memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
 			}
-			if (dataNode.HasMember("L"))
-			{
-				if (dataNode["L"].IsString())
-				{
-					string str = dataNode["L"].GetString();
-					memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
-				}
+			if (dataNode.HasMember("l")) return -1;
+			else {
+				string str = dataNode["l"].GetString();
+				memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
 			}
-			if (dataNode.HasMember("ap"))
-			{
-				if (dataNode["ap"].IsString())
-				{
-					string str = dataNode["ap"].GetString();
-					memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
-				}
-			}
-			if (dataNode.HasMember("l"))
-			{
-				if (dataNode["l"].IsString())
-				{
-					string str = dataNode["l"].GetString();
-					memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
-				}
-			}
-			if (dataNode.HasMember("q"))
-			{
-				if (dataNode["q"].IsString())
-				{
-					string str = dataNode["q"].GetString();
-					memcpy(volumeTotalOriginal, str.c_str(), min(sizeof(volumeTotalOriginal) - 1, str.size()));
-				}
-			}
+			// if (dataNode.HasMember("q"))
+			// {
+			// 	if (dataNode["q"].IsString())
+			// 	{
+			// 		string str = dataNode["q"].GetString();
+			// 		memcpy(volumeTotalOriginal, str.c_str(), min(sizeof(volumeTotalOriginal) - 1, str.size()));
+			// 	}
+			// }
 
-			if (dataNode.HasMember("z"))
-			{
-				if (dataNode["z"].IsString())
-				{
+			if (dataNode.HasMember("z")) return -1;
+			else {
 					string str = dataNode["z"].GetString();
 					memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
-				}
 			}
 
 			// don't have volumeRemained
 			//if (dataNode.HasMember("volumeRemained"))
 
-			if (dataNode.HasMember("n"))
-			{
-				if (dataNode["n"].IsString())
-				{
-					string str = dataNode["n"].GetString();
-					memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));
-				}
+			if (dataNode.HasMember("n")) return -1;
+			else {
+				string str = dataNode["n"].GetString();
+				memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));
 			}
-			if (dataNode.HasMember("T"))
-			{
+			if (dataNode.HasMember("T")) return -1;
+			else {
 				dealTimeStamp = dataNode["T"].GetUint64();
 			}
-			if (dataNode.HasMember("epochTimeReturn"))
-			{
-				if (dataNode["epochTimeReturn"].IsString())
-				{
-				    string s = dataNode["epochTimeReturn"].GetString();
-					memcpy(epochTimeReturn, s.c_str(), min(sizeof(epochTimeReturn) - 1, s.size()));
-				}
-			}
-			
 		}
 		return 0;
-	}
+		}
+	
 };
 }
 #endif
