@@ -939,34 +939,30 @@ public:
 		ordId = doc["i"].GetUint64();
 	
 
-		string str = doc["c"].GetString();
+		str = doc["c"].GetString();
 		memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
 	
 
-		string str = doc["S"].GetString();
+		str = doc["S"].GetString();
 		memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
 		
 
-		string str = doc["L"].GetString();
+		str = doc["L"].GetString();
 		memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
 	
 
-		string str = doc["ap"].GetString();
+		str = doc["ap"].GetString();
 		memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
 		
-	
-
-		string str = doc["l"].GetString();
+		str = doc["l"].GetString();
 		memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
 	
-
-		string str = doc["z"].GetString();
+		str = doc["z"].GetString();
 		memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
 
-		string str = doc["n"].GetString();
+		str = doc["n"].GetString();
 		memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));		
 	
-
 		dealTimeStamp = doc["T"].GetUint64();
 
 		double amount = doc["Z"].GetString();
