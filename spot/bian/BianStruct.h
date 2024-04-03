@@ -915,8 +915,10 @@ public:
 			} else if (str == "executionReport") {
 				decodeSpot(doc);
 				return 0;
+			} else {
+				LOG_WARN << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
 			}
-			LOG_FATAL << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
+			
 			return -1;
 		}
 		return 0;
