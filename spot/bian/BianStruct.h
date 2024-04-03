@@ -919,6 +919,7 @@ public:
 			LOG_FATAL << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
 			return -1;
 		}
+		return 0;
 			//LOG_FATAL  << "BianTdSpi com_callbak_message return WR msg";
 	}
 
