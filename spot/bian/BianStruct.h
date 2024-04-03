@@ -910,9 +910,9 @@ public:
 			//spotrapidjson::Value& dataNode = doc["e"];
 			string str = doc["e"].GetString();
 			if (str == "ORDER_TRADE_UPDATE") {
-				return decodeUM_CM();
+				return decodeUM_CM(doc);
 			} else if (str == "executionReport") {
-				return decodeSpot();
+				return decodeSpot(doc);
 			}
 			LOG_FATAL << "BianTdSpi com_callbak_message return other dangerous msg: " << json;
 			return -1;
@@ -920,7 +920,7 @@ public:
 			//LOG_FATAL  << "BianTdSpi com_callbak_message return WR msg";
 	}
 
-	int decodeSpot() {
+	int decodeSpot(Document& doc) {
 		if (!doc.HasMember("E")) return -1
 		else {
 			eventTimeStamp = doc["E"].GetUint64();
@@ -991,7 +991,7 @@ public:
 		return 0
 	}
 
-	int decodeUM_CM() {
+	int decodeUM_CM(Document& doc) {
 		if (doc.HasMember("E")) return -1;
 		else {
 			eventTimeStamp = doc["E"].GetUint64();
