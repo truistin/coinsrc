@@ -394,9 +394,9 @@ int BianApi::QryPosiBySymbol(const Order &order) {
 }
 
 void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
-    auto it = orderFormMap.find(order.InstrumentId);
+    auto it = orderFormMap.find(order.InstrumentID);
     if (it == orderFormMap.end()) {
-        LOG_FATAL << "BianApi::ConvertQuantity error, not found InstrumentId: " << order.InstrumentId;
+        LOG_FATAL << "BianApi::ConvertQuantity error, not found InstrumentID: " << order.InstrumentID;
     }
 
     char buf2[64];
@@ -407,9 +407,9 @@ void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
 }
 
 void BianApi::ConvertPrice(const Order &order, Uri& m_uri) {
-    auto it = orderFormMap.find(order.InstrumentId);
+    auto it = orderFormMap.find(order.InstrumentID);
     if (it == orderFormMap.end()) {
-        LOG_FATAL << "BianApi::ConvertPrc error, not found InstrumentId: " << order.InstrumentId;
+        LOG_FATAL << "BianApi::ConvertPrc error, not found InstrumentID: " << order.InstrumentID;
     }
     if (order.Direction == INNER_DIRECTION_Buy) {
         double price = order.LimitPrice * it.second.price_decimal;
