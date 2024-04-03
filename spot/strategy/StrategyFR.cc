@@ -1173,10 +1173,11 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (const auto& it : (*sy->sellMap)) {
-                for (const auto& iter : it.second->OrderList)
+                for (const auto& iter : it.second->OrderList) {
                     flag = true;
                     if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
                     sy->inst->cancelOrder(iter);
+                }
             }
         }
     } else {
