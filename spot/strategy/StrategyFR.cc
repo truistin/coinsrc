@@ -234,7 +234,7 @@ void StrategyFR::init()
         memcpy(ord.symbol, str.c_str(), min(sizeof(ord.symbol), str.size()));
         ord.qty_decimal = ceil(abs(log10(iter.second.qty_tick_size)));
         ord.price_decimal = ceil(abs(log10(iter.second.prc_tick_size)));
-        orderFormMap.insert(str, ord);
+        orderFormMap.insert({str, ord});
     }
 }
 
