@@ -590,13 +590,13 @@ public:
 
         Value &vliquidationPrice = dataNode["liquidationPrice"];
         if (vliquidationPrice.IsString())
-            posiNode_.liqPrice = atof(vliquidationPrice.GetString());
+            posiNode_.liqPrice = stod(vliquidationPrice.GetString());
         else
             posiNode_.liqPrice = vliquidationPrice.GetDouble();
 
         Value &vpositionAmt = dataNode["positionAmt"];
         if (vpositionAmt.IsString())
-            posiNode_.size = (atof(vpositionAmt.GetString())); // may be positive ,may be negitive
+            posiNode_.size = (stod(vpositionAmt.GetString())); // may be positive ,may be negitive
         else
             posiNode_.size = (vpositionAmt.GetDouble());
 
@@ -672,13 +672,13 @@ public:
 
 		Value &vprice = doc["markPrice"];
 		if (vprice.IsString())
-			markPxNode_.markPx = atof(vprice.GetString());
+			markPxNode_.markPx = stod(vprice.GetString());
 		else
 			markPxNode_.markPx = vprice.GetDouble();
 
 		Value &vfundingrate = doc["lastFundingRate"];
 		if (vfundingrate.IsString())
-			markPxNode_.fundingRate = atof(vfundingrate.GetString());
+			markPxNode_.fundingRate = stod(vfundingrate.GetString());
 		else
 			markPxNode_.fundingRate = vfundingrate.GetDouble();
 
@@ -965,8 +965,8 @@ public:
 	
 		dealTimeStamp = doc["T"].GetUint64();
 
-		double amount = doc["Z"].GetString();
-		avgPrice = amount / volumeFilled;
+		string amount = doc["Z"].GetString();
+		avgPrice = stod(amount) / stod(volumeFilled);
 	}
 
 	void decodeUM_CM(Document& doc) {
