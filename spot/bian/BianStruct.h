@@ -920,7 +920,7 @@ public:
 			//LOG_FATAL  << "BianTdSpi com_callbak_message return WR msg";
 	}
 
-	void decodeSpot() {
+	int decodeSpot() {
 		if (!doc.HasMember("E")) return -1
 		else {
 			eventTimeStamp = doc["E"].GetUint64();
@@ -991,7 +991,7 @@ public:
 		return 0
 	}
 
-	void decodeUM_CM() {
+	int decodeUM_CM() {
 		if (doc.HasMember("E")) return -1;
 		else {
 			eventTimeStamp = doc["E"].GetUint64();
