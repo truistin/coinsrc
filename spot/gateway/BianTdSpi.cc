@@ -274,15 +274,14 @@ void BianTdSpi::PutOrderToQueue(BianWssRspOrder &queryOrder)
 	else if (strcmp(queryOrder.state, "FILLED") == 0)
 	{
 		rspOrder.OrderStatus = OrderStatus::Filled;
-		rspOrder.Volume = atof(queryOrder.volume);
-		// rspOrder.VolumeFilled = atof(queryOrder.volumeFilled);
-		rspOrder.VolumeFilled = atof(queryOrder.volumeFilled);
-		rspOrder.VolumeRemained = atof(queryOrder.volumeRemained);
+		rspOrder.Volume = queryOrder.volume;
+		rspOrder.VolumeFilled = queryOrder.volumeFilled;
+		rspOrder.VolumeRemained = rspOrder.VolumeTotalOriginal - queryOrder.volumeFilled;
 
-		rspOrder.Price = atof(queryOrder.price);
-		rspOrder.AvgPrice = atof(queryOrder.avgPrice);
+		rspOrder.Price = (queryOrder.price);
+		rspOrder.AvgPrice = (queryOrder.avgPrice);
 
-		rspOrder.Fee = atof(queryOrder.fee);
+		rspOrder.Fee = (queryOrder.fee);
 		rspOrder.OrderMsgType = RtnTradeType;
 		rspOrder.TradeID = queryOrder.tradeID;
 
@@ -292,16 +291,15 @@ void BianTdSpi::PutOrderToQueue(BianWssRspOrder &queryOrder)
 	else if (strcmp(queryOrder.state, "PARTIALLY_FILLED") == 0)
 	{
 		rspOrder.OrderStatus = OrderStatus::Partiallyfilled;
-		rspOrder.Volume = atof(queryOrder.volume);
-		// rspOrder.VolumeFilled = atof(queryOrder.volumeFilled);
-		rspOrder.VolumeFilled = atof(queryOrder.volumeFilled);
-		rspOrder.VolumeRemained = atof(queryOrder.volumeRemained);
+		rspOrder.Volume = (queryOrder.volume);
+		rspOrder.VolumeFilled = (queryOrder.volumeFilled);
+		rspOrder.VolumeRemained = rspOrder.VolumeTotalOriginal - queryOrder.volumeFilled;
 
-		rspOrder.Price = atof(queryOrder.price);
-		rspOrder.AvgPrice = atof(queryOrder.avgPrice);
+		rspOrder.Price = (queryOrder.price);
+		rspOrder.AvgPrice = queryOrder.avgPrice;
 
 		rspOrder.OrderMsgType = RtnTradeType;
-		rspOrder.Fee = atof(queryOrder.fee);
+		rspOrder.Fee = (queryOrder.fee);
 		rspOrder.TradeID = queryOrder.tradeID;
 
 		orderStore_->storeHandle(std::move(rspOrder));
@@ -311,7 +309,7 @@ void BianTdSpi::PutOrderToQueue(BianWssRspOrder &queryOrder)
 	{
 			rspOrder.OrderStatus = OrderStatus::Cancelled;
 			rspOrder.OrderMsgType = RtnOrderType;
-			rspOrder.VolumeFilled = atof(queryOrder.volumeFilled);
+			rspOrder.VolumeFilled = (queryOrder.volumeFilled);
 			// LOG_INFO << "BianTdSpi PutOrderToQueue CANCELED OrderRef: " << rspOrder.OrderRef 
 			// 	<< ", Volume : " << rspOrder.Volume;
 

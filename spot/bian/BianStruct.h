@@ -856,13 +856,13 @@ public:
 	char		direction[40+1];
 	char		posSide[40+1];
 	char        limitPrice[40+1]; // wei tuo price
-	char		price[40+1]; // deal price
-	char		avgPrice[40+1];
-	char		volume[40+1];  // current deal volume
-	char 		volumeTotalOriginal[40+1]; // wei tuo volume
-	char		volumeFilled[40+1];  //accumulate filled volume
-	char		volumeRemained[40+1]; // left undeal volume
-	char		fee[40+1]; // deal fee
+	double		price[40+1]; // deal price
+	double		avgPrice;
+	double		volume[40+1];  // current deal volume
+	double 		volumeTotalOriginal[40+1]; // wei tuo volume
+	double		volumeFilled[40+1];  //accumulate filled volume
+	double		volumeRemained[40+1]; // left undeal volume
+	double		fee[40+1]; // deal fee
 	uint64_t	dealTimeStamp; // the last deal time
 	char		epochTimeReturn[40+1];
 	char		error_code[40+1];
@@ -948,20 +948,16 @@ public:
 		
 
 		str = doc["L"].GetString();
-		memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
+		price = stod(str);
 	
-
-		str = doc["ap"].GetString();
-		memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
-		
 		str = doc["l"].GetString();
-		memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
+		volume = stod(str);
 	
 		str = doc["z"].GetString();
-		memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
+		volumeFilled = stod(str);
 
 		str = doc["n"].GetString();
-		memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));		
+		fee = stod(str);
 	
 		dealTimeStamp = doc["T"].GetUint64();
 
@@ -1021,14 +1017,13 @@ public:
 		// 	}
 		// }
 		str = dataNode["L"].GetString();
-		memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
-	
+		price = stod(str);	
 
 		str = dataNode["ap"].GetString();
-		memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
+		avgPrice = stod(str);	
 	
 		str = dataNode["l"].GetString();
-		memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
+		volume = stod(str);	
 			
 		// if (dataNode.HasMember("q"))
 		// {
@@ -1040,14 +1035,14 @@ public:
 		// }
 
 		str = dataNode["z"].GetString();
-		memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
+		volumeFilled = stod(str);	
 			
 
 		// don't have volumeRemained
 		//if (dataNode.HasMember("volumeRemained"))
 
 		str = dataNode["n"].GetString();
-		memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));
+		fee = stod(str);	
 	
 		dealTimeStamp = dataNode["T"].GetUint64();
 	}
