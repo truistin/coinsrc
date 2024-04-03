@@ -401,7 +401,7 @@ void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
 
     char buf2[64];
     char qtyformat[20]; 
-    snprintf(qtyformat, sizeof(qtyformat), "%%.%df", it.second.qty_decimal); 
+    snprintf(qtyformat, sizeof(qtyformat), "%%.%df", it->second.qty_decimal); 
     SNPRINTF(buf2, sizeof(buf2), qtyformat, order.VolumeTotalOriginal);
     m_uri.AddParam(("quantity"), (buf2));
 }
@@ -412,25 +412,25 @@ void BianApi::ConvertPrice(const Order &order, Uri& m_uri) {
         LOG_FATAL << "BianApi::ConvertPrc error, not found InstrumentID: " << order.InstrumentID;
     }
     if (order.Direction == INNER_DIRECTION_Buy) {
-        double price = order.LimitPrice * it.second.price_decimal;
+        double price = order.LimitPrice * it->second.price_decimal;
         price = std::floor(price);
-        price = price/it.second.price_decimal;
+        price = price/it->second.price_decimal;
 
         char buf[64];
         char prcformat[20]; 
-        snprintf(prcformat, sizeof(prcformat), "%%.%df", it.second.price_decimal); 
+        snprintf(prcformat, sizeof(prcformat), "%%.%df", it->second.price_decimal); 
         SNPRINTF(buf, sizeof(buf), prcformat, price);
 
         m_uri.AddParam(("price"), (buf));
 
     } else if (order.Direction == INNER_DIRECTION_Sell) {
-        double price = order.LimitPrice * it.second.price_decimal;
+        double price = order.LimitPrice * it->second.price_decimal;
         price = std::ceil(price);
-        price = price/it.second.price_decimal;
+        price = price/it->second.price_decimal;
 
         char buf[64];
         char prcformat[20]; 
-        snprintf(prcformat, sizeof(prcformat), "%%.%df", it.second.price_decimal); 
+        snprintf(prcformat, sizeof(prcformat), "%%.%df", it->second.price_decimal); 
         SNPRINTF(buf, sizeof(buf), prcformat, price);
 
         m_uri.AddParam(("price"), (buf));
