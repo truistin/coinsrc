@@ -929,47 +929,47 @@ public:
 		matchTimeStamp = doc["T"].GetUint64();
 	
 
-		tradeID = dataNode["t"].GetUint64(); // GetUint64();
+		tradeID = doc["t"].GetUint64(); // GetUint64();
 	
 
-		string str = dataNode["X"].GetString();
+		string str = doc["X"].GetString();
 		memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
 	
 
-		ordId = dataNode["i"].GetUint64();
+		ordId = doc["i"].GetUint64();
 	
 
-		string str = dataNode["c"].GetString();
+		string str = doc["c"].GetString();
 		memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
 	
 
-		string str = dataNode["S"].GetString();
+		string str = doc["S"].GetString();
 		memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
 		
 
-		string str = dataNode["L"].GetString();
+		string str = doc["L"].GetString();
 		memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
 	
 
-		string str = dataNode["ap"].GetString();
+		string str = doc["ap"].GetString();
 		memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
 		
 	
 
-		string str = dataNode["l"].GetString();
+		string str = doc["l"].GetString();
 		memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
 	
 
-		string str = dataNode["z"].GetString();
+		string str = doc["z"].GetString();
 		memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
 
-		string str = dataNode["n"].GetString();
+		string str = doc["n"].GetString();
 		memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));		
 	
 
-		dealTimeStamp = dataNode["T"].GetUint64();
+		dealTimeStamp = doc["T"].GetUint64();
 
-		double amount = dataNode["Z"].GetString();
+		double amount = doc["Z"].GetString();
 		avgPrice = amount / volumeFilled;
 	}
 
@@ -1001,11 +1001,11 @@ public:
 		ordId = dataNode["i"].GetUint64();
 			
 
-		string str = dataNode["c"].GetString();
+		str = dataNode["c"].GetString();
 		memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
 
 
-		string str = dataNode["S"].GetString();
+		str = dataNode["S"].GetString();
 		memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
 			
 		// if (dataNode.HasMember("ps"))
@@ -1024,14 +1024,14 @@ public:
 		// 		memcpy(limitPrice, str.c_str(), min(sizeof(limitPrice) - 1, str.size()));
 		// 	}
 		// }
-		string str = dataNode["L"].GetString();
+		str = dataNode["L"].GetString();
 		memcpy(price, str.c_str(), min(sizeof(price) - 1, str.size()));
 	
 
-		string str = dataNode["ap"].GetString();
+		str = dataNode["ap"].GetString();
 		memcpy(avgPrice, str.c_str(), min(sizeof(avgPrice) - 1, str.size()));
 	
-		string str = dataNode["l"].GetString();
+		str = dataNode["l"].GetString();
 		memcpy(volume, str.c_str(), min(sizeof(volume) - 1, str.size()));
 			
 		// if (dataNode.HasMember("q"))
@@ -1043,14 +1043,14 @@ public:
 		// 	}
 		// }
 
-		string str = dataNode["z"].GetString();
+		str = dataNode["z"].GetString();
 		memcpy(volumeFilled, str.c_str(), min(sizeof(volumeFilled) - 1, str.size()));
 			
 
 		// don't have volumeRemained
 		//if (dataNode.HasMember("volumeRemained"))
 
-		string str = dataNode["n"].GetString();
+		str = dataNode["n"].GetString();
 		memcpy(fee, str.c_str(), min(sizeof(fee) - 1, str.size()));
 	
 		dealTimeStamp = dataNode["T"].GetUint64();
