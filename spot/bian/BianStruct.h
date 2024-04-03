@@ -856,13 +856,13 @@ public:
 	char		direction[40+1];
 	char		posSide[40+1];
 	char        limitPrice[40+1]; // wei tuo price
-	double		price[40+1]; // deal price
+	double		price; // deal price
 	double		avgPrice;
-	double		volume[40+1];  // current deal volume
-	double 		volumeTotalOriginal[40+1]; // wei tuo volume
-	double		volumeFilled[40+1];  //accumulate filled volume
-	double		volumeRemained[40+1]; // left undeal volume
-	double		fee[40+1]; // deal fee
+	double		volume;  // current deal volume
+	double 		volumeTotalOriginal; // wei tuo volume
+	double		volumeFilled;  //accumulate filled volume
+	double		volumeRemained; // left undeal volume
+	double		fee; // deal fee
 	uint64_t	dealTimeStamp; // the last deal time
 	char		epochTimeReturn[40+1];
 	char		error_code[40+1];
