@@ -962,7 +962,7 @@ public:
 		dealTimeStamp = doc["T"].GetUint64();
 
 		string amount = doc["Z"].GetString();
-		avgPrice = stod(amount) / stod(volumeFilled);
+		avgPrice = stod(amount) / volumeFilled;
 	}
 
 	void decodeUM_CM(Document& doc) {
