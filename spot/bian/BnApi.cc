@@ -738,74 +738,53 @@ int BnApi::QryPosiBySymbol(const Order &order) {
 
 }
 
-void BnApi::ConvertQuantity(const Order &order, Uri& m_uri) {
-    if(strcmp(order.InstrumentID, "btc_usdt_binance_swap") == 0) {
-        char buf2[64] = {0};
-        SNPRINTF(buf2, sizeof(buf2), "%.5f", order.VolumeTotalOriginal);
-        m_uri.AddParam(("quantity"), (buf2));
-    } else if(strcmp(order.InstrumentID, "btc_usd_binance_perp") == 0) {
-        char buf2[64] = {0};
-        SNPRINTF(buf2, sizeof(buf2), "%d", int(order.VolumeTotalOriginal));
-        m_uri.AddParam(("quantity"), (buf2));    
-    } else if(strcmp(order.InstrumentID, "eth_usdt_binance_swap") == 0) {
-        char buf2[64] = {0};
-        SNPRINTF(buf2, sizeof(buf2), "%.4f", order.VolumeTotalOriginal);
-        m_uri.AddParam(("quantity"), (buf2));
-    } else if(strcmp(order.InstrumentID, "eth_usd_binance_perp") == 0) {
-        char buf2[64] = {0};
-        SNPRINTF(buf2, sizeof(buf2), "%d", int(order.VolumeTotalOriginal));
-        m_uri.AddParam(("quantity"), (buf2));
+void BianApi::ConvertQuantity(const Order &order, Uri& m_uri) {
+    auto it = orderFormMap.find(order.InstrumentID);
+    if (it == orderFormMap.end()) {
+        LOG_FATAL << "BianApi::ConvertQuantity error, not found InstrumentID: " << order.InstrumentID;
+    }
+
+    char buf2[64];
+    char qtyformat[20]; 
+    snprintf(qtyformat, sizeof(qtyformat), "%%.%df", it->second.qty_decimal); 
+    SNPRINTF(buf2, sizeof(buf2), qtyformat, order.VolumeTotalOriginal);
+    m_uri.AddParam(("quantity"), (buf2));
+}
+
+void BianApi::ConvertPrice(const Order &order, Uri& m_uri) {
+    auto it = orderFormMap.find(order.InstrumentID);
+    if (it == orderFormMap.end()) {
+        LOG_FATAL << "BianApi::ConvertPrc error, not found InstrumentID: " << order.InstrumentID;
+    }
+    if (order.Direction == INNER_DIRECTION_Buy) {
+        double price = order.LimitPrice * it->second.price_decimal;
+        price = std::floor(price);
+        price = price/it->second.price_decimal;
+
+        char buf[64];
+        char prcformat[20]; 
+        snprintf(prcformat, sizeof(prcformat), "%%.%df", it->second.price_decimal); 
+        SNPRINTF(buf, sizeof(buf), prcformat, price);
+
+        m_uri.AddParam(("price"), (buf));
+
+    } else if (order.Direction == INNER_DIRECTION_Sell) {
+        double price = order.LimitPrice * it->second.price_decimal;
+        price = std::ceil(price);
+        price = price/it->second.price_decimal;
+
+        char buf[64];
+        char prcformat[20]; 
+        snprintf(prcformat, sizeof(prcformat), "%%.%df", it->second.price_decimal); 
+        SNPRINTF(buf, sizeof(buf), prcformat, price);
+
+        m_uri.AddParam(("price"), (buf));
+
     } else {
-        LOG_FATAL << "BnApi::ConvertQuantity error " << order.InstrumentID;
+        LOG_FATAL << "Order direction wr" << order.InstrumentID << ", side: " << order.Direction;
     }
 }
 
-void BnApi::ConvertPrice(const Order &order, Uri& m_uri) {
-    if(strcmp(order.InstrumentID, "btc_usdt_binance_swap") == 0
-        || strcmp(order.InstrumentID, "btc_usd_binance_perp") == 0) {
-        if (order.Direction == INNER_DIRECTION_Buy) {
-            double price = order.LimitPrice * 10;
-            price = std::floor(price);
-            price = price/10;
-            char buf[64] = {0};
-            SNPRINTF(buf, sizeof(buf), "%.1f", price);
-            m_uri.AddParam(("price"), (buf));
-        } else if (order.Direction == INNER_DIRECTION_Sell) {
-            double price = order.LimitPrice * 10;
-            price = std::ceil(price);
-            price = price/10;
-            char buf[64] = {0};
-            SNPRINTF(buf, sizeof(buf), "%.1f", price);
-            m_uri.AddParam(("price"), (buf));
-        } else {
-            LOG_FATAL << "Order direction wr";
-        }
-
-    } else if(strcmp(order.InstrumentID, "eth_usdt_binance_swap") == 0
-        || strcmp(order.InstrumentID, "eth_usd_binance_perp") == 0) {
-
-        if (order.Direction == INNER_DIRECTION_Buy) {
-            double price = order.LimitPrice * 100;
-            price = std::floor(price);
-            price = price/100;
-            char buf[64];
-            SNPRINTF(buf, sizeof(buf), "%.2f", price);
-            m_uri.AddParam(("price"), (buf));
-        } else if (order.Direction == INNER_DIRECTION_Sell) {
-            double price = order.LimitPrice * 100;
-            price = std::ceil(price);
-            price = price/100;
-            char buf[64];
-          SNPRINTF(buf, sizeof(buf), "%.2f", price);
-           m_uri.AddParam(("price"), (buf));
-        } else {
-            LOG_FATAL << "Order direction wr";
-        }
-
-    } else {
-        LOG_FATAL << "BnApi::ConvertPrice error " << order.InstrumentID;
-    }
-}
 
 void BnApi::uriReqCallbackOnHttp(char* message, uint64_t clientId)
 {
