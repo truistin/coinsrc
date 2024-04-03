@@ -748,21 +748,11 @@ public:
 		spotrapidjson::Value& vsymbol = doc["symbol"];
 		spotrapidjson::Value& vorder_id = doc["orderId"];
 		spotrapidjson::Value& vclientOrderId = doc["clientOrderId"];
-		spotrapidjson::Value& vupdateTime = doc["updateTime"];
 
 		if (vorder_id.IsString())
 			orderID = stoll(vorder_id.GetString());
 		else
 			orderID = vorder_id.GetUint64();
-
-		if (vupdateTime.IsString())
-		{
-			string updateTime = vupdateTime.GetString();
-		}
-		else
-		{
-			uint64_t updateTime = vupdateTime.GetUint64();
-		}
 
 		if (vclientOrderId.IsString())
 		{
