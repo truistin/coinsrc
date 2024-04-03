@@ -997,6 +997,9 @@ int BnApi::CancelOrder(const Order& order, int type) {
         } else if (strcmp(order.Category, INVERSE.c_str()) == 0) {
             cp = GetCMCurrencyPair(order.InstrumentID);
             uri->api = BN_CM_ORDER_API;
+        } else if (strcmp(order.Category, LEVERAGE.c_str()) == 0) {
+            cp = GetUMCurrencyPair(order.InstrumentID);
+            uri->api = BN_LEVERAGE_ORDER_API;
         } else {
             // ReqOrderInsert_spot(order);
             // ReqOrderInsert_cm_spot(order);
