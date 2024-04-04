@@ -101,6 +101,8 @@ void StrategyFR::qryPosition() {
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
     
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
+            LOG_INFO << "FR spot qeuity: " << equity << ", crossMarginFree: " << it->second.crossMarginFree << ", crossMarginLocked: "
+                << it->second.crossMarginLocked << ", crossMarginBorrowed: " << it->second.crossMarginBorrowed << ", crossMarginInterest: " << it->second.crossMarginInterest;
 
             if (IS_DOUBLE_LESS(equity, 0)) {
                 iter->position().PublicPnlDaily().TodayShort = equity;
