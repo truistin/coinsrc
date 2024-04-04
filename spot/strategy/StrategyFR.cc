@@ -1267,7 +1267,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (sy1.make_taker_flag == 1) { //sy1 maker
         // sy1 short
         if (sy1.long_short_flag == 1 && IS_DOUBLE_LESS(sy1.real_pos * sy1.mid_p, sy1.min_amount)) { 
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) {
+                LOG_WARN << "is cancel exist orders";
+                return;
+            }
 
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
 
@@ -1284,9 +1287,15 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return;
+                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
 
-                if (!is_continue_mr(&sy1, qty)) return;
+                if (!is_continue_mr(&sy1, qty)) {
+                    LOG_WARN << "bbbbbb";
+                    return;
+                }
                 //  qty = sy1.min_delta_limit;
 
                 SetOrderOptions order;
@@ -1322,13 +1331,16 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
         //sy1 long
         } else if (sy1.long_short_flag == 0 && IS_DOUBLE_GREATER(sy1.real_pos * sy1.mid_p, -sy1.min_amount)) {
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) {
+                LOG_WARN << "aaaaaaaaaaaaaaa";
+                return;
+            }
 
             double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
-                    LOG_WARN << "";
+                    LOG_WARN << "aaaaaaaaaa";
                     return;
                 }
 
@@ -1339,9 +1351,15 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy1.qty_tick_size)));
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) return;
+                if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
 
-                if (!is_continue_mr(&sy1, qty)) return;
+                if (!is_continue_mr(&sy1, qty)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1377,13 +1395,16 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     } else if (sy2->make_taker_flag == 1) { //sy2 maker
         //sy2 long
         if (sy2->long_short_flag == 0 && IS_DOUBLE_GREATER(sy2->real_pos * sy2->mid_p, -sy2->min_amount)) { 
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) {
+                LOG_WARN << "aaaaaaaaaaaaaaa";
+                return;
+            }
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "";
+                    LOG_WARN << "aaaaaaaaaa";
                     return;
                 }
 
@@ -1414,8 +1435,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return;
-                if (!is_continue_mr(sy2, qty)) return;
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
+                if (!is_continue_mr(sy2, qty)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -1430,13 +1457,16 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
         // sy2 short
         } else if (sy2->long_short_flag == 1 && IS_DOUBLE_LESS(sy2->real_pos * sy2->mid_p, sy2->min_amount)) { 
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) {
+                LOG_WARN << "aaaaaaaaaaaaaaa";
+                return;
+            }
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
             if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "";
+                    LOG_WARN << "aaaaaaaaaaa";
                     return;
                 }
 
@@ -1467,8 +1497,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
-                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return;
-                if (!is_continue_mr(sy2, qty)) return;
+                if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
+                if (!is_continue_mr(sy2, qty)) {
+                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    return;
+                }
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
                     sy2->ask_p + sy2->prc_tick_size,
