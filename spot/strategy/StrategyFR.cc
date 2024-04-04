@@ -917,7 +917,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 }
 
 // flag 1 arb , 0 fr
-//close arb_thresh/fr_close_thresh   maker/taker(at most larger than taker)£¬maker/taker(at least large than taker)
+//close arb_thresh/fr_close_thresh   maker/taker(at most larger than taker)ï¿½ï¿½maker/taker(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     bool flag = false;
@@ -1236,19 +1236,22 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     
 
     if (sy1.close_flag) { //fr close
+        LOG_INFO << "begin close_flag";
         ClosePosition(marketData, sy1, 1);
         return;
     } 
     // arb close
+    LOG_INFO << "begin arb close";
     if(ClosePosition(marketData, sy1, 0)) return;
 
+    LOG_INFO << "begin mr";
     double mr = 0;
     if (!make_continue_mr(mr)) {
         action_mr(mr);
         return;
     }
 
-    
+    LOG_INFO << "begin order";
     if (sy2 == nullptr) {
         LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << sy1.sy;
         return;
@@ -1270,7 +1273,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
-                    LOG_WARN << "";
+                    LOG_WARN << "more than mv_ratio";
                     return;
                 }
 
