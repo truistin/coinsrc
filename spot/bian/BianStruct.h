@@ -849,7 +849,7 @@ public:
 	}
 
 	char		instrument_id[InstrumentIDLen + 1]{};
-	uint64_t 		tradeID;
+	int64_t 		tradeID;
 	char		state[40+1];
 	char		clOrdId[40+1]; //orderRef order
 	uint64_t			ordId; //system orderId
@@ -932,7 +932,7 @@ public:
 		matchTimeStamp = doc["T"].GetUint64();
 	
 
-		tradeID = doc["t"].GetUint64(); // GetUint64();
+		tradeID = doc["t"].GetInt64(); // GetUint64();
 	
 
 		string str = doc["X"].GetString();
