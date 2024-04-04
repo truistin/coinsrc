@@ -861,6 +861,7 @@ namespace spot
       char ExchangeCode[ExchangeCodeLen+1];
       char CounterType[CounterTypeLen+1];
       char OrderSysID[OrderSysIDLen+1];
+      int64_t TradeID;
       char InsertTime[InsertTimeLen+1];
       char UpdateTime[UpdateTimeLen+1];
       char CancelTime[CancelTimeLen+1];
@@ -944,6 +945,10 @@ namespace spot
         memcpy(OrderSysID, static_cast<char*>(value), length <OrderSysIDLen  ? length :OrderSysIDLen);
       }
       void setTradeID( void *value , uint16_t length = 0) {
+        if (length == 0)
+          TradeID = *static_cast<int*>(value);
+        else
+          TradeID = *static_cast<int64_t*>(value);
       }
       void setInsertTime( void *value , uint16_t length = 0) {
         memcpy(InsertTime, static_cast<char*>(value), length <InsertTimeLen  ? length :InsertTimeLen);
@@ -1062,7 +1067,7 @@ namespace spot
       string toString()
       {
         char buffer[2048];
-        SNPRINTF(buffer, sizeof buffer, "StrategyID=[%d]Direction=[%c]Offset=[%c]OrderStatus=[%c]OrderType=[%d]OrderRef=[%d]LimitPrice=[%f]VolumeTotalOriginal=[%f]VolumeRemained=[%f]InstrumentID=[%s]OrderMsgType=[%c]ExchangeCode=[%s]CounterType=[%s]OrderSysID=[%s]InsertTime=[%s]UpdateTime=[%s]CancelTime=[%s]TradingDay=[%s]CancelAttempts=[%d]Volume=[%f]VolumeFilled=[%f]Price=[%f]OrdRejReason=[%d]FeeRate=[%f]TimeStamp=[%I64d]UserID=[%s]StatusMsg=[%s]EpochTimeReturn=[%I64d]EpochTimeReqBefore=[%I64d]EpochTimeReqAfter=[%I64d]TimeInForce=[%s]AvgPrice=[%f]Category=[%s]MTaker=[%s]Fee=[%f]QryFlag=[%d]CoinType=[%s]StrategyType=[%s]",
+        SNPRINTF(buffer, sizeof buffer, "StrategyID=[%d]Direction=[%c]Offset=[%c]OrderStatus=[%c]OrderType=[%d]OrderRef=[%d]LimitPrice=[%f]VolumeTotalOriginal=[%f]VolumeRemained=[%f]InstrumentID=[%s]OrderMsgType=[%c]ExchangeCode=[%s]CounterType=[%s]OrderSysID=[%s]TradeID=[%I64d]InsertTime=[%s]UpdateTime=[%s]CancelTime=[%s]TradingDay=[%s]CancelAttempts=[%d]Volume=[%f]VolumeFilled=[%f]Price=[%f]OrdRejReason=[%d]FeeRate=[%f]TimeStamp=[%I64d]UserID=[%s]StatusMsg=[%s]EpochTimeReturn=[%I64d]EpochTimeReqBefore=[%I64d]EpochTimeReqAfter=[%I64d]TimeInForce=[%s]AvgPrice=[%f]Category=[%s]MTaker=[%s]Fee=[%f]QryFlag=[%d]CoinType=[%s]StrategyType=[%s]",
                 StrategyID,Direction,Offset,OrderStatus,OrderType,OrderRef,LimitPrice,VolumeTotalOriginal,VolumeRemained,InstrumentID,OrderMsgType,ExchangeCode,CounterType,OrderSysID,TradeID,InsertTime,UpdateTime,CancelTime,TradingDay,CancelAttempts,Volume,VolumeFilled,Price,OrdRejReason,FeeRate,TimeStamp,UserID,StatusMsg,EpochTimeReturn,EpochTimeReqBefore,EpochTimeReqAfter,TimeInForce,AvgPrice,Category,MTaker,Fee,QryFlag,CoinType,StrategyType);
         return buffer;
       }
@@ -1145,6 +1150,7 @@ namespace spot
           int length = strlen(OrderSysID) < OrderSysIDLen ? strlen(OrderSysID):OrderSysIDLen;
           doc.AddMember("OrderSysID", spotrapidjson::Value().SetString(OrderSysID,length), allocator);
         }
+        doc.AddMember("TradeID",TradeID, allocator);
         if (strlen(InsertTime) != 0){
           int length = strlen(InsertTime) < InsertTimeLen ? strlen(InsertTime):InsertTimeLen;
           doc.AddMember("InsertTime", spotrapidjson::Value().SetString(InsertTime,length), allocator);
