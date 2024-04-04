@@ -489,34 +489,34 @@ public:
 			}
 		}
 
-		spotrapidjson::Value& node = doc["result"];
-		spotrapidjson::Value& dataNodes = node["list"];
+		// spotrapidjson::Value& node = doc["result"];
+		// spotrapidjson::Value& dataNodes = node["list"];
 
-		if (dataNodes.Size() == 0) {
-		    LOG_WARN << "BianQueryOrder has no position " << doc.Size();
-		    return -3;
-	   	}
+		// if (dataNodes.Size() == 0) {
+		//     LOG_WARN << "BianQueryOrder has no position " << doc.Size();
+		//     return -3;
+	   	// }
 
-		spotrapidjson::Value& dataNode = dataNodes[0];
-		Value &vstatus = dataNode["status"];
+		// spotrapidjson::Value& dataNode = dataNodes[0];
+		Value &vstatus = doc["status"];
 		if (vstatus.IsString()){
 			std::string s = vstatus.GetString();
 			memcpy(orderStatus, s.c_str(), min(sizeof(orderStatus) - 1, (s.size())));
 		}
 
-		Value &vorderRef = dataNode["clientOrderId"];
+		Value &vorderRef = doc["clientOrderId"];
 		if (vorderRef.IsString()){
 			std::string s = vorderRef.GetString();
 			memcpy(orderId, s.c_str(), min(sizeof(orderId) - 1, (s.size())));
 		}
 
-		Value &vVolFilled = dataNode["executedQty"];
+		Value &vVolFilled = doc["executedQty"];
 		if (vVolFilled.IsString()){
 			std::string s = vVolFilled.GetString();
 			volumeFilled = stod(s);
 		}
 
-		Value &vinputVol = dataNode["origQty"];
+		Value &vinputVol = doc["origQty"];
 		if (vinputVol.IsString()){
 			std::string s = vinputVol.GetString();
 			volumeTotalOriginal = stod(s);
