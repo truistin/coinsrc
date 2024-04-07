@@ -1165,10 +1165,11 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
         if (sy->buyMap->size() != 0) {
             for (const auto& it : (*sy->buyMap)) {
                 for (const auto& iter : it.second->OrderList) {
-                    flag = true;
-                    if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
-                    sy->inst->cancelOrder(iter);
-                    
+                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                        flag = true;
+                        if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
+                        sy->inst->cancelOrder(iter);
+                    }           
                 }
             }
         }
@@ -1176,9 +1177,11 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
         if (sy->sellMap->size() != 0) {
             for (const auto& it : (*sy->sellMap)) {
                 for (const auto& iter : it.second->OrderList) {
-                    flag = true;
-                    if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
-                    sy->inst->cancelOrder(iter);
+                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                        flag = true;
+                        if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
+                        sy->inst->cancelOrder(iter);
+                    }
                 }
             }
         }
@@ -1525,7 +1528,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
 void StrategyFR::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    hedge(strategyInstrument);
+   // hedge(strategyInstrument);
     return;
 }
 
