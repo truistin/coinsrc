@@ -1268,7 +1268,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     if (sy1.make_taker_flag == 1) { //sy1 maker
         // sy1 short
-        if (sy1.long_short_flag == 1 && IS_DOUBLE_LESS(sy1.real_pos * sy1.mid_p, sy1.min_amount)) { 
+        if (sy1.long_short_flag == 1) { 
             if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) {
                 LOG_WARN << "is cancel exist orders";
                 return;
@@ -1332,7 +1332,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             
             }
         //sy1 long
-        } else if (sy1.long_short_flag == 0 && IS_DOUBLE_GREATER(sy1.real_pos * sy1.mid_p, -sy1.min_amount)) {
+        } else if (sy1.long_short_flag == 0) {
             if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
@@ -1396,7 +1396,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
         }
     } else if (sy2->make_taker_flag == 1) { //sy2 maker
         //sy2 long
-        if (sy2->long_short_flag == 0 && IS_DOUBLE_GREATER(sy2->real_pos * sy2->mid_p, -sy2->min_amount)) { 
+        if (sy2->long_short_flag == 0) { 
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
@@ -1458,7 +1458,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             }
         // sy2 short
-        } else if (sy2->long_short_flag == 1 && IS_DOUBLE_LESS(sy2->real_pos * sy2->mid_p, sy2->min_amount)) { 
+        } else if (sy2->long_short_flag == 1) { 
             if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
