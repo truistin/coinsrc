@@ -34,7 +34,16 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     make_taker = new map<string, sy_info>;
     symbol_map = new map<string, string>;
 
+    risk_ = new spotRisk(this);
+
     pre_sum_equity = 0;
+    cSize_ = 1;
+	rSize_ = 1;
+}
+
+void StrategyFR::resetRcSize() {
+	cSize_ = 1;
+	rSize_ = 1;
 }
 
 void StrategyFR::qryPosition() {
@@ -704,23 +713,6 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
     return true;
 }
 
-bool StrategyUCArb1::VaildCancelTime(Order& order, uint8_t loc)
-{
-    uint64_t now_ns= CURR_NSTIME_POINT;
-    if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
-        LOG_INFO << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
-            << order.OrderRef << ", status: " << order.OrderStatus << ", loc: " << loc;
-        return false;
-    }
-    if (now_ns - order.TimeStamp < cancel_order_interval * 1e9) {
-        LOG_INFO << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
-            << ", loc: " << loc;
-        return false;
-    }
-    return true;
-}
-
-
 int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
     int pendNum = 0;
     for (auto it : (*sy.inst->sellOrders())) {
@@ -1226,6 +1218,22 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     return flag;
 }
 
+bool StrategyFR::VaildCancelTime(Order& order, uint8_t loc)
+{
+    uint64_t now_ns= CURR_NSTIME_POINT;
+    if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
+        LOG_INFO << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
+            << order.OrderRef << ", status: " << order.OrderStatus << ", loc: " << loc;
+        return false;
+    }
+    if (now_ns - order.TimeStamp < cancel_order_interval * 1e9) {
+        LOG_INFO << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
+            << ", loc: " << loc;
+        return false;
+    }
+    return true;
+}
+
 bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
 {
     bool flag = false;
@@ -1234,8 +1242,8 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
             for (const auto& it : (*sy->buyMap)) {
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                        if (!VaildCancelTime(iter, 1)) continue;
                         flag = true;
-                        if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
                         sy->inst->cancelOrder(iter);
                     }           
                 }
@@ -1246,8 +1254,8 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
             for (const auto& it : (*sy->sellMap)) {
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                        if (!VaildCancelTime(iter, 2)) continue;
                         flag = true;
-                        if (iter.OrderStatus == PendingCancel || iter.OrderStatus == PendingNew) continue;
                         sy->inst->cancelOrder(iter);
                     }
                 }

@@ -849,6 +849,7 @@ public:
 	}
 
 	char		instrument_id[InstrumentIDLen + 1]{};
+	char 		eventType[40+1];
 	int64_t 		tradeID;
 	char		state[40+1];
 	char		clOrdId[40+1]; //orderRef order
@@ -876,6 +877,7 @@ public:
 		ostringstream os;
 		os << "BianWssRspOrder";
 		os << ",instrument_id: " << instrument_id;
+		os << ",eventType: " << eventType;
 		os << ",tradeID: " << tradeID;
 		os << ",state: " << state;
 		os << ",ordId: " << ordId;
@@ -909,6 +911,7 @@ public:
 		{
 			//spotrapidjson::Value& dataNode = doc["e"];
 			string str = doc["e"].GetString();
+			memcpy(eventType, str.c_str(), min(sizeof(eventType) - 1, str.size()));
 			if (str == "ORDER_TRADE_UPDATE") {
 				decodeUM_CM(doc);
 				return 0;
