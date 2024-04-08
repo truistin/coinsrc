@@ -35,6 +35,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     symbol_map = new map<string, string>;
 
     pre_sum_equity = 0;
+    cancel_order_interval = *parameters()->getInt("cancel_order_interval");
 }
 
 void StrategyFR::qryPosition() {
@@ -706,7 +707,7 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
 
 int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
     int pendNum = 0;
-    for (auto it : (*sy.inst->sellOrders())) {
+    for (auto it : (sy.inst->sellOrders())) {
         for (auto iter : it.second->OrderList) {
             LOG_DEBUG << "getIocOrdPendingLen SELL  symbol: " << iter.InstrumentID
                 << ", OrderStatus: " << iter.OrderStatus
@@ -719,7 +720,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
         }
     }
 
-    for (auto it : (*sy.strategyInstrument->buyOrders())) {
+    for (auto it : (sy.inst->buyOrders())) {
         for (auto iter : it.second->OrderList) {
             LOG_DEBUG << "getIocOrdPendingLen BUY  symbol: " << iter.InstrumentID
                 << ", OrderStatus: " << iter.OrderStatus
@@ -733,8 +734,8 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
         }
     }            
     if (pendNum > 0)
-        LOG_INFO << "HEGET getIocOrdPendingLen sell size: "<< sy.strategyInstrument->sellOrders()->size() 
-        << ", buy size: " << sy.strategyInstrument->buyOrders()->size() << ",pendNum: " << pendNum;
+        LOG_INFO << "HEGET getIocOrdPendingLen sell size: "<< sy.inst->sellOrders()->size() 
+        << ", buy size: " << sy.inst->buyOrders()->size() << ",pendNum: " << pendNum;
     return pendNum;
 }
 
@@ -1230,9 +1231,9 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     bool flag = false;
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
-            for (const auto& it : (*sy->buyMap)) {
+            for (const auto& it : (sy->buyMap)) {
                 for (const auto& iter : it.second->OrderList) {
-                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 1)) continue;
                         flag = true;
                         sy->inst->cancelOrder(iter);
@@ -1242,9 +1243,9 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
-            for (const auto& it : (*sy->sellMap)) {
+            for (const auto& it : (sy->sellMap)) {
                 for (const auto& iter : it.second->OrderList) {
-                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.instrument, sy->sy) == 0) {
+                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 2)) continue;
                         flag = true;
                         sy->inst->cancelOrder(iter);
