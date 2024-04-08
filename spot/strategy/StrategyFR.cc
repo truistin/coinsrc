@@ -704,6 +704,58 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
     return true;
 }
 
+bool StrategyUCArb1::VaildCancelTime(Order& order, uint8_t loc)
+{
+    uint64_t now_ns= CURR_NSTIME_POINT;
+    if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
+        LOG_INFO << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
+            << order.OrderRef << ", status: " << order.OrderStatus << ", loc: " << loc;
+        return false;
+    }
+    if (now_ns - order.TimeStamp < cancel_order_interval * 1e9) {
+        LOG_INFO << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
+            << ", loc: " << loc;
+        return false;
+    }
+    return true;
+}
+
+
+int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
+    int pendNum = 0;
+    for (auto it : (*sy.inst->sellOrders())) {
+        for (auto iter : it.second->OrderList) {
+            LOG_DEBUG << "getIocOrdPendingLen SELL  symbol: " << iter.InstrumentID
+                << ", OrderStatus: " << iter.OrderStatus
+                << ", MTaker: " << iter.MTaker
+                << ", orderRef: " << iter.OrderRef;
+            if (iter.OrderStatus == PendingNew && (strcmp(iter.TimeInForce, "IOC") == 0)) {
+                pendNum++;
+            }
+                
+        }
+    }
+
+    for (auto it : (*sy.strategyInstrument->buyOrders())) {
+        for (auto iter : it.second->OrderList) {
+            LOG_DEBUG << "getIocOrdPendingLen BUY  symbol: " << iter.InstrumentID
+                << ", OrderStatus: " << iter.OrderStatus
+                << ", MTaker: " << iter.MTaker
+                << ", orderRef: " << iter.OrderRef;
+            if (iter.OrderStatus == PendingNew && (strcmp(iter.TimeInForce, "IOC") == 0))
+                {
+                    pendNum++;
+                }
+                
+        }
+    }            
+    if (pendNum > 0)
+        LOG_INFO << "HEGET getIocOrdPendingLen sell size: "<< sy.strategyInstrument->sellOrders()->size() 
+        << ", buy size: " << sy.strategyInstrument->buyOrders()->size() << ",pendNum: " << pendNum;
+    return pendNum;
+}
+
+
 void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 {
     string symbol = strategyInstrument->getInstrumentID();
@@ -730,6 +782,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     if (IS_DOUBLE_GREATER_EQUAL(delta_posi, 0)) {
         // sy1 maker open_short  sy1.pos < 0 delta_pos > 0 sy2.close_long
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) {
+            if (getIocOrdPendingLen(*sy2) != 0) 
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -752,7 +806,9 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short
-        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) {          
+        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) {   
+            if (getIocOrdPendingLen(*sy2) != 0)
+                return;       
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -776,6 +832,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         // sy2 maker open_short sy2.pos<0 delta_pos>0 sy1.close_long
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) { 
+            if (getIocOrdPendingLen(sy1) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -799,6 +857,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) { 
+            if (getIocOrdPendingLen(sy1) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -824,6 +884,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, 0)) {
         // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) {
+            if (getIocOrdPendingLen(*sy2) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -847,6 +909,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy1 maker open_long sy1.pos>0 delta_pos<0 sy2 close_short
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) {          
+            if (getIocOrdPendingLen(*sy2) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy2->type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -870,6 +934,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) { 
+            if (getIocOrdPendingLen(sy1) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
@@ -893,6 +959,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy2 maker open_long sy2.pos>0 delta_pos<0 sy1 close_short
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) { 
+            if (getIocOrdPendingLen(sy1) != 0)
+                return; 
             order.orderType = ORDERTYPE_MARKET; // ?
             if (AssetType_FutureSwap == sy1.type) 
                 memcpy(order.Category, LINEAR.c_str(), min(uint16_t(CategoryLen), uint16_t(LINEAR.size())));
