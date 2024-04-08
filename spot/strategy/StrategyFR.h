@@ -93,7 +93,7 @@ namespace spot {
             StrategyFR(int strategyID, StrategyParameter *params);
 			bool IsCancelExistOrders(sy_info* sy, int side);
 			int getIocOrdPendingLen(sy_info& sy);
-			bool VaildCancelTime(Order& order, uint8_t loc);
+			bool VaildCancelTime(const Order& order, uint8_t loc);
 
 			void qryPosition();
 			bool is_continue_mr(sy_info*, double qty);

@@ -1209,7 +1209,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     return flag;
 }
 
-bool StrategyFR::VaildCancelTime(Order& order, uint8_t loc)
+bool StrategyFR::VaildCancelTime(const Order& order, uint8_t loc)
 {
     uint64_t now_ns= CURR_NSTIME_POINT;
     if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
