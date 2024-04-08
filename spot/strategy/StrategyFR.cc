@@ -34,16 +34,7 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     make_taker = new map<string, sy_info>;
     symbol_map = new map<string, string>;
 
-    risk_ = new spotRisk(this);
-
     pre_sum_equity = 0;
-    cSize_ = 1;
-	rSize_ = 1;
-}
-
-void StrategyFR::resetRcSize() {
-	cSize_ = 1;
-	rSize_ = 1;
 }
 
 void StrategyFR::qryPosition() {
