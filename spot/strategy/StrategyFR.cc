@@ -1231,7 +1231,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     bool flag = false;
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
-            for (const auto& it : (sy->buyMap)) {
+            for (const auto& it : (*sy->buyMap)) {
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 1)) continue;
@@ -1243,7 +1243,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
         }
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
-            for (const auto& it : (sy->sellMap)) {
+            for (const auto& it : (*sy->sellMap)) {
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 2)) continue;
