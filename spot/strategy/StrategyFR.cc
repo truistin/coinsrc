@@ -1001,7 +1001,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, sy.qty_tick_size)) { // sy1 short
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p;
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
-                if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return false;
+                if (IsCancelExistOrders(&sy, marketData.BidPrice1 - sy.prc_tick_size, INNER_DIRECTION_Buy)) return false;
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
@@ -1049,7 +1049,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, sy.qty_tick_size)) { //sy1 long
-            if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return false;
+            if (IsCancelExistOrders(&sy, marketData.AskPrice1 + sy.prc_tick_size, INNER_DIRECTION_Sell)) return false;
             double spread_rate = (sy.mid_p - sy2->mid_p) / sy2->mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -1103,7 +1103,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         }
     } else if (sy2->make_taker_flag == 1) { // sy2 maker
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy.qty_tick_size)) { //sy2 short
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return false;
+            if (IsCancelExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return false;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p;
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
@@ -1155,7 +1155,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 flag = true;
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy.qty_tick_size)) { // sy2 long
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return false;
+            if (IsCancelExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return false;
             double spread_rate = (sy2->mid_p - sy.mid_p) / sy.mid_p; 
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
@@ -1226,12 +1226,13 @@ bool StrategyFR::VaildCancelTime(const Order& order, uint8_t loc)
     return true;
 }
 
-bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
+bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
 {
     bool flag = false;
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (const auto& it : (*sy->buyMap)) {
+                if (IS_DOUBLE_EQUAL(it.first, px)) continue; 
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 1)) continue;
@@ -1244,6 +1245,7 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, int side)
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (const auto& it : (*sy->sellMap)) {
+                if (IS_DOUBLE_EQUAL(it.first, px)) continue; 
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 2)) continue;
@@ -1340,7 +1342,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     if (sy1.make_taker_flag == 1) { //sy1 maker
         // sy1 short
         if (sy1.long_short_flag == 1) { 
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Sell)) {
+            if (IsCancelExistOrders(&sy1, marketData.AskPrice1 + sy1.prc_tick_size, INNER_DIRECTION_Sell)) {
                 LOG_WARN << "is cancel exist orders";
                 return;
             }
@@ -1404,7 +1406,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
         //sy1 long
         } else if (sy1.long_short_flag == 0) {
-            if (IsCancelExistOrders(&sy1, INNER_DIRECTION_Buy)) {
+            if (IsCancelExistOrders(&sy1, marketData.BidPrice1 - sy1.prc_tick_size, INNER_DIRECTION_Buy)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
             }
@@ -1468,7 +1470,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     } else if (sy2->make_taker_flag == 1) { //sy2 maker
         //sy2 long
         if (sy2->long_short_flag == 0) { 
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) {
+            if (IsCancelExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
             }
@@ -1530,7 +1532,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             }
         // sy2 short
         } else if (sy2->long_short_flag == 1) { 
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) {
+            if (IsCancelExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) {
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
             }
@@ -1661,7 +1663,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     }
     if (sy.make_taker_flag == 1) {
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
-            if (IsCancelExistOrders(&sy, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(&sy, sy.bid_p - sy.prc_tick_size, INNER_DIRECTION_Buy)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1695,7 +1697,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
 
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
-            if (IsCancelExistOrders(&sy, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(&sy, sy.ask_p + sy.prc_tick_size, INNER_DIRECTION_Sell)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1731,7 +1733,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         }
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Buy)) return;
+            if (IsCancelExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1765,7 +1767,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
             
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(sy2, INNER_DIRECTION_Sell)) return;
+            if (IsCancelExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
