@@ -707,7 +707,7 @@ bool StrategyFR::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
 
 int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
     int pendNum = 0;
-    for (auto it : (sy.inst->sellOrders())) {
+    for (auto it : (*sy.inst->sellOrders())) {
         for (auto iter : it.second->OrderList) {
             LOG_DEBUG << "getIocOrdPendingLen SELL  symbol: " << iter.InstrumentID
                 << ", OrderStatus: " << iter.OrderStatus
@@ -720,7 +720,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
         }
     }
 
-    for (auto it : (sy.inst->buyOrders())) {
+    for (auto it : (*sy.inst->buyOrders())) {
         for (auto iter : it.second->OrderList) {
             LOG_DEBUG << "getIocOrdPendingLen BUY  symbol: " << iter.InstrumentID
                 << ", OrderStatus: " << iter.OrderStatus
