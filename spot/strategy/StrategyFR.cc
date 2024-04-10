@@ -1230,12 +1230,18 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (const auto& it : (*sy->buyMap)) {
-                if (IS_DOUBLE_EQUAL(it.first, px)) {
-                    LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px;
-                    continue; 
-                }
+                // if (IS_DOUBLE_EQUAL(it.first, px)) {
+                //     LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px << ", size: " << sy->buyMap->size();
+                //     continue; 
+                // }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                        if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
+                            LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
+                            << ", map size: " << sy->buyMap->size()
+                                << ", order list: " << it.second->OrderList.size();
+                            continue; 
+                        }
                         if (!VaildCancelTime(iter, 1)) continue;
                         flag = true;
                         sy->inst->cancelOrder(iter);
@@ -1246,12 +1252,18 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (const auto& it : (*sy->sellMap)) {
-                if (IS_DOUBLE_EQUAL(it.first, px)) {
-                    LOG_INFO << "sell map has same px symbol: " << it.first << ", px: " << px;
-                    continue; 
-                }
+                // if (IS_DOUBLE_EQUAL(it.first, px)) {
+                //     LOG_INFO << "sell map has same px symbol: " << it.first << ", px: " << px << ", size: " << sy->sellMap->size();
+                //     continue; 
+                // }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                        if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
+                            LOG_INFO << "sell map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
+                                << ", map size: " << sy->sellMap->size()
+                                << ", order list: " << it.second->OrderList.size();
+                            continue; 
+                        }
                         if (!VaildCancelTime(iter, 2)) continue;
                         flag = true;
                         sy->inst->cancelOrder(iter);
