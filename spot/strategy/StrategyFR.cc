@@ -1520,7 +1520,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
             }
-            if (getBuyPendingLen(sy2) != 0) return;
+            if (getBuyPendingLen(*sy2) != 0) return;
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
@@ -1584,7 +1584,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 LOG_WARN << "aaaaaaaaaaaaaaa";
                 return;
             }
-            if (getSellPendingLen(sy2) != 0) return;
+            if (getSellPendingLen(*sy2) != 0) return;
 
             double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
@@ -1786,7 +1786,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     } else if (sy2->make_taker_flag == 1) {
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
             if (IsCancelExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return;
-                if (getBuyPendingLen(sy2) != 0) return;
+                if (getBuyPendingLen(*sy2) != 0) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1821,7 +1821,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
             
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
             if (IsCancelExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return;
-                if (getSellPendingLen(sy2) != 0) return;
+                if (getSellPendingLen(*sy2) != 0) return;
                 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
