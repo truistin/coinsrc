@@ -246,8 +246,7 @@ void StrategyFR::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyIn
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "OnPartiallyFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
-        return;
+        LOG_FATAL << "OnPartiallyFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
     }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
 
@@ -260,8 +259,7 @@ void StrategyFR::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument 
     auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
     auto sy2 = sy1.ref;
     if (sy2 == nullptr) {
-        LOG_ERROR << "OnFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
-        return;
+        LOG_FATAL << "OnFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
     }
     if (!check_min_delta_limit(sy1, (*sy2))) return;
 
@@ -1232,7 +1230,10 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
     if (side == INNER_DIRECTION_Buy) {
         if (sy->buyMap->size() != 0) {
             for (const auto& it : (*sy->buyMap)) {
-                if (IS_DOUBLE_EQUAL(it.first, px)) continue; 
+                if (IS_DOUBLE_EQUAL(it.first, px)) {
+                    LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px;
+                    continue; 
+                }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 1)) continue;
@@ -1245,7 +1246,10 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
     } else if (side == INNER_DIRECTION_Sell) {
         if (sy->sellMap->size() != 0) {
             for (const auto& it : (*sy->sellMap)) {
-                if (IS_DOUBLE_EQUAL(it.first, px)) continue; 
+                if (IS_DOUBLE_EQUAL(it.first, px)) {
+                    LOG_INFO << "sell map has same px symbol: " << it.first << ", px: " << px;
+                    continue; 
+                }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
                         if (!VaildCancelTime(iter, 2)) continue;
@@ -1401,7 +1405,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
                     << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
-                    << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty;    
+                    << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty
+                    << ", bal: " << bal << ", spread_rate: " << spread_rate;    
             
             }
         //sy1 long
@@ -1464,7 +1469,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
                     << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
-                    << marketData.BidPrice1 - sy1.prc_tick_size << ", sy1 order qty: " << qty;    
+                    << marketData.BidPrice1 - sy1.prc_tick_size << ", sy1 order qty: " << qty
+                    << ", bal: " << bal << ", spread_rate: " << spread_rate;  
             }
         }
     } else if (sy2->make_taker_flag == 1) { //sy2 maker
@@ -1527,7 +1533,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
-                    << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;  
+                    << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty
+                    << ", bal: " << bal << ", spread_rate: " << spread_rate; 
 
             }
         // sy2 short
@@ -1589,7 +1596,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
-                    << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty;  
+                    << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty
+                    << ", bal: " << bal << ", spread_rate: " << spread_rate; 
             }
         }
     }
