@@ -711,7 +711,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
                 << ", OrderStatus: " << iter.OrderStatus
                 << ", MTaker: " << iter.MTaker
                 << ", orderRef: " << iter.OrderRef;
-            if (iter.OrderStatus == PendingNew && (strcmp(iter.TimeInForce, "IOC") == 0)) {
+            if (iter.OrderStatus == PendingNew && (strcmp(iter.orderType, ORDERTYPE_MARKET) == 0)) {
                 pendNum++;
             }
                 
@@ -724,7 +724,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
                 << ", OrderStatus: " << iter.OrderStatus
                 << ", MTaker: " << iter.MTaker
                 << ", orderRef: " << iter.OrderRef;
-            if (iter.OrderStatus == PendingNew && (strcmp(iter.TimeInForce, "IOC") == 0))
+            if (iter.OrderStatus == PendingNew && (strcmp(iter.orderType, ORDERTYPE_MARKET) == 0))
                 {
                     pendNum++;
                 }
@@ -1236,6 +1236,8 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
                 // }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                        LOG_INFO << "buy OrderList info: " << iter.InstrumentID << ", orderRef: " 
+                            << iter.OrderRef << ", status: " << iter.OrderStatus;
                         if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
                             LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
                             << ", map size: " << sy->buyMap->size()
@@ -1258,6 +1260,8 @@ bool StrategyFR::IsCancelExistOrders(sy_info* sy, double px, int side)
                 // }
                 for (const auto& iter : it.second->OrderList) {
                     if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                        LOG_INFO << "sell OrderList info: " << iter.InstrumentID << ", orderRef: " 
+                            << iter.OrderRef << ", status: " << iter.OrderStatus;
                         if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
                             LOG_INFO << "sell map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
                                 << ", map size: " << sy->sellMap->size()
