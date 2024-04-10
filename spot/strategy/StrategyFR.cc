@@ -711,7 +711,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
                 << ", OrderStatus: " << iter.OrderStatus
                 << ", MTaker: " << iter.MTaker
                 << ", orderRef: " << iter.OrderRef;
-            if (iter.OrderStatus == PendingNew && (strcmp(iter.OrderType, ORDERTYPE_MARKET) == 0)) {
+            if (iter.OrderStatus == PendingNew && (iter.OrderType == ORDERTYPE_MARKET)) {
                 pendNum++;
             }
                 
@@ -724,7 +724,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
                 << ", OrderStatus: " << iter.OrderStatus
                 << ", MTaker: " << iter.MTaker
                 << ", orderRef: " << iter.OrderRef;
-            if (iter.OrderStatus == PendingNew && (strcmp(iter.OrderType, ORDERTYPE_MARKET) == 0))
+            if (iter.OrderStatus == PendingNew && (iter.OrderType == ORDERTYPE_MARKET))
                 {
                     pendNum++;
                 }
