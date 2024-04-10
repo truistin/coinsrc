@@ -94,6 +94,8 @@ namespace spot {
 			bool IsCancelExistOrders(sy_info* sy, double px, int side);
 			int getIocOrdPendingLen(sy_info& sy);
 			bool VaildCancelTime(const Order& order, uint8_t loc);
+			int getSellPendingLen(sy_info& sy);
+			int getBuyPendingLen(sy_info& sy);
 
 			void qryPosition();
 			bool is_continue_mr(sy_info*, double qty);
