@@ -174,7 +174,7 @@ bool StrategyUCEasy::vaildPrice(SyInfo& sy) {
 
 }
 
-bool StrategyUCEasy::IsCancelExistOrders(sy_info* sy)
+bool StrategyUCEasy::IsExistOrders(sy_info* sy)
 {
     if (sy->buyMap->size() != 0) {
         for (auto it : (*sy->buyMap)) {
@@ -253,7 +253,7 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
     sy_info* sy2 = sy.ref;
     if (sy.make_taker_flag == 1) {
         if (IS_DOUBLE_LESS(sy.real_pos, 0)) {
-            if (IsCancelExistOrders(&sy)) return;
+            if (IsExistOrders(&sy)) return;
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -288,7 +288,7 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 << ", sy category: " << sy.type << ", sy order price: "
                 << sy.bid_p - sy.prc_tick_size << ", sy order qty: " << qty;    
         } else if (IS_DOUBLE_GREATER(sy.real_pos, 0)) {
-            if (IsCancelExistOrders(&sy)) return;
+            if (IsExistOrders(&sy)) return;
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -326,7 +326,7 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         }
     } else if (sy2->make_taker_flag == 1) {
         if (IS_DOUBLE_LESS(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(&sy)) return;
+            if (IsExistOrders(&sy)) return;
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
             string timeInForce = "GTX";
@@ -356,7 +356,7 @@ void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty;   
         }  else if (IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
-            if (IsCancelExistOrders(&sy)) return;
+            if (IsExistOrders(&sy)) return;
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
             string timeInForce = "GTX";
@@ -428,7 +428,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     sy_info* sy2 = sy1.ref;
     double bal = calc_balance();
     if (sy1.make_taker_flag == 1) {
-            if (IsCancelExistOrders(&sy1)) return;
+            if (IsExistOrders(&sy1)) return;
 
             if (IS_DOUBLE_GREATER(abs(sy1.real_pos + sy2->real_pos), sy1.max_delta_limit)) return;
             
@@ -524,7 +524,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
             
             }
     } else if (sy2->make_taker_flag == 1) {
-            if (IsCancelExistOrders(sy2)) return;
+            if (IsExistOrders(sy2)) return;
 
             if (IS_DOUBLE_GREATER(abs(sy2->real_pos + sy1.real_pos), sy2->max_delta_limit)) return;
 

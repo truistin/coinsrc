@@ -88,7 +88,7 @@ namespace spot {
 			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
-			bool IsCancelExistOrders(sy_info* sy, int side);
+			bool IsExistOrders(sy_info* sy, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
 			bool is_continue_mr(sy_info*, double qty);
