@@ -1781,8 +1781,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 double qty = std::min(sy.real_pos, sy2->ask_v / 2);
 
-                double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
-                qty = round1(qty, sy->qty_tick_size, qty_decimal);
+                double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
+                qty = round1(qty, sy.qty_tick_size, qty_decimal);
 
                 setOrder(sy.inst, INNER_DIRECTION_Sell,
                     sy.ask_p + sy.prc_tick_size,
@@ -1821,7 +1821,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 double qty = std::min(sy2->real_pos, sy.bid_v / 2);
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
-                qty = round1(qty, sy->qty_tick_size, qty_decimal);
+                qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
                 setOrder(sy2->inst, INNER_DIRECTION_Buy,
                     sy2->bid_p - sy2->prc_tick_size,
@@ -1858,7 +1858,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 double qty = std::min(sy2->real_pos, sy.ask_v / 2);
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
-                qty = round1(qty, sy->qty_tick_size, qty_decimal);
+                qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
 
                 setOrder(sy2->inst, INNER_DIRECTION_Sell,
