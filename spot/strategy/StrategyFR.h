@@ -91,7 +91,7 @@ namespace spot {
 			bool check_min_delta_limit(sy_info& sy1, sy_info& sy2);
         private:
             StrategyFR(int strategyID, StrategyParameter *params);
-			bool calc_thresh_by_maker(sy_info& sy1, sy_info& sy2);
+			bool calc_arb_by_maker(sy_info& sy1, sy_info& sy2);
 
 			bool IsExistOrders(sy_info* sy, double px, int side);
 			int getIocOrdPendingLen(sy_info& sy);
