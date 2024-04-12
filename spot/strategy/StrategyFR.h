@@ -49,7 +49,7 @@ namespace spot {
 				double mv_ratio;
 				double thresh; // arb close
 				double fr_open_thresh;
-				double close_thresh;
+				double fr_close_thresh;
 				int close_flag;
 				int um_leverage;
 				double price_ratio;
