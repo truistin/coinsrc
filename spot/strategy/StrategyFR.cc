@@ -997,7 +997,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     }
 }
 
-void StrategyFR::calc_thresh_by_maker(sy_info& sy1, sy_info& sy2) 
+double StrategyFR::calc_thresh_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
     return (sy1.avg_price - sy2.mid_p) / sy2.mid_p;
 }
@@ -1033,7 +1033,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     if (sy.make_taker_flag == 1) { // sy1 maker
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, sy.qty_tick_size)) { // sy1 short
             if (IsExistOrders(&sy, marketData.BidPrice1 - sy.prc_tick_size, INNER_DIRECTION_Buy)) return false;
-            double spread_rate = calc_thresh_by_maker(sy, *sy2)
+            double spread_rate = calc_thresh_by_maker(sy, *sy2);
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
@@ -1083,7 +1083,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             }
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, sy.qty_tick_size)) { //sy1 long
             if (IsExistOrders(&sy, marketData.AskPrice1 + sy.prc_tick_size, INNER_DIRECTION_Sell)) return false;
-            double spread_rate = calc_thresh_by_maker(sy, *sy2)
+            double spread_rate = calc_thresh_by_maker(sy, *sy2);
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
@@ -1137,7 +1137,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     } else if (sy2->make_taker_flag == 1) { // sy2 maker
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy.qty_tick_size)) { //sy2 short
             if (IsExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return false;
-            double spread_rate = calc_thresh_by_maker(*sy2, sy1)
+            double spread_rate = calc_thresh_by_maker(*sy2, sy);
 
             if (IS_DOUBLE_LESS(spread_rate, thresh)) {
 
@@ -1189,7 +1189,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             }
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy.qty_tick_size)) { // sy2 long
             if (IsExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return false;
-            double spread_rate = calc_thresh_by_maker(*sy2, sy1);
+            double spread_rate = calc_thresh_by_maker(*sy2, sy);
 
             if (IS_DOUBLE_GREATER(spread_rate, thresh)) {
                 if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
