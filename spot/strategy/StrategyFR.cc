@@ -185,7 +185,7 @@ void StrategyFR::init()
         syInfo.fr_open_thresh = it.second.OpenThresh;
 
         if (!IS_DOUBLE_NORMAL(it.second.CloseThresh)) LOG_FATAL << "CloseThresh ERR: " << it.second.CloseThresh;        
-        syInfo.close_thresh = it.second.CloseThresh;
+        syInfo.fr_close_thresh = it.second.CloseThresh;
         
         syInfo.close_flag = it.second.CloseFlag;
 
@@ -1026,7 +1026,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     string stType = "ArbClose";
     if (closeflag == 1) { 
         stType = "FrClose";
-        thresh = sy.close_thresh;
+        thresh = sy.fr_close_thresh;
     }
 
     double bal = 0;
