@@ -118,7 +118,8 @@ void Position::updatePosition(const Order &rtnOrder)
 			abs(pnlDaily_.NetPosition);
 	}
 
-	LOG_INFO << "updatePosition instrument: " <<pnlDaily_.InstrumentID 
+	LOG_INFO << "updatePosition instrument: " <<pnlDaily_.InstrumentID
+		<< ", orderRef: " << rtnOrder.OrderRef 
 		<< ", exch: " << rtnOrder.ExchangeCode
 		<<  ", NetPosition:  " << pnlDaily_.NetPosition << ", LONG: " << pnlDaily_.TodayLong
 		<< ", short: " << pnlDaily_.TodayShort
