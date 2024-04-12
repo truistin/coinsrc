@@ -207,6 +207,9 @@ void StrategyFR::init()
         if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
         syInfo.price_ratio = it.second.PriceRatio;
 
+        if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;        
+        syInfo.thresh = it.second.Thresh;
+
         make_taker->insert({it.second.Symbol, syInfo});
     }
 
@@ -996,10 +999,11 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 {
     bool flag = false;
 
-    double thresh = sy.close_thresh;
+    double thresh = sy.thresh;
     string stType = "ArbClose";
     if (closeflag == 1) { 
         stType = "FrClose";
+        thresh = sy.close_thresh;
     }
 
     double bal = 0;
