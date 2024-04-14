@@ -1000,7 +1000,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
     double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
-    double make_close_thresh =  (sy1.avg_price - sy2.mid_p) / sy2.avg_price;
+    double make_close_thresh =  (sy1.avg_price - sy2.mid_p) / sy2.mid_p;
 
     if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
         LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
