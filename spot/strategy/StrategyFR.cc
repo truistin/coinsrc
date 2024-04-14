@@ -184,7 +184,7 @@ void StrategyFR::init()
         if (!IS_DOUBLE_NORMAL(it.second.OpenThresh)) LOG_FATAL << "OpenThresh ERR: " << it.second.OpenThresh;
         syInfo.fr_open_thresh = it.second.OpenThresh;
 
-        if (!IS_DOUBLE_NORMAL(it.second.CloseThresh)) LOG_FATAL << "CloseThresh ERR: " << it.second.CloseThresh;        
+        if (!IS_DOUBLE_LESS_EQUAL(it.second.CloseThresh, 0)) LOG_FATAL << "CloseThresh ERR: " << it.second.CloseThresh;        
         syInfo.fr_close_thresh = it.second.CloseThresh;
         
         syInfo.close_flag = it.second.CloseFlag;
