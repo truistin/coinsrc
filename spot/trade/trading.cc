@@ -45,23 +45,27 @@ void fillTables()
 
 	btcInfo.data = new double*[btcInfo.rows];
 	for (int i = 0; i < btcInfo.rows; ++i) {  
-		btcInfo.data[i] = new double[btcInfo.cols];  
+		btcInfo.data[i] = new double[btcInfo.cols];
+		memset(btcInfo.data[i], 0, sizeof(double) * btcInfo.cols);  
 	}  
  
 
 	btcPerpInfo.data = new double*[btcPerpInfo.rows];
 	for (int i = 0; i < btcPerpInfo.rows; ++i) {  
-		btcPerpInfo.data[i] = new double[btcPerpInfo.cols];  
+		btcPerpInfo.data[i] = new double[btcPerpInfo.cols];
+		memset(btcPerpInfo.data[i], 0, sizeof(double) * btcPerpInfo.cols);  
 	}  
 
 	ethInfo.data = new double*[ethInfo.rows];
 	for (int i = 0; i < ethInfo.rows; ++i) {  
 		ethInfo.data[i] = new double[ethInfo.cols];  
+		memset(ethInfo.data[i], 0, sizeof(double) * ethInfo.cols);  
 	}
 
 	ethPerpInfo.data = new double*[ethPerpInfo.rows];
 	for (int i = 0; i < ethPerpInfo.rows; ++i) {  
 		ethPerpInfo.data[i] = new double[ethPerpInfo.cols];  
+		memset(ethPerpInfo.data[i], 0, sizeof(double) * ethPerpInfo.cols);  
 	}  
 
 	mmr_table.push_back(btcInfo);
