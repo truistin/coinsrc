@@ -568,7 +568,7 @@ double StrategyFR::calc_equity()
 }
 double StrategyFR::getSpotAssetSymbol(string asset)
 {
-    if (asset == "USDT" || asset == "USDC" || asset == "BUSD") {
+    if (asset == "USDT" || asset == "USDC" || asset == "BUSD" || asset == "DAI") {
         return 1;
     } 
     
