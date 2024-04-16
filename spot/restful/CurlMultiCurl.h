@@ -41,15 +41,13 @@ private:
     void dealUri();
     //检查是否有任务完成
     void handUri();
-    //读取已完成的任务进行解析
-    void readUriResult();
     //从easyhand队列中获取easyhand，没有则新建一个
     CURL* GetCurl(shared_ptr<Uri>& uri);
     //新建一个easyhand
     CURL* CreateCurl(shared_ptr<Uri>& uri);
     //将使用完的easyhand放入队列
     // void PutCurl(CURL* curl);
-    void PutCurl(CURL* curl, string exch);
+    static void PutCurl(CURL* curl, string exch);
     //将任务添加到mulitihand，执行任务
     void addUriToMultiRequest(shared_ptr<Uri>& uri);
     //给easyhand设置参数
@@ -98,7 +96,7 @@ private:
 	char* curbuf;				//当前可用的数据buf比如去掉协议头的buf，
 	long curbuf_size;			//当前buf中实际数据的大小
 
-    //static bool isfirstwirte = true;
+    //static bool isfirstwrite = true;
     string exchangeCode_;
     static size_t retcode;
 
