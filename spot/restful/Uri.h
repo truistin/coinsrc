@@ -9,7 +9,6 @@
 #include <algorithm>
 #include "spotcurl.h"
 #include <atomic>
-#include <mutex>
 
 using namespace std;
 
@@ -139,7 +138,6 @@ public:
 	size_t retcode;
 	uint64_t clientOrderId;
 	atomic<bool> isfinish;
-	mutex isfinish_mutex;
 };
 
 

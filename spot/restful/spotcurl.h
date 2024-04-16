@@ -76,7 +76,6 @@ public:
 	string contenttype_str;
 
 	bool isfirstwrite;
-	atomic<bool> isendwrite;
 	CurlResponseCallback cb_;
 	CURLM * multi_handle;
 
