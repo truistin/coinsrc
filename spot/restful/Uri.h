@@ -8,6 +8,8 @@
 #include <list>
 #include <algorithm>
 #include "spotcurl.h"
+#include <atomic>
+#include <mutex>
 
 using namespace std;
 
@@ -94,6 +96,7 @@ public:
 
 public:
 	Uri();
+	Uri& operator=(const Uri& other); 
 	~Uri();
 	CURL_REQUEST_SAVE_TO saveto;
 	bool isinit;
@@ -131,9 +134,12 @@ public:
 	string params;
 	string urlstr;
 
-	bool isfirstwirte;
+	bool isfirstwrite;
+	atomic<bool> isendwrite;
 	size_t retcode;
 	uint64_t clientOrderId;
+	atomic<bool> isfinish;
+	mutex isfinish_mutex;
 };
 
 

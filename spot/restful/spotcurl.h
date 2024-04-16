@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 #include <functional>
+#include <atomic>
+
 using namespace std;
 
 
@@ -73,7 +75,8 @@ public:
 	long request_size;
 	string contenttype_str;
 
-	bool isfirstwirte;
+	bool isfirstwrite;
+	atomic<bool> isendwrite;
 	CurlResponseCallback cb_;
 	CURLM * multi_handle;
 
