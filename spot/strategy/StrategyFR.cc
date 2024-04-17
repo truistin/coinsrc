@@ -999,15 +999,17 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
 bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
-    double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
-    double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+    if (IS_DOUBLE_NORMAL(sy1.avg_price) && IS_DOUBLE_NORMAL(sy2.avg_price)) {
+        double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
+        double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
 
-    if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
-        LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
-            << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
-            <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
-            << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
-        return true;
+        if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
+            LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
+                << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+                <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
+                << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+            return true;
+        }
     }
     LOG_INFO << "calc_arb_by_maker no make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
@@ -1045,8 +1047,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
     if (sy.make_taker_flag == 1) { // sy1 maker
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, sy.qty_tick_size)) { // sy1 short
             if (IsExistOrders(&sy, marketData.BidPrice1 - sy.prc_tick_size, INNER_DIRECTION_Buy)) return false;
-            if (calc_arb_by_maker(sy, *sy2) && closeflag == 0) {
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
+            if (closeflag == 0 && calc_arb_by_maker(sy, *sy2)) {
+                if (IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -1095,8 +1097,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, sy.qty_tick_size)) { //sy1 long
             if (IsExistOrders(&sy, marketData.AskPrice1 + sy.prc_tick_size, INNER_DIRECTION_Sell)) return false;
 
-            if (calc_arb_by_maker(sy, *sy2) && closeflag == 0) {
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
+            if (closeflag == 0 && calc_arb_by_maker(sy, *sy2)) {
+                if (IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -1148,9 +1150,9 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, sy.qty_tick_size)) { //sy2 short
             if (IsExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return false;
 
-            if (calc_arb_by_maker(*sy2, sy) && closeflag == 0) {
+            if (closeflag == 0 && calc_arb_by_maker(*sy2, sy)) {
 
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+                if (IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
@@ -1199,8 +1201,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, sy.qty_tick_size)) { // sy2 long
             if (IsExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return false;
 
-            if (calc_arb_by_maker(*sy2, sy) && closeflag == 0) {
-                if (closeflag == 0 && IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
+            if (closeflag == 0 && calc_arb_by_maker(*sy2, sy)) {
+                if (IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                     LOG_WARN << "";
                     return false;
                 }
