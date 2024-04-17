@@ -75,6 +75,10 @@ BnCmAccount* BnApi::CmAcc_;
 BnUmAccount* BnApi::UmAcc_;
 BnAccountInfo* BnApi::accInfo_;
 
+mutex BalMap_mutex_;
+mutex CmAcc_mutex_;
+mutex UmAcc_mutex_;
+
 
 BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto* adapt) {
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
@@ -314,7 +318,7 @@ void BnApi::GetUm_Cm_Account()
     CmAcc_mutex_.lock();
     ret = CmAcc_->decode(res1.c_str());
     CmAcc_mutex_.unlock();
-    
+
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res1;
         return;
