@@ -284,7 +284,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.Request();
 
     string &res = m_uri.result;
-    cout << "GetUm_Cm_Account um time: " << getUTCTime() << ", time: "<< res; 
+    // cout << "GetUm_Cm_Account um time: " << getUTCTime() << ", time: "<< res; 
     if (res.empty()) {
         LOG_ERROR << "BnApi GetUm_Cm_Account decode failed res: " << res;
         return;
@@ -309,7 +309,7 @@ void BnApi::GetUm_Cm_Account()
     m_uri.Request();
 
     string &res1 = m_uri.result;
-    cout << "GetUm_Cm_Account cm time: " << getUTCTime() << ", time: "<< res1; 
+    // cout << "GetUm_Cm_Account cm time: " << getUTCTime() << ", time: "<< res1; 
     if (res1.empty()) {
         LOG_ERROR << "BnApi GetUm_Cm_Account decode failed res: " << res1;
         return;
