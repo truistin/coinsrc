@@ -317,7 +317,7 @@ void BianTdSpi::PutOrderToQueue(BianWssRspOrder &queryOrder)
 	}
 	else
 	{
-		LOG_ERROR << "status " << "OrderSysID " << queryOrder.clOrdId << " OrderStatus " << rspOrder.OrderStatus;
+		LOG_ERROR << "status OrderSysID: " << queryOrder.clOrdId << " OrderStatus " << rspOrder.OrderStatus;
 	}
 }
 
