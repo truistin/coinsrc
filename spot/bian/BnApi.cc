@@ -75,9 +75,9 @@ BnCmAccount* BnApi::CmAcc_;
 BnUmAccount* BnApi::UmAcc_;
 BnAccountInfo* BnApi::accInfo_;
 
-mutex BalMap_mutex_;
-mutex CmAcc_mutex_;
-mutex UmAcc_mutex_;
+mutex BnApi::BalMap_mutex_;
+mutex BnApi::CmAcc_mutex_;
+mutex BnApi::UmAcc_mutex_;
 
 
 BnApi::BnApi(string api_key, string secret_key, string passphrase, AdapterCrypto* adapt) {
