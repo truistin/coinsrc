@@ -1954,7 +1954,7 @@ void StrategyFR::OnTimerTradingLogic()
                     break;
                 }
             }
-            if (!flag) LOG_FATAL << "onTime um can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
+            if (!flag) LOG_ERROR << "onTime um can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
 
         if (sy.find("perp") != string::npos) {
@@ -1969,7 +1969,7 @@ void StrategyFR::OnTimerTradingLogic()
                     break;
                 }
             }
-            if (!flag) LOG_FATAL << "onTime cm can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
+            if (!flag) LOG_ERROR << "onTime cm can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
 
     }
