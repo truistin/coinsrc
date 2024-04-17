@@ -253,6 +253,7 @@ void BnApi::GetSpotAsset()
         return;
     }
 
+    BalMap_mutex_.lock();
     for (auto& it : assetInfo.info_) {
         BalMap_[it.asset] = it;
         if (IS_DOUBLE_EQUAL(it.crossMarginFree + it.crossMarginLocked + it.crossMarginBorrowed + it.crossMarginInterest, 0)) {
@@ -262,6 +263,7 @@ void BnApi::GetSpotAsset()
             << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
             << ", crossMarginInterest: " << it.crossMarginInterest << ", crossMarginAsset: " << it.crossMarginAsset;
     }
+    BalMap_mutex_.unlock();
 }
 
 void BnApi::GetUm_Cm_Account()
@@ -284,7 +286,9 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
+    UmAcc_mutex_.lock();
     int ret = UmAcc_->decode(res.c_str());
+    UmAcc_mutex_.unlock();
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res;
     }
@@ -307,7 +311,10 @@ void BnApi::GetUm_Cm_Account()
         return;
     }
 
+    CmAcc_mutex_.lock();
     ret = CmAcc_->decode(res1.c_str());
+    CmAcc_mutex_.unlock();
+    
     if (ret != 0) {
         LOG_ERROR << "BnApi GetUm_Cm_Account ERROR: " << res1;
         return;
@@ -728,12 +735,14 @@ int BnApi::QryPosiBySymbol(const Order &order) {
             return -1;
         }
 
+        BalMap_mutex_.lock();
         for (auto& it : assetInfo.info_) {
             BalMap_[it.asset] = it;
             LOG_INFO << "QryPosiBySymbol GetSpotAsset asset: " << it.asset << ", crossMarginFree: " << it.crossMarginFree
                 << ", crossMarginLocked: " << it.crossMarginLocked << ", crossMarginBorrowed: " << it.crossMarginBorrowed
                 << ", crossMarginInterest: " << it.crossMarginInterest << ", crossMarginAsset: " << it.crossMarginAsset;
         }
+        BalMap_mutex_.unlock();
     }
     return 0;
 

@@ -5,6 +5,7 @@
 #include "spot/base/Instrument.h"
 #include "spot/base/AdapterCrypto.h"
 #include "spot/bian/BianStruct.h"
+#include <mutex>
 
 using namespace spot::base;
 #define HTTP_GET 0
@@ -117,6 +118,10 @@ public:
 	static BnCmAccount* CmAcc_;
 	static BnUmAccount* UmAcc_;
 	static BnAccountInfo* accInfo_;
+
+	static mutex BalMap_mutex_;
+	static mutex CmAcc_mutex_;
+	static mutex UmAcc_mutex_;
 
 	bool cancelAll;
 

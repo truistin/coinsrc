@@ -98,12 +98,15 @@ void StrategyFR::qryPosition() {
             }
             
             string sy = GetSPOTSymbol(iter->instrument()->getInstrumentID());
+
+            BnApi::BalMap_mutex_.lock();
             auto it = BnApi::BalMap_.find(sy);
             if (it == BnApi::BalMap_.end()) LOG_FATAL << "qry spot position error";
     
             double equity = it->second.crossMarginFree + it->second.crossMarginLocked - it->second.crossMarginBorrowed - it->second.crossMarginInterest;
             LOG_INFO << "FR spot qeuity: " << equity << ", crossMarginFree: " << it->second.crossMarginFree << ", crossMarginLocked: "
                 << it->second.crossMarginLocked << ", crossMarginBorrowed: " << it->second.crossMarginBorrowed << ", crossMarginInterest: " << it->second.crossMarginInterest;
+            BnApi::BalMap_mutex_.unlock();
 
             if (IS_DOUBLE_LESS(equity, 0)) {
                 iter->position().PublicPnlDaily().TodayShort = equity;
@@ -278,9 +281,11 @@ void StrategyFR::OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, Str
 double StrategyFR::get_usdt_equity()
 {
     double equity = 0;
+    BnApi::BalMap_mutex_.lock();
     equity = (BnApi::BalMap_["USDT"].crossMarginFree) + (BnApi::BalMap_["USDT"].crossMarginLocked) - (BnApi::BalMap_["USDT"].crossMarginBorrowed) - (BnApi::BalMap_["USDT"].crossMarginInterest);
     equity += (BnApi::BalMap_["USDT"].umWalletBalance) +  (BnApi::BalMap_["USDT"].umUnrealizedPNL);
     equity += (BnApi::BalMap_["USDT"].cmWalletBalance) + (BnApi::BalMap_["USDT"].cmUnrealizedPNL);
+    BnApi::BalMap_mutex_.unlock();
     return equity;
 }
 
@@ -346,6 +351,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
         sum_equity = equity + uswap_unpnl;
     }
 
+    BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         string str(it.first);
         if (str != "USDT" && str != "USDC" && str != "BUSD" && symbol_map->find(it.first) == symbol_map->end()) continue;
@@ -379,7 +385,9 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
             sum_equity = sum_equity + min(equity*price, equity*price*rate);
         }
     }
+    BnApi::BalMap_mutex_.unlock();
 
+    BnApi::UmAcc_mutex_.lock();
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(iter.symbol) == symbol_map->end()) continue;
         double price = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p * (1 + (*make_taker)[(*symbol_map)[iter.symbol]].price_ratio);
@@ -391,7 +399,9 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
         double uswap_unpnl = (price - avgPrice) * iter.positionAmt;
         sum_equity += uswap_unpnl;
     }
+    BnApi::UmAcc_mutex_.unlock();
 
+    BnApi::CmAcc_mutex_.lock();
     for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
@@ -419,6 +429,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
         double cswap_unpnl = price * perp_size * iter.positionAmt * (1/avgPrice - 1/price);
         sum_equity += cswap_unpnl;
     }
+    BnApi::CmAcc_mutex_.unlock();
     return sum_equity;
 }
 
@@ -445,6 +456,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         sum_mm = sum_mm + order.borrow * price * (1 + info.price_ratio) * (*margin_mmr)[leverage];
     }
 
+    BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
         double leverage = (*margin_mmr)[(*margin_leverage)[it.first]];
@@ -458,7 +470,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
             sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price * (1 + info.price_ratio);
         }
     }
+    BnApi::BalMap_mutex_.unlock();
 
+    BnApi::UmAcc_mutex_.lock();
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
@@ -476,7 +490,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
     }
+    BnApi::UmAcc_mutex_.unlock();
 
+    BnApi::CmAcc_mutex_.lock();
     for (const auto& iter : BnApi::CmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
@@ -497,6 +513,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
     }
+    BnApi::CmAcc_mutex_.unlock();
 
     return sum_mm;
 
@@ -506,6 +523,7 @@ double StrategyFR::calc_balance()
 {
     double sum_usdt = 0;
     // um_account
+    BnApi::UmAcc_mutex_.lock();
     for (const auto& it : BnApi::UmAcc_->info_) {
         string sy = it.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
@@ -514,8 +532,10 @@ double StrategyFR::calc_balance()
             sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
         }
     }
+    BnApi::UmAcc_mutex_.unlock();
 
     // cm_account
+    BnApi::CmAcc_mutex_.lock();
     for (const auto& it : BnApi::CmAcc_->info_) {
         string sy = it.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
@@ -523,7 +543,9 @@ double StrategyFR::calc_balance()
         }
         sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
     }
+    BnApi::CmAcc_mutex_.unlock();
 
+    BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         string sy = it.second.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
@@ -533,12 +555,14 @@ double StrategyFR::calc_balance()
         }
 
     }
+    BnApi::BalMap_mutex_.unlock();
     return sum_usdt;
 }
 
 double StrategyFR::calc_equity()
 {
     double sum_equity = 0;
+    BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (IS_DOUBLE_LESS_EQUAL(price, 0)) continue;
@@ -564,6 +588,7 @@ double StrategyFR::calc_equity()
             sum_equity += calc_equity;
         }
     }
+    BnApi::BalMap_mutex_.unlock();
     return sum_equity;
 }
 double StrategyFR::getSpotAssetSymbol(string asset)
@@ -583,6 +608,7 @@ double StrategyFR::calc_mm()
 {
     double sum_mm = 0;
     // �ֻ��ܸ�mm
+    BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         double price = getSpotAssetSymbol(it.second.asset);
         if (!IS_DOUBLE_NORMAL(price)) continue;
@@ -604,7 +630,9 @@ double StrategyFR::calc_mm()
             sum_mm += mm;
         }
     }
+    BnApi::BalMap_mutex_.unlock();
 
+    BnApi::UmAcc_mutex_.lock();
     for (const auto& it : BnApi::UmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
@@ -622,7 +650,9 @@ double StrategyFR::calc_mm()
         double mm = abs(qty) * markPrice * mmr_rate - mmr_num;
         sum_mm += mm;
     }
+    BnApi::UmAcc_mutex_.unlock();
 
+    BnApi::CmAcc_mutex_.lock();
     for (const auto& it : BnApi::CmAcc_->info1_) {
         if (symbol_map->find(it.symbol) == symbol_map->end()) continue;
         if (IS_DOUBLE_LESS_EQUAL((*make_taker)[(*symbol_map)[it.symbol]].mid_p , 0)) {
@@ -645,6 +675,7 @@ double StrategyFR::calc_mm()
         double mm = (abs(qty) * mmr_rate - mmr_num) * markPrice;
         sum_mm += mm;
     }
+    BnApi::CmAcc_mutex_.unlock();
     return sum_mm;
 
 }
@@ -1932,6 +1963,7 @@ void StrategyFR::OnTimerTradingLogic()
         string sy = iter->instrument()->getInstrumentID();
         double net = iter->position().getNetPosition(); 
 
+        BnApi::BalMap_mutex_.lock();
         if (sy.find("spot") != string::npos) {
             string asset = GetSPOTSymbol(sy);
             auto it = BnApi::BalMap_.find(asset);
@@ -1941,7 +1973,9 @@ void StrategyFR::OnTimerTradingLogic()
             LOG_INFO << "fr onTime spot sy: " << asset
                 << ", mem val: " << net << ", qry pos val: " << equity;
         }
+        BnApi::BalMap_mutex_.unlock();
 
+        BnApi::UmAcc_mutex_.lock();
         if (sy.find("swap") != string::npos) {
             // string asset = GetUMSymbol(sy);
             bool flag = false;
@@ -1956,7 +1990,9 @@ void StrategyFR::OnTimerTradingLogic()
             }
             if (!flag) LOG_ERROR << "onTime um can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
+        BnApi::UmAcc_mutex_.unlock();
 
+        BnApi::CmAcc_mutex_.lock();
         if (sy.find("perp") != string::npos) {
             // string asset = GetCMSymbol(sy);
             bool flag = false;
@@ -1971,6 +2007,7 @@ void StrategyFR::OnTimerTradingLogic()
             }
             if (!flag) LOG_ERROR << "onTime cm can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
+        BnApi::CmAcc_mutex_.unlock();
 
     }
 
