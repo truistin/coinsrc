@@ -999,18 +999,18 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
 bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
-    if (IS_DOUBLE_NORMAL(sy1.avg_price) && IS_DOUBLE_NORMAL(sy2.avg_price)) {
-        double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
-        double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+    if (!IS_DOUBLE_NORMAL(sy1.avg_price) && !IS_DOUBLE_NORMAL(sy2.avg_price)) return false;
+    double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
+    double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
 
-        if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
-            LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
-                << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
-                <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
-                << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
-            return true;
-        }
+    if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
+        LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
+            << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+            <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
+            << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+        return true;
     }
+    
     LOG_INFO << "calc_arb_by_maker no make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
@@ -1950,11 +1950,11 @@ void StrategyFR::OnTimerTradingLogic()
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
                     LOG_INFO << "fr onTime swap sy: " << it.symbol << ", mem val: " << net
-                        << ", qry pos val: " << it.positionAmt;
+                        << ", qry pos val: " << it.positionAmt << ", size: " << BnApi::UmAcc_->info1_.size();
                     break;
                 }
             }
-            if (!flag) LOG_FATAL << "onTime um can't find symbol: " << sy;
+            if (!flag) LOG_FATAL << "onTime um can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
 
         if (sy.find("perp") != string::npos) {
@@ -1965,11 +1965,11 @@ void StrategyFR::OnTimerTradingLogic()
                 if (sy == (*symbol_map)[it.symbol]) {
                     flag = true;
                     LOG_INFO << "fr onTime perp sy: " << it.symbol << ", mem val: " << net
-                        << ", qry pos val: " << it.positionAmt;
+                        << ", qry pos val: " << it.positionAmt << ", size: " << BnApi::CmAcc_->info1_.size();
                     break;
                 }
             }
-            if (!flag) LOG_FATAL << "onTime cm can't find symbol: " << sy;
+            if (!flag) LOG_FATAL << "onTime cm can't find symbol: " << sy << ", size: " << BnApi::CmAcc_->info1_.size();
         }
 
     }
