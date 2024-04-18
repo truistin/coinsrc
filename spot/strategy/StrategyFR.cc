@@ -1184,9 +1184,9 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (closeflag == 0 && !calc_arb_by_maker(*sy2, sy)) return false;
 
             if (IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                LOG_WARN << "ClosePosition sy2 flag: " << closeflag << ", make symbol: " << sy2.sy
-                    << ", make mid px: " << sy2.mid_p << ", mv_ratio: " << sy2.mv_ratio
-                    <<", bal: " << bal << ", make real_pos: " << sy2.real_pos;
+                LOG_WARN << "ClosePosition sy2 flag: " << closeflag << ", make symbol: " << sy2->sy
+                    << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
+                    <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                 return false;
             }
 
