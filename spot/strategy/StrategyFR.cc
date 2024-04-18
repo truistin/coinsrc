@@ -231,8 +231,10 @@ void StrategyFR::init()
 
     for (auto& it : (*make_taker)) {
         it.second.ref = &(*make_taker)[it.second.ref_sy];
+        it.second.real_pos = it.second.inst->position().getNetPosition();
         LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
             << ", inst: " << it.second.inst
+            << ", real pos: " << it.second.real_pos
             << ", first: " << it.first;
         if (AssetType_FutureSwap == it.second.sy) it.second.ref->avg_price = it.second.avg_price;
     }
