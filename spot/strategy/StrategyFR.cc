@@ -1575,7 +1575,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "MarketDataTradingLogic sy2 flag: " << closeflag << ", make symbol: " << sy2->sy
+                    LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
                         << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
                         <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                     return;
@@ -1638,7 +1638,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "MarketDataTradingLogic sy2 flag: " << closeflag << ", make symbol: " << sy2->sy
+                    LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
                         << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
                         <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                     return;
