@@ -293,7 +293,6 @@ double StrategyFR::get_usdt_equity()
 
 double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
 {
-    double usdt_equity = get_usdt_equity();
     double sum_equity = calc_equity();
     double IM = 0;
 
@@ -440,6 +439,7 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
 double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
 {
     double sum_mm = 0;
+    double usdt_equity = get_usdt_equity();
     double price = info.mid_p;
     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
         LOG_WARN << "calc_predict_mm has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
@@ -455,7 +455,12 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
     }
 
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // 
-        sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
+        if (IS_DOUBLE_GREATER(usdt_equity, 0)) {
+            if (IS_DOUBLE_LESS(usdt_equity - order.borrow, 0)) 
+                sum_mm = sum_mm + abs(usdt_equity - order.borrow) * (*margin_mmr)[leverage];
+        } else {
+            sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
+        }
     } else { // 
         sum_mm = sum_mm + order.borrow * price * (1 + info.price_ratio) * (*margin_mmr)[leverage];
     }
@@ -476,10 +481,12 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
     }
     BnApi::BalMap_mutex_.unlock();
 
+    bool firstFlag = true;
     BnApi::UmAcc_mutex_.lock();
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
         if (symbol_map->find(sy) == symbol_map->end()) continue;
+        firstFlag = false;
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
@@ -494,30 +501,39 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
     }
-    BnApi::UmAcc_mutex_.unlock();
 
-    BnApi::CmAcc_mutex_.lock();
-    for (const auto& iter : BnApi::CmAcc_->info1_) {
-        string sy = iter.symbol;
-        if (symbol_map->find(sy) == symbol_map->end()) continue;
-        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
-        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-            LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
-            continue;
-        }
-        double qty = 0;
-        if (sy == "BTCUSD_PERP") {
-            qty = iter.positionAmt * 100 / price;
-        } else {
-            qty = iter.positionAmt * 10 / price;
-        }
+    if (firstFlag) {
+        double price = (*make_taker)[order.sy].mid_p * (1 + (*make_taker)[order.sy].price_ratio);
         double mmr_rate = 0;
         double mmr_num = 0;
-        qty = iter.positionAmt;
-        get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
-        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+        get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;
     }
-    BnApi::CmAcc_mutex_.unlock();
+    BnApi::UmAcc_mutex_.unlock();
+
+    // lack of firstFlag code process
+    // BnApi::CmAcc_mutex_.lock();
+    // for (const auto& iter : BnApi::CmAcc_->info1_) {
+    //     string sy = iter.symbol;
+    //     if (symbol_map->find(sy) == symbol_map->end()) continue;
+    //     double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
+    //     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+    //         LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
+    //         continue;
+    //     }
+    //     double qty = 0;
+    //     if (sy == "BTCUSD_PERP") {
+    //         qty = iter.positionAmt * 100 / price;
+    //     } else {
+    //         qty = iter.positionAmt * 10 / price;
+    //     }
+    //     double mmr_rate = 0;
+    //     double mmr_num = 0;
+    //     qty = iter.positionAmt;
+    //     get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+    //     sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+    // }
+    // BnApi::CmAcc_mutex_.unlock();
 
     return sum_mm;
 
