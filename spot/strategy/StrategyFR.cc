@@ -326,6 +326,8 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     double predict_equity = calc_predict_equity(info, order);
     double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
+    LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", predict_equity: " << predict_equity << ", predict_mmr: " << predict_mmr;
+
     return predict_mmr;
 
 }
@@ -540,9 +542,9 @@ double StrategyFR::calc_balance()
     BnApi::CmAcc_mutex_.lock();
     for (const auto& it : BnApi::CmAcc_->info_) {
         string sy = it.asset;
-        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            LOG_FATAL << "";
-        }
+        // if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+        //     LOG_FATAL << "";
+        // }
         sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
     }
     BnApi::CmAcc_mutex_.unlock();
@@ -699,7 +701,7 @@ void StrategyFR::get_cm_um_brackets(string symbol, double val, double& mmr_rate,
     }
 
     if (!flag) {
-        LOG_FATAL << ""; 
+        LOG_FATAL << "get_cm_um_brackets symbol not found: " << symbol << ", val: " << val << ", no bracket found";
     }
 }
 
@@ -1108,7 +1110,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string Category = LINEAR;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else {
-                LOG_FATAL << "";
+                LOG_FATAL << "ClosePosition type error: " << sy.type;
             }
 
             memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1133,7 +1135,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             if (closeflag == 0 && !calc_arb_by_maker(sy, *sy2)) return false;
             if (IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.mv_ratio * bal)) {
-                LOG_WARN << "";
+                LOG_WARN << "ClosePosition sy real_pos: " << sy.real_pos << ", sy mid_p: " << sy.mid_p
+                    << ", mv_ratio: " << sy.mv_ratio << ", bal: " << bal;
                 return false;
             }
 
@@ -1158,7 +1161,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string Category = LINEAR;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else {
-                LOG_FATAL << "";
+                LOG_FATAL << "ClosePosition type error: " << sy.type;
             }
 
             memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1214,7 +1217,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string Category = LINEAR;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else {
-                LOG_FATAL << "";
+                LOG_FATAL << "ClosePosition 2 type error: " << sy2->type;
             }
 
             memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1237,7 +1240,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             if (closeflag == 0 && !calc_arb_by_maker(*sy2, sy)) return false;
             if (IS_DOUBLE_LESS(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                LOG_WARN << "";
+                LOG_WARN << "ClosePosition sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p
+                    << ", mv_ratio: " << sy2->mv_ratio << ", bal: " << bal;
                 return false;
             }
 
@@ -1263,7 +1267,7 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
                 string Category = LINEAR;
                 memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
             } else {
-                LOG_FATAL << "";
+                LOG_FATAL << "ClosePosition type error: " << sy2->type;
             }
 
             memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1409,22 +1413,18 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     
 
     if (sy1.close_flag) { //fr close
-        LOG_INFO << "begin close_flag";
         ClosePosition(marketData, sy1, 1);
         return;
     } 
     // arb close
-    LOG_INFO << "begin arb close";
     if(ClosePosition(marketData, sy1, 0)) return;
 
-    LOG_INFO << "begin mr";
     double mr = 0;
     if (!make_continue_mr(mr)) {
         action_mr(mr);
         return;
     }
 
-    LOG_INFO << "begin order";
     if (sy2 == nullptr) {
         LOG_ERROR << "OnRtnInnerMarketDataTradingLogic sy2 nullptr: " << sy1.sy;
         return;
@@ -1447,7 +1447,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
-                    LOG_WARN << "more than mv_ratio";
+                    LOG_WARN << "MarketDataTradingLogic sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p
+                        << ", mv_ratio: " << sy1.mv_ratio << ", bal: " << bal;
                     return;
                 }
 
@@ -1459,12 +1460,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
                 if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy1 min_amount: " << sy1.min_amount << ", sy1 mid_p: " << sy1.mid_p
+                        << ", qty: " << qty;
                     return;
                 }
 
                 if (!is_continue_mr(&sy1, qty)) {
-                    LOG_WARN << "bbbbbb";
                     return;
                 }
                 //  qty = sy1.min_delta_limit;
@@ -1481,7 +1482,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "MarketDataTradingLogic type error: " << sy1.type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1510,7 +1511,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_LESS(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
-                    LOG_WARN << "aaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p
+                        << ", mv_ratio: " << sy1.mv_ratio << ", bal: " << bal;
                     return;
                 }
 
@@ -1522,12 +1524,12 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 qty = round1(qty, sy1.qty_tick_size, qty_decimal);
 
                 if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy1 min_amount: " << sy1.min_amount << ", sy1 mid_p: " << sy1.mid_p
+                        << ", qty: " << qty;
                     return;
                 }
 
                 if (!is_continue_mr(&sy1, qty)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
                     return;
                 }
 
@@ -1543,7 +1545,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "MarketDataTradingLogic type error: " << sy1.type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1573,7 +1575,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "aaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy2 flag: " << closeflag << ", make symbol: " << sy2->sy
+                        << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
+                        <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                     return;
                 }
 
@@ -1589,7 +1593,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "MarketDataTradingLogic type error: " << sy2->type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1605,11 +1609,11 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
                 if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy2 min_amount: " << sy2->min_amount << ", sy2 mid_p: " << sy2->mid_p
+                        << ", qty: " << qty;
                     return;
                 }
                 if (!is_continue_mr(sy2, qty)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
                     return;
                 }
 
@@ -1634,7 +1638,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
             if (IS_DOUBLE_GREATER(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
-                    LOG_WARN << "aaaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy2 flag: " << closeflag << ", make symbol: " << sy2->sy
+                        << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
+                        <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                     return;
                 }
 
@@ -1650,7 +1656,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "MarketDataTradingLogic type error: " << sy2->type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1666,11 +1672,11 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
                 if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
+                    LOG_WARN << "MarketDataTradingLogic sy2 min_amount: " << sy2->min_amount << ", sy2 mid_p: " << sy2->mid_p
+                        << ", qty: " << qty;
                     return;
                 }
                 if (!is_continue_mr(sy2, qty)) {
-                    LOG_WARN << "aaaaaaaaaaaaaaa";
                     return;
                 }
 
@@ -1723,7 +1729,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
         string Category = LINEAR;
         memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
     } else {
-        LOG_FATAL << "";
+        LOG_FATAL << "Mr_Market_ClosePosition type error: " << sy.type;
     }
 
     memcpy(order.MTaker, FEETYPE_TAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_TAKER.size())));
@@ -1778,7 +1784,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "Mr_ClosePosition type error: " << sy.type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1816,7 +1822,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "Mr_ClosePosition type error: " << sy.type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1856,7 +1862,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "Mr_ClosePosition type error: " << sy2->type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
@@ -1893,7 +1899,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                     string Category = LINEAR;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
                 } else {
-                    LOG_FATAL << "";
+                    LOG_FATAL << "Mr_ClosePosition type error: " << sy2->type;
                 }
 
                 memcpy(order.MTaker, FEETYPE_MAKER.c_str(), min(uint16_t(MTakerLen), uint16_t(FEETYPE_MAKER.size())));
