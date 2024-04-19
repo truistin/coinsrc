@@ -299,6 +299,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     order_fr order;
     order.sy = info.sy;
     order.qty = qty;
+    order.ref_sy = info.ref_sy;
 
     double price = info.mid_p;
     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
@@ -325,7 +326,8 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     double predict_equity = calc_predict_equity(info, order);
     double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
-    LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm;
+    LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", calc mr: " << calc_uniMMR()
+        << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm;
 
     return predict_mmr;
 
@@ -340,7 +342,6 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
         return 0;
     }
 
-    
     double rate = collateralRateMap[GetSPOTSymbol(order.sy)];
 
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { 
@@ -440,6 +441,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
 {
     double sum_mm = 0;
     double usdt_equity = get_usdt_equity();
+
     double price = info.mid_p;
     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
         LOG_WARN << "calc_predict_mm has no mkprice: " << order.sy << ", markprice: " << info.mid_p;
@@ -451,13 +453,13 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         leverage = (*margin_leverage)["default"];
     } else {
         leverage = (*margin_leverage)[symbol];
-        
     }
 
     if ((AssetType_Spot == info.type && info.long_short_flag == 0) || (AssetType_FutureSwap == info.type && info.long_short_flag == 1)) { // 
         if (IS_DOUBLE_GREATER(usdt_equity, 0)) {
-            if (IS_DOUBLE_LESS(usdt_equity - order.borrow, 0)) 
-                sum_mm = sum_mm + abs(usdt_equity - order.borrow) * (*margin_mmr)[leverage];
+            usdt_equity = usdt_equity - order.borrow;
+            if (IS_DOUBLE_LESS(usdt_equity, 0)) 
+                sum_mm = sum_mm + abs(usdt_equity) * (*margin_mmr)[leverage];
         } else {
             sum_mm = sum_mm + order.borrow * (*margin_mmr)[leverage];
         }
@@ -485,56 +487,89 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
     BnApi::UmAcc_mutex_.lock();
     for (const auto& iter : BnApi::UmAcc_->info1_) {
         string sy = iter.symbol;
-        if (symbol_map->find(sy) == symbol_map->end()) continue;
-        firstFlag = false;
+        auto sy_it = symbol_map->find(sy);
+        if (sy_it == symbol_map->end()) continue;
+        
         double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
         if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
             LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
             continue;
         }
-        double qty = iter.positionAmt;
-        if (sy == order.sy) {
-            qty = qty + order.qty;
+        double qty = iter.positionAmt; //forever positive
+
+        if (sy_it->second == order.sy || sy_it->second == order.ref_sy) {
+            qty = qty + order.qty;  // forever +, cause we assume the direction of all orders are the same
+            firstFlag = false;
         }
+
         double mmr_rate = 0;
         double mmr_num = 0;
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
     }
 
-    if (firstFlag) {
+    if (firstFlag && (order.sy.find("swap") != string::npos)) {
         double price = (*make_taker)[order.sy].mid_p * (1 + (*make_taker)[order.sy].price_ratio);
         double mmr_rate = 0;
         double mmr_num = 0;
         get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;
+    } else if (firstFlag && (order.ref_sy.find("swap") != string::npos)) {
+        double price = (*make_taker)[order.ref_sy].mid_p * (1 + (*make_taker)[order.ref_sy].price_ratio);
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        get_cm_um_brackets(order.ref_sy, abs(order.qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;   
     }
     BnApi::UmAcc_mutex_.unlock();
 
-    // lack of firstFlag code process
-    // BnApi::CmAcc_mutex_.lock();
-    // for (const auto& iter : BnApi::CmAcc_->info1_) {
-    //     string sy = iter.symbol;
-    //     if (symbol_map->find(sy) == symbol_map->end()) continue;
-    //     double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
-    //     if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
-    //         LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
-    //         continue;
-    //     }
-    //     double qty = 0;
-    //     if (sy == "BTCUSD_PERP") {
-    //         qty = iter.positionAmt * 100 / price;
-    //     } else {
-    //         qty = iter.positionAmt * 10 / price;
-    //     }
-    //     double mmr_rate = 0;
-    //     double mmr_num = 0;
-    //     qty = iter.positionAmt;
-    //     get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
-    //     sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
-    // }
-    // BnApi::CmAcc_mutex_.unlock();
+    bool firstFlag_perp = true;
+    BnApi::CmAcc_mutex_.lock();
+    for (const auto& iter : BnApi::CmAcc_->info1_) {
+        string sy = iter.symbol;
+        auto sy_it = symbol_map->find(sy);
+        if (sy_it == symbol_map->end()) continue;
 
+        firstFlag_perp = false;
+        
+        double price = (*make_taker)[(*symbol_map)[sy]].mid_p * (1 + (*make_taker)[(*symbol_map)[sy]].price_ratio);
+        if (IS_DOUBLE_LESS_EQUAL(price , 0)) {
+            LOG_WARN << "CmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << price;
+            continue;
+        }
+        double qty = 0;
+        if (sy == "BTCUSD_PERP") {
+            qty = iter.positionAmt * 100 / price;
+        } else {
+            qty = iter.positionAmt * 10 / price;
+        }
+        if (sy_it->second == order.sy || sy_it->second == order.ref_sy) {
+            qty = qty + order.qty;  // forever +, cause we assume the direction of all orders are the same
+            firstFlag_perp = false;
+        }
+
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        qty = iter.positionAmt;
+        get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+    }
+
+    if (firstFlag_perp && (order.sy.find("perp") != string::npos)) {
+        double price = (*make_taker)[order.sy].mid_p * (1 + (*make_taker)[order.sy].price_ratio);
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+    } else if (firstFlag_perp && (order.ref_sy.find("perp") != string::npos)) {
+        double price = (*make_taker)[order.ref_sy].mid_p * (1 + (*make_taker)[order.ref_sy].price_ratio);
+        double mmr_rate = 0;
+        double mmr_num = 0;
+        get_cm_um_brackets(order.ref_sy, abs(order.qty) * price, mmr_rate, mmr_num);
+        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+    }
+    BnApi::CmAcc_mutex_.unlock();
+    
     return sum_mm;
 
 }

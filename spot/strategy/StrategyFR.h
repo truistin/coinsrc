@@ -14,12 +14,16 @@ namespace spot {
 			public:
 				order_fr() {
 					sy = "";
+					ref_sy = "";
 					qty = 0;
+					ref_qty = 0;
 					borrow = 0;
 				}
 			public:
 				string sy;
+				string ref_sy;
 				double qty;
+				double ref_qty;
 				double borrow;
 		};
 
