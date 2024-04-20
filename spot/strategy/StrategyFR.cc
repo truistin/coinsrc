@@ -476,9 +476,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
 
         string sy = it.first;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * 1; // 
+            sum_mm = sum_mm + it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * 1; // 
         } else {
-            sum_mm = sum_mm + it.second.crossMarginBorrowed + (*margin_mmr)[leverage] * price * (1 + info.price_ratio);
+            sum_mm = sum_mm + it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * price * (1 + info.price_ratio);
         }
     }
     BnApi::BalMap_mutex_.unlock();
@@ -495,7 +495,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
             LOG_WARN << "UmAcc calc_predict_mm mkprice: " << sy << ", markprice: " << (*make_taker)[(*symbol_map)[sy]].mid_p;
             continue;
         }
-        double qty = iter.positionAmt; //forever positive
+        double qty = abs(iter.positionAmt); // positionAmt positive or negitive
 
         if (sy_it->second == order.sy || sy_it->second == order.ref_sy) {
             qty = qty + order.qty;  // forever +, cause we assume the direction of all orders are the same
@@ -539,9 +539,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         }
         double qty = 0;
         if (sy == "BTCUSD_PERP") {
-            qty = iter.positionAmt * 100 / price;
+            qty = abs(iter.positionAmt) * 100 / price;
         } else {
-            qty = iter.positionAmt * 10 / price;
+            qty = abs(iter.positionAmt) * 10 / price;
         }
         if (sy_it->second == order.sy || sy_it->second == order.ref_sy) {
             qty = qty + order.qty;  // forever +, cause we assume the direction of all orders are the same
@@ -550,7 +550,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
 
         double mmr_rate = 0;
         double mmr_num = 0;
-        qty = iter.positionAmt;
+        qty = abs(iter.positionAmt);
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
     }
@@ -604,9 +604,9 @@ double StrategyFR::calc_balance()
     for (const auto& it : BnApi::BalMap_) {
         string sy = it.second.asset;
         if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
-            sum_usdt += it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginLocked - it.second.crossMarginInterest;
+            sum_usdt += it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest;
         } else {
-            sum_usdt += (it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginLocked - it.second.crossMarginInterest) * getSpotAssetSymbol(sy);
+            sum_usdt += (it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest) * getSpotAssetSymbol(sy);
         }
 
     }
@@ -697,7 +697,7 @@ double StrategyFR::calc_mm()
         }
 
         string symbol = it.symbol;
-        double qty = it.positionAmt;
+        double qty = abs(it.positionAmt);
         double markPrice = (*make_taker)[(*symbol_map)[symbol]].mid_p;
         double mmr_rate;
         double mmr_num;
@@ -718,9 +718,9 @@ double StrategyFR::calc_mm()
         double qty = 0;
 
         if (symbol == "BTCUSD_PERP") {
-            qty = it.positionAmt * 100;
+            qty = abs(it.positionAmt) * 100;
         } else {
-            qty = it.positionAmt * 10;
+            qty = abs(it.positionAmt) * 10;
         }
 
         double markPrice = (*make_taker)[(*symbol_map)[symbol]].mid_p;
