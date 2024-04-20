@@ -34,8 +34,6 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     make_taker = new map<string, sy_info>;
     symbol_map = new map<string, string>;
 
-    test_time = CURR_MSTIME_POINT;
-
     pre_sum_equity = 0;
     cancel_order_interval = *parameters()->getInt("cancel_order_interval");
 }
@@ -180,7 +178,6 @@ void StrategyFR::init()
 
         syInfo.long_short_flag = it.second.LongShort;
         syInfo.make_taker_flag = it.second.MTaker;
-        if (!IS_DOUBLE_NORMAL(it.second.MvRatio)) LOG_FATAL << "MvRatio ERR: " << it.second.MvRatio;
         syInfo.mv_ratio = it.second.MvRatio;
 
         // if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;
@@ -209,11 +206,8 @@ void StrategyFR::init()
         if (it.second.UmLeverage == 0) LOG_FATAL << "UmLeverage ERR: " << it.second.UmLeverage;        
         syInfo.um_leverage = it.second.UmLeverage;
 
-        // test
-        // if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
-        // syInfo.price_ratio = it.second.PriceRatio;
-        syInfo.price_ratio = 0;
-
+        if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
+        syInfo.price_ratio = it.second.PriceRatio;
 
         if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;        
         syInfo.thresh = it.second.Thresh;
@@ -473,7 +467,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         sum_mm = sum_mm + order.borrow * price * (1 + info.price_ratio) * (*margin_mmr)[leverage];
     }
 
-    LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << info.mid_p << ", mmr: " << (*margin_mmr)[leverage] << ", sum: " << sum_mm;
+    // LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << info.mid_p << ", mmr: " << (*margin_mmr)[leverage] << ", sum: " << sum_mm;
 
     BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
@@ -514,7 +508,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_num = 0;
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
-        LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
+        LOG_INFO << "calc_predict_mm swap sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
             << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy << ", ori qty: " << abs(iter.positionAmt)
             << ", qty: " << qty << ",sum_mm: " << sum_mm;
 
@@ -569,6 +563,9 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         qty = abs(iter.positionAmt);
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+        LOG_INFO << "calc_predict_mm perp sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
+            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy << ", ori qty: " << abs(iter.positionAmt)
+            << ", qty: " << qty << ",sum_mm: " << sum_mm;
     }
 
     if (firstFlag_perp && (order.sy.find("perp") != string::npos)) {
@@ -1485,11 +1482,6 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     } 
     // arb close
     if(ClosePosition(marketData, sy1, 0)) return;
-
-    if (ts - test_time < 6000)return;
-    else {
-        test_time = ts;
-    }
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
