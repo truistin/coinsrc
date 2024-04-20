@@ -560,13 +560,13 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_rate = 0;
         double mmr_num = 0;
         get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
-        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+        sum_mm = sum_mm + (abs(order.qty) * mmr_rate -  mmr_num) * price;
     } else if (firstFlag_perp && (order.ref_sy.find("perp") != string::npos)) {
         double price = (*make_taker)[order.ref_sy].mid_p * (1 + (*make_taker)[order.ref_sy].price_ratio);
         double mmr_rate = 0;
         double mmr_num = 0;
         get_cm_um_brackets(order.ref_sy, abs(order.qty) * price, mmr_rate, mmr_num);
-        sum_mm = sum_mm + (abs(qty) * mmr_rate -  mmr_num) * price;
+        sum_mm = sum_mm + (abs(order.qty) * mmr_rate -  mmr_num) * price;
     }
     BnApi::CmAcc_mutex_.unlock();
     
