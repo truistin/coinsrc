@@ -209,8 +209,11 @@ void StrategyFR::init()
         if (it.second.UmLeverage == 0) LOG_FATAL << "UmLeverage ERR: " << it.second.UmLeverage;        
         syInfo.um_leverage = it.second.UmLeverage;
 
-        if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
-        syInfo.price_ratio = it.second.PriceRatio;
+        // test
+        // if (!IS_DOUBLE_NORMAL(it.second.PriceRatio)) LOG_FATAL << "PriceRatio ERR: " << it.second.PriceRatio;        
+        // syInfo.price_ratio = it.second.PriceRatio;
+        syInfo.price_ratio = 0;
+
 
         if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;        
         syInfo.thresh = it.second.Thresh;
@@ -470,6 +473,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         sum_mm = sum_mm + order.borrow * price * (1 + info.price_ratio) * (*margin_mmr)[leverage];
     }
 
+    LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << info.mid_p << ", mmr: " << (*margin_mmr)[leverage] << ", sum: " << sum_mm;
+
     BnApi::BalMap_mutex_.lock();
     for (const auto& it : BnApi::BalMap_) {
         if (symbol_map->find(it.first) == symbol_map->end()) continue;
@@ -510,7 +515,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
         LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
-            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy;
+            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy << ", ori qty: " << abs(iter.positionAmt)
+            << ", qty: " << qty << ",sum_mm: " << sum_mm;
 
     }
 
