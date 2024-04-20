@@ -329,7 +329,8 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
     LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", calc mr: " << calc_uniMMR()
-        << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm << ", query mr: " << BnApi::accInfo_->uniMMR;;
+        << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm << ", query mr: " << BnApi::accInfo_->uniMMR
+        << ", IM: " << IM << ", qty: " << qty;
 
     return predict_mmr;
 
@@ -401,8 +402,8 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
             LOG_WARN << "UmAcc mkprice: " << iter.symbol << ", markprice: " << (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
             continue;
         }
-        double avgPrice = (iter.entryPrice * iter.positionAmt + order.qty * (*make_taker)[(*symbol_map)[iter.symbol]].mid_p) / (iter.positionAmt + order.qty);
-        double uswap_unpnl = (price - avgPrice) * iter.positionAmt;
+        double avgPrice = (iter.entryPrice * abs(iter.positionAmt) + order.qty * (*make_taker)[(*symbol_map)[iter.symbol]].mid_p) / (abs(iter.positionAmt) + order.qty);
+        double uswap_unpnl = (price - avgPrice) * abs(iter.positionAmt);
         sum_equity += uswap_unpnl;
     }
     BnApi::UmAcc_mutex_.unlock();
@@ -423,16 +424,16 @@ double StrategyFR::calc_predict_equity(sy_info& info, order_fr& order)
             perp_size = 10;
         }
 
-        double quantity = perp_size * iter.positionAmt / iter.entryPrice + order.qty * perp_size / (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
+        double quantity = perp_size * abs(iter.positionAmt) / iter.entryPrice + order.qty * perp_size / (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
 
-        double turnover = perp_size * iter.positionAmt + order.qty * perp_size;
+        double turnover = perp_size * abs(iter.positionAmt) + order.qty * perp_size;
 
         double avgPrice = turnover / quantity;
         if (IS_DOUBLE_LESS_EQUAL(avgPrice, 0)) {
             avgPrice = (*make_taker)[(*symbol_map)[iter.symbol]].mid_p;
         }
 
-        double cswap_unpnl = price * perp_size * iter.positionAmt * (1/avgPrice - 1/price);
+        double cswap_unpnl = price * perp_size * abs(iter.positionAmt) * (1/avgPrice - 1/price);
         sum_equity += cswap_unpnl;
     }
     BnApi::CmAcc_mutex_.unlock();
@@ -508,6 +509,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_num = 0;
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
+        LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num;
+
     }
 
     if (firstFlag && (order.sy.find("swap") != string::npos)) {
@@ -516,6 +519,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_num = 0;
         get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;
+        LOG_INFO << "calc_predict_mm sy first: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num;
     } else if (firstFlag && (order.ref_sy.find("swap") != string::npos)) {
         double price = (*make_taker)[order.ref_sy].mid_p * (1 + (*make_taker)[order.ref_sy].price_ratio);
         double mmr_rate = 0;
