@@ -1434,10 +1434,6 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 {
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
-    if (ts - test_time < 2000)return;
-    else {
-        test_time = ts;
-    }
 
     if (ts - marketData.EpochTime > 300) {
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", EpochTime: " << marketData.EpochTime
@@ -1475,6 +1471,11 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     } 
     // arb close
     if(ClosePosition(marketData, sy1, 0)) return;
+
+    if (ts - test_time < 6000)return;
+    else {
+        test_time = ts;
+    }
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
