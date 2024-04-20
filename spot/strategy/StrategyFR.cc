@@ -1434,7 +1434,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 {
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
-    if (ts - test_time < 5000)return;
+    if (ts - test_time < 2000)return;
     else {
         test_time = ts;
     }
