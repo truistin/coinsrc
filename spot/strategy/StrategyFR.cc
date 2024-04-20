@@ -34,6 +34,8 @@ StrategyFR::StrategyFR(int strategyID, StrategyParameter *params)
     make_taker = new map<string, sy_info>;
     symbol_map = new map<string, string>;
 
+    test_time = CURR_MSTIME_POINT;
+
     pre_sum_equity = 0;
     cancel_order_interval = *parameters()->getInt("cancel_order_interval");
 }
@@ -327,7 +329,7 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
     LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", calc mr: " << calc_uniMMR()
-        << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm;
+        << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm << ", query mr: " << BnApi::accInfo_->uniMMR;;
 
     return predict_mmr;
 
@@ -1432,6 +1434,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 {
     MeasureFunc f(1);
     int64_t ts = CURR_MSTIME_POINT;
+    if (ts - test_time < 5000)return;
+    else {
+        test_time = ts;
+    }
 
     if (ts - marketData.EpochTime > 300) {
         LOG_WARN << "market data beyond time: " << marketData.InstrumentID << ", EpochTime: " << marketData.EpochTime
