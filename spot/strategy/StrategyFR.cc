@@ -509,7 +509,8 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_num = 0;
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
-        LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num;
+        LOG_INFO << "calc_predict_mm sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
+            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy;
 
     }
 
@@ -519,13 +520,16 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         double mmr_num = 0;
         get_cm_um_brackets(order.sy, abs(order.qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;
-        LOG_INFO << "calc_predict_mm sy first: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num;
+        LOG_INFO << "calc_predict_mm sy first: " << order.sy << ", mid_p: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
+            << ", price: " << price << ", price_ratio: " << (*make_taker)[order.sy].price_ratio;
     } else if (firstFlag && (order.ref_sy.find("swap") != string::npos)) {
         double price = (*make_taker)[order.ref_sy].mid_p * (1 + (*make_taker)[order.ref_sy].price_ratio);
         double mmr_rate = 0;
         double mmr_num = 0;
         get_cm_um_brackets(order.ref_sy, abs(order.qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(order.qty) * price * mmr_rate -  mmr_num;   
+        LOG_INFO << "calc_predict_mm sy second: " << order.sy << ", mid_p: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
+            << ", price: " << price << ", price_ratio: " << (*make_taker)[order.sy].price_ratio;
     }
     BnApi::UmAcc_mutex_.unlock();
 
