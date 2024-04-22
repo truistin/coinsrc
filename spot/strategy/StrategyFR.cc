@@ -325,7 +325,8 @@ double StrategyFR::calc_future_uniMMR(sy_info& info, double qty)
     double predict_equity = calc_predict_equity(info, order);
     double predict_mm = calc_predict_mm(info, order);
     double predict_mmr = predict_equity / predict_mm;
-    LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr << ", calc mr: " << calc_uniMMR()
+    LOG_DEBUG << "calc_future_uniMMR: " << predict_mmr 
+        // << ", calc mr: " << calc_uniMMR()
         << ", predict_equity: " << predict_equity << ", predict_mm: " << predict_mm << ", query mr: " << BnApi::accInfo_->uniMMR
         << ", IM: " << IM << ", qty: " << qty;
 
