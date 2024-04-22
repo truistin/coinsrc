@@ -1994,7 +1994,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 bool StrategyFR::make_continue_mr(double& mr)
 {
     mr = calc_uniMMR();
-    if (IS_DOUBLE_GREATER(mr, 9)) {
+    LOG_INFO << "MR_VAL: " << mr;
+    if (IS_DOUBLE_GREATER(mr, 900)) {
         return true;
     }
     return false;
