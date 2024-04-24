@@ -698,6 +698,7 @@ double StrategyFR::calc_mm()
             double mm = it.second.crossMarginBorrowed * (*margin_mmr)[leverage] * price;
             sum_mm += mm;
         }
+        LOG_INFO << "calc_mm asset:" << it.second.asset << ", crossMarginBorrowed:" << it.second.crossMarginBorrowed;
     }
     BnApi::BalMap_mutex_.unlock();
 
@@ -717,6 +718,7 @@ double StrategyFR::calc_mm()
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
         double mm = abs(qty) * markPrice * mmr_rate - mmr_num;
+        LOG_INFO << "calc_mm um:" << symbol << ", markPrice:" << markPrice << ", mmr_rate:" << mmr_rate << ", mmr_num:" << mmr_num << ", mm:" << mm
         sum_mm += mm;
     }
     BnApi::UmAcc_mutex_.unlock();
@@ -774,6 +776,7 @@ double StrategyFR::calc_uniMMR()
 {
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
+    LOG_INFO << "uniAccount_equity:" << uniAccount_equity << ", uniAccount_mm:" << uniAccount_mm;
     if (uniAccount_mm == 0) return 999;
     if (uniAccount_mm == -1) return 8;
     return (uniAccount_equity)/(uniAccount_mm);
