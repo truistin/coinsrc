@@ -2006,17 +2006,19 @@ bool StrategyFR::make_continue_mr(double& mr)
 
 bool StrategyFR::action_mr(double mr)
 {
-    if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
+    if (IS_DOUBLE_GREATER(mr, 300) && IS_DOUBLE_LESS(mr, 600)) {
+        LOG_INFO << "start maker close"
         for (const auto& iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
         }
         return false;
-    } else if (IS_DOUBLE_LESS(mr, 3)) {
+    } else if (IS_DOUBLE_LESS(mr, 300)) {
+        LOG_INFO << "start taker close"
         for (const auto& iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
             return false;
         }
-    } else if (IS_DOUBLE_GREATER(mr, 9)) {
+    } else if (IS_DOUBLE_GREATER(mr, 900)) {
         return true;
     }
     return false;
