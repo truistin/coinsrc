@@ -1859,7 +1859,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy.real_pos, sy2->bid_v / 2);
+                double qty = std::min(abs(sy.real_pos), sy2->bid_v / 2);
 
                 double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
                 qty = round1(qty, sy.qty_tick_size, qty_decimal);
@@ -1937,7 +1937,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-                double qty = std::min(sy2->real_pos, sy.bid_v / 2);
+                double qty = std::min(abs(sy2->real_pos), sy.bid_v / 2);
                 double qty_decimal = ceil(abs(log10(sy2->qty_tick_size)));
                 qty = round1(qty, sy2->qty_tick_size, qty_decimal);
 
