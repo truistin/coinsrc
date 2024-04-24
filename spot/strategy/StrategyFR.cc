@@ -718,7 +718,7 @@ double StrategyFR::calc_mm()
         double mmr_num;
         get_cm_um_brackets(symbol, abs(qty) * markPrice, mmr_rate, mmr_num);
         double mm = abs(qty) * markPrice * mmr_rate - mmr_num;
-        LOG_INFO << "calc_mm um:" << symbol << ", markPrice:" << markPrice << ", mmr_rate:" << mmr_rate << ", mmr_num:" << mmr_num << ", mm:" << mm
+        LOG_INFO << "calc_mm um:" << symbol << ", markPrice:" << markPrice << ", mmr_rate:" << mmr_rate << ", mmr_num:" << mmr_num << ", mm:" << mm;
         sum_mm += mm;
     }
     BnApi::UmAcc_mutex_.unlock();
