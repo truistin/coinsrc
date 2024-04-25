@@ -1780,7 +1780,7 @@ void StrategyFR::OnForceCloseTimerInterval()
 void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     LOG_INFO << "before market_close_freeze_time:" << market_close_freeze_time << ", curr_mstime_point:" << CURR_MSTIME_POINT;
-    if (market_close_freeze_time > CURR_MSTIME_POINT + 1000) return;
+    if (market_close_freeze_time > CURR_MSTIME_POINT) return;
     market_close_freeze_time = CURR_MSTIME_POINT + 1000;
     LOG_INFO << "after market_close_freeze_time:" << market_close_freeze_time;
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
