@@ -2009,7 +2009,7 @@ bool StrategyFR::make_continue_mr(double& mr)
 {
     mr = calc_uniMMR();
     LOG_INFO << "MR_VAL: " << mr;
-    if (IS_DOUBLE_GREATER(mr, 900)) {
+    if (IS_DOUBLE_GREATER(mr, 9)) {
         return true;
     }
     return false;
@@ -2017,19 +2017,19 @@ bool StrategyFR::make_continue_mr(double& mr)
 
 bool StrategyFR::action_mr(double mr)
 {
-    if (IS_DOUBLE_GREATER(mr, 300) && IS_DOUBLE_LESS(mr, 600)) {
+    if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
         LOG_INFO << "start maker close";
         for (const auto& iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
         }
         return false;
-    } else if (IS_DOUBLE_LESS(mr, 300)) {
+    } else if (IS_DOUBLE_LESS(mr, 3)) {
         LOG_INFO << "start taker close";
         for (const auto& iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
             return false;
         }
-    } else if (IS_DOUBLE_GREATER(mr, 900)) {
+    } else if (IS_DOUBLE_GREATER(mr, 9)) {
         return true;
     }
     return false;
