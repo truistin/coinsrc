@@ -1786,6 +1786,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
     string stType = "Mr_Market_Close";
 
+    if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << sy.sy;
@@ -1845,6 +1846,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         if ((sy.long_short_flag == 1) && IS_DOUBLE_LESS(sy.real_pos, 0)) {
             if (IsExistOrders(&sy, sy.bid_p - sy.prc_tick_size, INNER_DIRECTION_Buy)) return;
                 // if (getBuyPendingLen(sy) != 0) return;
+                if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1884,7 +1886,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         } else if ((sy.long_short_flag == 0) && IS_DOUBLE_GREATER(sy.real_pos, 0)) {
             if (IsExistOrders(&sy, sy.ask_p + sy.prc_tick_size, INNER_DIRECTION_Sell)) return;
                 // if (getSellPendingLen(sy) != 0) return;
-
+                if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1924,7 +1926,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         if ((sy2->long_short_flag == 1) && IS_DOUBLE_LESS(sy2->real_pos, 0)) {
             if (IsExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return;
                 // if (getBuyPendingLen(*sy2) != 0) return;
-
+                if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
@@ -1962,7 +1964,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
         }  else if ((sy2->long_short_flag == 0) && IS_DOUBLE_GREATER(sy2->real_pos, 0)) {
             if (IsExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return;
                 // if (getSellPendingLen(*sy2) != 0) return;
-                
+                if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
                 string timeInForce = "GTX";
