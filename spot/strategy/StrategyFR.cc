@@ -1779,6 +1779,8 @@ void StrategyFR::OnForceCloseTimerInterval()
 
 void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 {
+    if (market_close_freeze_time > CURR_MSTIME_POINT + 1000) return;
+    market_close_freeze_time = CURR_MSTIME_POINT + 1000;
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
     string stType = "Mr_Market_Close";
 

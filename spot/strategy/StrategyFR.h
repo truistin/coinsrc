@@ -131,7 +131,7 @@ namespace spot {
 		private:
 			map<string, double>* margin_leverage;
 			map<double, double>* margin_mmr;
-
+			int market_close_freeze_time = 0;
 		public:
 			map<string, double>* last_price_map;
 
