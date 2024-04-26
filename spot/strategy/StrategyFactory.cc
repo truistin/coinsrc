@@ -43,8 +43,8 @@ void StrategyFactory::initStrategy()
 }
 void StrategyFactory::registerStrategys()
 {
-	registerStrategy("FR", StrategyFR::Create);
-	// registerStrategy("test", StrategyTEST::Create); 
+	// registerStrategy("FR", StrategyFR::Create);
+	registerStrategy("arb1", StrategyUCArb1::Create); 
 }
 
 bool StrategyFactory::addStrategy(int strategyID, string strategyName)
