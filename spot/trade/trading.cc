@@ -43,6 +43,22 @@ void fillTables()
 	TableInfo ethInfo("ETHUSDT", 11, 5);
 	TableInfo ethPerpInfo("ETHUSD_PERP", 11, 5);
 
+	TableInfo bnbInfo("BNBUSDT", 10, 5);
+	TableInfo bnbPerpInfo("BNBUSD_PERP", 9, 5);
+
+	bnbInfo.data = new double*[bnbInfo.rows];
+	for (int i = 0; i < bnbInfo.rows; ++i) {  
+		bnbInfo.data[i] = new double[bnbInfo.cols];
+		memset(bnbInfo.data[i], 0, sizeof(double) * bnbInfo.cols);  
+	}  
+ 
+
+	bnbPerpInfo.data = new double*[bnbPerpInfo.rows];
+	for (int i = 0; i < bnbPerpInfo.rows; ++i) {  
+		bnbPerpInfo.data[i] = new double[bnbPerpInfo.cols];
+		memset(bnbPerpInfo.data[i], 0, sizeof(double) * bnbPerpInfo.cols);  
+	} 
+
 	btcInfo.data = new double*[btcInfo.rows];
 	for (int i = 0; i < btcInfo.rows; ++i) {  
 		btcInfo.data[i] = new double[btcInfo.cols];
