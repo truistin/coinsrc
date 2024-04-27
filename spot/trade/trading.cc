@@ -84,6 +84,8 @@ void fillTables()
 		memset(ethPerpInfo.data[i], 0, sizeof(double) * ethPerpInfo.cols);  
 	}  
 
+	mmr_table.push_back(bnbInfo);
+	mmr_table.push_back(bnbPerpInfo);
 	mmr_table.push_back(btcInfo);
 	mmr_table.push_back(btcPerpInfo);
 	mmr_table.push_back(ethInfo);
