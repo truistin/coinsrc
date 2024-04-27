@@ -895,7 +895,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     SetOrderOptions order;
     if (IS_DOUBLE_GREATER_EQUAL(delta_posi, 0)) {
         // sy1 maker open_short  sy1.pos < 0 delta_pos > 0 sy2.close_long 关仓
-        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) {
+        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0) 
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -919,8 +919,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 开仓
-        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) {   
+        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�7
+        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0)) {   
             if (getIocOrdPendingLen(*sy2) != 0)
                 return;       
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -945,7 +945,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         // sy2 maker open_short sy2.pos<0 delta_pos>0 sy1.close_long 关仓
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -969,8 +969,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 开仓
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) { 
+        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�7
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -996,8 +996,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 开仓
-        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_GREATER(sy2->real_pos, -sy2->qty_tick_size)) {
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�7
+        if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -1022,7 +1022,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy1 maker open_long sy1.pos>0 delta_pos<0 sy2 close_short 关仓
-        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_LESS(sy2->real_pos, -sy2->qty_tick_size)) {          
+        } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0)) {          
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -1046,8 +1046,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 开仓
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_GREATER(sy1.real_pos, -sy1.qty_tick_size)) { 
+        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�7
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
@@ -1072,7 +1072,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy2 maker open_long sy2.pos>0 delta_pos<0 sy1 close_short 关仓
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_LESS(sy1.real_pos, -sy1.qty_tick_size)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
