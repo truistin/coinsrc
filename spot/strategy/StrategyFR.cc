@@ -108,8 +108,8 @@ void StrategyFR::qryPosition() {
                 << it->second.crossMarginLocked << ", crossMarginBorrowed: " << it->second.crossMarginBorrowed << ", crossMarginInterest: " << it->second.crossMarginInterest;
             BnApi::BalMap_mutex_.unlock();
 
-            if (IS_DOUBLE_LESS(equity, 0)) {
-                iter->position().PublicPnlDaily().TodayShort = equity;
+            if (IS_DOUBLE_LESS_EQUAL(equity, 0)) {
+                iter->position().PublicPnlDaily().TodayShort = -equity;
                 iter->position().PublicPnlDaily().NetPosition = equity;
             } else if (IS_DOUBLE_GREATER(equity, 0)) {
                 iter->position().PublicPnlDaily().TodayLong = equity;
