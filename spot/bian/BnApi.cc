@@ -889,6 +889,7 @@ uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
         uri->AddParam(("type"), ("MARKET"));
         uri->AddParam(("side"), ("SELL"));
     }
+    uri->AddParam(("sideEffectType"), ("MARGIN_BUY"));
 
     uri->AddParam(("recvWindow"), ("3000"));
     ConvertQuantity(order, *(uri.get()));
