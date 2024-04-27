@@ -1047,7 +1047,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long
-        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_GREATER(sy1->real_pos, sy1->qty_tick_size)) { 
+        } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_GREATER(sy1.real_pos, sy1.qty_tick_size)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
             order.orderType = ORDERTYPE_MARKET; // ?
