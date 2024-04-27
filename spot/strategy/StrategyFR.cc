@@ -510,7 +510,7 @@ double StrategyFR::calc_predict_mm(sy_info& info, order_fr& order)
         get_cm_um_brackets(iter.symbol, abs(qty) * price, mmr_rate, mmr_num);
         sum_mm = sum_mm + abs(qty) * price * mmr_rate -  mmr_num;
         LOG_INFO << "calc_predict_mm swap sy: " << order.sy << ", price: " << (*make_taker)[order.sy].mid_p << ", mmr: " << mmr_rate << ", mmr_num: " << mmr_num
-            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", order.sy: " << order.sy << ", ori qty: " << abs(iter.positionAmt)
+            << ", iter.positionAmt: " << iter.positionAmt << ", sy_it->second: " << sy_it->second  << ", iter.symbol: " << iter.symbol << ", ori qty: " << abs(iter.positionAmt)
             << ", qty: " << qty << ",sum_mm: " << sum_mm;
 
     }
@@ -1464,7 +1464,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
 
-    if (!vaildAllSymboPrice(10000)) return;
+    if (!vaildAllSymboPrice(30000)) return;
 
     LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
          << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
@@ -2037,7 +2037,7 @@ bool StrategyFR::action_mr(double mr)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    if (!vaildAllSymboPrice(3000)) LOG_FATAL << "no mid price or slow mid price";
+    if (!vaildAllSymboPrice(30000)) LOG_FATAL << "no mid price or slow mid price";
     double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
