@@ -893,7 +893,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     double taker_qty = abs(delta_posi);
 
     SetOrderOptions order;
-    if (IS_DOUBLE_GREATER_EQUAL(delta_posi, 0)) {
+    if (IS_DOUBLE_GREATER(delta_posi, 0)) {
         // sy1 maker open_short  sy1.pos < 0 delta_pos > 0 sy2.close_long 鍏充粨
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_GREATER(sy2->real_pos, sy2->qty_tick_size)) {
             if (getIocOrdPendingLen(*sy2) != 0) 
@@ -995,7 +995,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
-    } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, 0)) {
+    } else if (IS_DOUBLE_LESS(delta_posi, 0)) {
         // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 寮€浠�
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_GREATER(sy2->real_pos, -sy2->qty_tick_size)) {
             if (getIocOrdPendingLen(*sy2) != 0)
