@@ -919,7 +919,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 开仓
+        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�7
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0) && IS_DOUBLE_LESS(sy2->real_pos, sy2->qty_tick_size)) {   
             if (getIocOrdPendingLen(*sy2) != 0)
                 return;       
@@ -969,7 +969,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 开仓
+        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�7
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0) && IS_DOUBLE_LESS(sy1.real_pos, sy1.qty_tick_size)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -996,7 +996,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS_EQUAL(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 开仓
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�7
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1) && IS_DOUBLE_GREATER(sy2->real_pos, -sy2->qty_tick_size)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
@@ -1046,7 +1046,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 开仓
+        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�7
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1) && IS_DOUBLE_GREATER(sy1.real_pos, -sy1.qty_tick_size)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -1809,7 +1809,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 
     memcpy(order.StType, stType.c_str(), min(sizeof(order.StType) - 1, stType.size()));
 
-    if (IS_DOUBLE_GREATER(sy.real_pos, 0)) {
+    if (IS_DOUBLE_GREATER_EQUAL(sy.real_pos, 0) && (sy.long_short_flag == 0)) {
         double qty = std::min(sy.real_pos, sy2->ask_v / 2);
         qty = std::min(qty, sy.fragment/sy.bid_p);
         double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
@@ -1818,7 +1818,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
         setOrder(sy.inst, INNER_DIRECTION_Sell,
             sy.bid_p,
             abs(qty), order);
-    } else {
+    } else if (IS_DOUBLE_LESS(sy.real_pos, 0) && (sy.long_short_flag == 1)) {
         double qty = std::min(abs(sy.real_pos), sy2->bid_v / 2);
         qty = std::min(qty, sy.fragment/sy.bid_p);
         double qty_decimal = ceil(abs(log10(sy.qty_tick_size)));
