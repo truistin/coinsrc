@@ -354,7 +354,7 @@ void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrum
 void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-    string stType = "FrClose";
+    string stType = "MrClose";
 
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
@@ -705,14 +705,6 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
          double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
          LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
     }
-    
-
-    if (sy1.close_flag) { //fr close
-        ClosePosition(marketData, sy1, 1);
-        return;
-    } 
-    // arb close
-    if(ClosePosition(marketData, sy1, 0)) return;
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
@@ -1131,6 +1123,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.bid_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         //sy2 maker open_long sy2.pos>0 delta_pos<0 sy1 close_short ???
         }
+    }
     }
 }
 
