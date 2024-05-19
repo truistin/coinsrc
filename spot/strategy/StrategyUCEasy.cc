@@ -29,7 +29,7 @@ StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
     margin_mmr->insert({10, 0.05});
 
     pridict_borrow = new map<string, double>;
-    make_taker = new map<string, sy_info>;
+    make_taker = new map<string, uc_info>;
     symbol_map = new map<string, string>;
 
     pre_sum_equity = 0;
@@ -142,7 +142,7 @@ void StrategyUCEasy::init()
     }
 
     for (const auto& it : InitialData::symbolInfoMap()) {
-        sy_info syInfo;
+        uc_info syInfo;
         memcpy(syInfo.sy, it.second.Symbol, min(sizeof(syInfo.sy), sizeof(it.second.Symbol)));
         memcpy(syInfo.ref_sy, it.second.RefSymbol, min(sizeof(syInfo.ref_sy), sizeof(it.second.RefSymbol)));
         memcpy(syInfo.type, it.second.Type, min(sizeof(syInfo.type), sizeof(it.second.Type)));
@@ -238,7 +238,7 @@ bool StrategyUCEasy::vaildPrice(SyInfo& sy) {
 
 }
 
-bool StrategyUCEasy::IsExistOrders(sy_info* sy, double px, int side)
+bool StrategyUCEasy::IsExistOrders(uc_info* sy, double px, int side)
 {
     bool flag = false;
     if (side == INNER_DIRECTION_Buy) {
@@ -302,11 +302,11 @@ void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrum
     if (market_close_freeze_time > CURR_MSTIME_POINT) return;
     market_close_freeze_time = CURR_MSTIME_POINT + 1000;
     LOG_INFO << "after market_close_freeze_time:" << market_close_freeze_time;
-    sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
+    uc_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
     string stType = "Mr_Market_Close";
 
     if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
-    sy_info* sy2 = sy.ref;
+    uc_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << sy.sy;
         return;
@@ -353,10 +353,10 @@ void StrategyUCEasy::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrum
 //close arb_thresh/fr_thresh   maker taker(at most larger than taker)    (at least large than taker)
 void StrategyUCEasy::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
-    sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
+    uc_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
     string stType = "MrClose";
 
-    sy_info* sy2 = sy.ref;
+    uc_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "Mr_ClosePosition sy2 nullptr: " << sy.sy;
         return;
@@ -672,7 +672,7 @@ bool StrategyUCEasy::make_continue_mr(double& mr)
     return false;
 }
 
-double StrategyUCEasy::calc_predict_mm(sy_info& info, order_uc& order)
+double StrategyUCEasy::calc_predict_mm(uc_info& info, order_uc& order)
 {
     double sum_mm = 0;
     double usdt_equity = get_usdt_equity();
@@ -822,7 +822,7 @@ double StrategyUCEasy::calc_predict_mm(sy_info& info, order_uc& order)
 
 }
 
-double StrategyUCEasy::calc_predict_equity(sy_info& info, order_uc& order)
+double StrategyUCEasy::calc_predict_equity(uc_info& info, order_uc& order)
 {
     double sum_equity = 0;
     double price = info.mid_p;
@@ -926,7 +926,7 @@ double StrategyUCEasy::calc_predict_equity(sy_info& info, order_uc& order)
     return sum_equity;
 }
 
-double StrategyUCEasy::calc_future_uniMMR(sy_info& info, double qty)
+double StrategyUCEasy::calc_future_uniMMR(uc_info& info, double qty)
 {
     double sum_equity = calc_equity();
     double IM = 0;
@@ -971,7 +971,7 @@ double StrategyUCEasy::calc_future_uniMMR(sy_info& info, double qty)
 }
 
 
-bool StrategyUCEasy::is_continue_mr(sy_info* info, double qty)
+bool StrategyUCEasy::is_continue_mr(uc_info* info, double qty)
 {
     double mr = calc_future_uniMMR(*info, qty);
     if (IS_DOUBLE_GREATER(mr, 2)) {
@@ -995,9 +995,9 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
         return;
     }
 
-    sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
+    uc_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
-    sy_info* sy2 = sy1.ref;
+    uc_info* sy2 = sy1.ref;
 
     if (!vaildAllSymboPrice(30000)) return;
 
@@ -1255,7 +1255,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     return;
 }
 
-bool StrategyUCEasy::check_min_delta_limit(sy_info& sy1, sy_info& sy2) 
+bool StrategyUCEasy::check_min_delta_limit(uc_info& sy1, uc_info& sy2) 
 {
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
@@ -1271,7 +1271,7 @@ bool StrategyUCEasy::check_min_delta_limit(sy_info& sy1, sy_info& sy2)
     return true;
 }
 
-int StrategyUCEasy::getIocOrdPendingLen(sy_info& sy) {
+int StrategyUCEasy::getIocOrdPendingLen(uc_info& sy) {
     int pendNum = 0;
     for (auto it : (*sy.inst->sellOrders())) {
         for (auto iter : it.second->OrderList) {
@@ -1310,8 +1310,8 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
 {
     string symbol = strategyInstrument->getInstrumentID();
     if (make_taker->find(symbol) == make_taker->end()) return;
-    sy_info& sy1 = (*make_taker)[symbol];
-    sy_info* sy2 = sy1.ref;
+    uc_info& sy1 = (*make_taker)[symbol];
+    uc_info* sy2 = sy1.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "hedge sy2 nullptr: " << symbol;
         return;
@@ -1438,7 +1438,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
 void StrategyUCEasy::update_thresh(StrategyInstrument *strategyInstrument) 
 {
     string symbol = strategyInstrument->getInstrumentID();
-    sy_info* sy = &(*make_taker)[symbol];
+    uc_info* sy = &(*make_taker)[symbol];
     if (sy->make_taker_flag == 0) {
         sy = sy->ref;
     }

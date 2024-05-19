@@ -23,10 +23,10 @@ namespace spot {
 				double borrow;
 		};
 
-		struct sy_info {
+		struct uc_info {
 			public:
-				sy_info() {
-					memset(this, 0, sizeof(sy_info));
+				uc_info() {
+					memset(this, 0, sizeof(uc_info));
 				}
 			public:
 				char sy[40];
@@ -53,7 +53,7 @@ namespace spot {
 				int64_t exch_ts;
 				double real_pos;
 				double pos_adj;
-				sy_info* ref;
+				uc_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
 				OrderByPriceMap* buyMap;
@@ -85,20 +85,20 @@ namespace spot {
             virtual void OnRtnTradeTradingLogic(const InnerMarketTrade &marketTrade, StrategyInstrument *strategyInstrument){};
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval();
-			bool over_max_delta_limit(sy_info& sy1, sy_info& sy2);
+			bool over_max_delta_limit(uc_info& sy1, uc_info& sy2);
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
-			bool IsExistOrders(sy_info* sy, int side);
+			bool IsExistOrders(uc_info* sy, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
-			bool is_continue_mr(sy_info*, double qty);
+			bool is_continue_mr(uc_info*, double qty);
 			bool action_mr(double mr);
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
-			double calc_predict_mm(sy_info& info, order_uc& order, double price_cent);
-			double calc_predict_equity(sy_info& info, order_uc& order, double price_cent);
-			double calc_future_uniMMR(sy_info& info, double qty);
+			double calc_predict_mm(uc_info& info, order_uc& order, double price_cent);
+			double calc_predict_equity(uc_info& info, order_uc& order, double price_cent);
+			double calc_future_uniMMR(uc_info& info, double qty);
 			double calc_equity();
 			double calc_mm();
 			double calc_balance();
@@ -121,7 +121,7 @@ namespace spot {
 			double pre_sum_equity;
 			double price_ratio;
 			map<string, double>* pridict_borrow;
-			map<string, sy_info>* make_taker;
+			map<string, uc_info>* make_taker;
 			map<string, string>* symbol_map;
 
 			double disaster_tol_thresh;
