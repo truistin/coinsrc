@@ -31,12 +31,14 @@ set(strategy_SRCS
 	StrategyInstrumentManager.h
 	Position.cc
 	Position.h
-	StrategyUCArb.cc
-	StrategyUCArb.h
-	StrategyUCArb1.cc
-	StrategyUCArb1.h
-	StrategyFR.cc
-	StrategyFR.h
+	# StrategyUCArb.cc
+	# StrategyUCArb.h
+	# StrategyUCArb1.cc
+	# StrategyUCArb1.h
+	# StrategyFR.cc
+	# StrategyFR.h
+	StrategyUCEasy.cc
+	StrategyUCEasy.h
   )
 
 add_library(spot_strategy ${strategy_SRCS})
