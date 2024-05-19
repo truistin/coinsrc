@@ -10,9 +10,9 @@ using namespace std;
 using namespace spot::risk;
 namespace spot {
     namespace strategy {
-		struct order_fr {
+		struct order_uc {
 			public:
-				order_fr() {
+				order_uc() {
 					sy = "";
 					qty = 0;
 					borrow = 0;
@@ -96,8 +96,8 @@ namespace spot {
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
-			double calc_predict_mm(sy_info& info, order_fr& order, double price_cent);
-			double calc_predict_equity(sy_info& info, order_fr& order, double price_cent);
+			double calc_predict_mm(sy_info& info, order_uc& order, double price_cent);
+			double calc_predict_equity(sy_info& info, order_uc& order, double price_cent);
 			double calc_future_uniMMR(sy_info& info, double qty);
 			double calc_equity();
 			double calc_mm();
