@@ -5,6 +5,8 @@
 #include "spot/base/InitialData.h"
 #include "spot/cache/CacheAllocator.h"
 #include "spot/utility/TradingDay.h"
+#include "spot/bian/BnApi.h"
+#include <spot/utility/MeasureFunc.h>
 
 using namespace spot::strategy;
 // using namespace spot::risk;
@@ -32,8 +34,6 @@ StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
     make_taker = new map<string, uc_info>;
     symbol_map = new map<string, string>;
 
-    pre_sum_equity = 0;
-    cancel_order_interval = *parameters()->getInt("cancel_order_interval");
 }
 
 void StrategyUCEasy::qryPosition() {
@@ -150,15 +150,6 @@ void StrategyUCEasy::init()
         syInfo.long_short_flag = it.second.LongShort;
         syInfo.make_taker_flag = it.second.MTaker;
         syInfo.mv_ratio = it.second.MvRatio;
-
-        // if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;
-        // syInfo.thresh = it.second.CloseThresh;
-
-        if (!IS_DOUBLE_NORMAL(it.second.OpenThresh)) LOG_FATAL << "OpenThresh ERR: " << it.second.OpenThresh;
-        syInfo.fr_open_thresh = it.second.OpenThresh;
-
-        // if (!IS_DOUBLE_LESS_EQUAL(it.second.CloseThresh, 0)) LOG_FATAL << "CloseThresh ERR: " << it.second.CloseThresh;        
-        syInfo.fr_close_thresh = it.second.CloseThresh;
         
         syInfo.close_flag = it.second.CloseFlag;
 
@@ -1007,11 +998,11 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
          << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
     if (sy1.make_taker_flag) {
          double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
-         LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
+         LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 buy_thresh: " << sy1.buy_thresh << ", sy1 sell_thresh: " << sy1.sell_thresh;
     } 
     if (sy2->make_taker_flag ) {
          double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
-         LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy2 fr_open_thresh: " << sy2->fr_open_thresh;
+         LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy1 buy_thresh: " << sy1.buy_thresh << ", sy1 sell_thresh: " << sy1.sell_thresh;
     }
 
     double mr = 0;
@@ -1059,7 +1050,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
             if (!is_continue_mr(&sy1, qty)) {
                 return;
             }
-            //  qty = sy1.min_delta_limit;
+            //  qty = sy1.min_amount;
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
@@ -1263,7 +1254,7 @@ bool StrategyUCEasy::check_min_delta_limit(uc_info& sy1, uc_info& sy2)
     sy1.avg_price = sy1.strategyInstrument->position().PublicPnlDaily().EntryPrice;
 
     double delta_pos_notional = sy1.real_pos * sy1.multiple + sy2.real_pos * sy2.entry_price;
-    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_delta_limit)) {
+    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_amount)) {
         return false;
         LOG_INFO << "check_min_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
     }
@@ -1316,13 +1307,15 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
         LOG_ERROR << "hedge sy2 nullptr: " << symbol;
         return;
     }
-    double delta_posi = sy1.real_pos + sy2->real_pos;
+    double delta_posi = 0;
     if (sy1.make_taker_flag == 0) {
-        if (IS_DOUBLE_LESS(abs(delta_posi * sy1.mid_p), sy1.min_amount)) return;
+        delta_posi = sy1.real_pos * sy1.multiple + sy2->real_pos * sy2->mid_p;
+        if (IS_DOUBLE_LESS(abs(delta_posi), sy1.min_amount)) return;
     } else if(sy2->make_taker_flag == 0) {
-        if (IS_DOUBLE_LESS(abs(delta_posi * sy2->mid_p), sy2->min_amount)) return;
+        delta_posi = sy1.real_pos * sy1.mid_p + sy2->real_pos * sy2->multiple;
+        if (IS_DOUBLE_LESS(abs(delta_posi), sy2->min_amount)) return;
     }
-    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
+    if (IS_DOUBLE_GREATER(abs(delta_posi), 3 * sy1.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << symbol << ", delta_posi: " << delta_posi;
         return;
     }
@@ -1380,7 +1373,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
     } else if (IS_DOUBLE_LESS(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long ?€?
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long ?ï¿½?ï¿½
         if ((sy1.make_taker_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 

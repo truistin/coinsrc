@@ -119,7 +119,6 @@ namespace spot {
 			map<string, double>* last_price_map;
 			double um_leverage;
 
-			double pre_sum_equity;
 			double price_ratio;
 			map<string, double>* pridict_borrow;
 			map<string, uc_info>* make_taker;
