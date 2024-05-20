@@ -86,6 +86,7 @@ namespace spot {
             virtual void OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument);
 			void OnForceCloseTimerInterval();
 			bool over_max_delta_limit(uc_info& sy1, uc_info& sy2);
+			bool check_min_delta_limit(uc_info& sy1, uc_info& sy2);
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
 			bool IsExistOrders(uc_info* sy, int side);
