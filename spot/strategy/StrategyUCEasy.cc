@@ -1263,7 +1263,7 @@ bool StrategyUCEasy::check_min_delta_limit(uc_info& sy1, uc_info& sy2)
     if (sy1.make_taker_flag == 1) delta_pos_notional = sy1.real_pos * sy1.avg_price + sy2.real_pos * sy2.multiple;
     else delta_pos_notional = sy1.real_pos * sy1.multiple + sy2.real_pos * sy2.avg_price;
 
-    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_delta_limit)) {
+    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_amount)) {
         return false;
         LOG_INFO << "check_min_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
     }

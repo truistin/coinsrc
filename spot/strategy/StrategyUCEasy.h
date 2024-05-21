@@ -40,8 +40,8 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
-				double min_delta_limit;
-				double max_delta_limit; // fragment 
+				double fragment;
+				double min_amount; // fragment 
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
