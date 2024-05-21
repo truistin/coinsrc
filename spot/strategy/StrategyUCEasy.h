@@ -50,6 +50,7 @@ namespace spot {
 				double buy_thresh;
 				double sell_thresh;
 				int close_flag;
+				double multiple;
 				int64_t exch_ts;
 				double real_pos;
 				double pos_adj;

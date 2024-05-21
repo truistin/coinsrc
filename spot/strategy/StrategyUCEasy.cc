@@ -996,11 +996,16 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
          << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
     LOG_INFO << "symbol2: " << sy2->sy << ", sy2 close_flag: " << sy2->close_flag << ", sy2 maker_taker_flag: " << sy2->make_taker_flag << ", sy2 long_short_flag: " << sy2->long_short_flag
          << ", sy2 real_pos: " << sy2->real_pos << ", sy2 mid_p: " << sy2->mid_p;
+
+    double delta_posi = 0;
+
     if (sy1.make_taker_flag) {
-         double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
-         LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 buy_thresh: " << sy1.buy_thresh << ", sy1 sell_thresh: " << sy1.sell_thresh;
+        delta_posi = sy1.real_pos * sy1.mid_p + sy2->real_pos * sy2->multiple;
+        double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
+        LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
     } 
     if (sy2->make_taker_flag ) {
+        delta_posi = sy1.real_pos * sy1.multiple + sy2->real_pos * sy2->mid_p;
          double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
          LOG_INFO << "symbol2: " << sy2->sy << ", spread_rate: " << spread_rate << "(" << sy2->mid_p << " - " << sy1.mid_p << ")" << "/" << sy1.mid_p << ", sy1 buy_thresh: " << sy1.buy_thresh << ", sy1 sell_thresh: " << sy1.sell_thresh;
     }
@@ -1016,8 +1021,8 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
         return;
     }
     double bal = calc_balance();
-    double delta_posi = sy1.real_pos + sy2->real_pos;
-    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
+    
+    if (IS_DOUBLE_GREATER(abs(delta_posi), 3 * sy1.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << sy1.sy << ", delta_posi: " << delta_posi;
         return;
     }
@@ -1253,8 +1258,12 @@ bool StrategyUCEasy::check_min_delta_limit(uc_info& sy1, uc_info& sy2)
     sy2.avg_price = sy2.strategyInstrument->position().PublicPnlDaily().EntryPrice;
     sy1.avg_price = sy1.strategyInstrument->position().PublicPnlDaily().EntryPrice;
 
-    double delta_pos_notional = sy1.real_pos * sy1.multiple + sy2.real_pos * sy2.entry_price;
-    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_amount)) {
+    double delta_pos_notional = 0;
+
+    if (sy1.make_taker_flag == 1) delta_pos_notional = sy1.real_pos * sy1.avg_price + sy2.real_pos * sy2.multiple;
+    else delta_pos_notional = sy1.real_pos * sy1.multiple + sy2.real_pos * sy2.avg_price;
+
+    if (IS_DOUBLE_LESS(delta_pos_notional, sy1.min_delta_limit)) {
         return false;
         LOG_INFO << "check_min_delta_limit sy1 real_pos: " << sy1.real_pos << ", sy2 real_pos: " << sy2.real_pos;
     }
@@ -1315,11 +1324,14 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
         delta_posi = sy1.real_pos * sy1.mid_p + sy2->real_pos * sy2->multiple;
         if (IS_DOUBLE_LESS(abs(delta_posi), sy2->min_amount)) return;
     }
+    
     if (IS_DOUBLE_GREATER(abs(delta_posi), 3 * sy1.fragment)) {
         LOG_FATAL <<  "more than 3 * fragment " << symbol << ", delta_posi: " << delta_posi;
         return;
     }
-    double taker_qty = abs(delta_posi);
+
+    double taker_qty = int(abs(delta_posi)/ sy1.multiple);
+    taker_qty = max(sy1.min_qty, min(taker_qty, sy1.max_qty));
 
     SetOrderOptions order;
     if (IS_DOUBLE_GREATER(delta_posi, 0)) {
@@ -1463,27 +1475,44 @@ void StrategyUCEasy::OnForceCloseTimerInterval()
 
 void StrategyUCEasy::OnPartiallyFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    check_min_delta_limit();
+    auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
+    auto sy2 = sy1.ref;
+    if (sy2 == nullptr) {
+        LOG_FATAL << "OnPartiallyFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
+    }
     update_thresh(strategyInstrument);
+    if (!check_min_delta_limit(sy1, (*sy2))) return;
     hedge(strategyInstrument);
+
     LOG_INFO << "OnPartiallyFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
         << ", delta_pos: " << delta_pos_notional
         << ", sy1.real_pos: " << sy1.real_pos
         << ", sy2.real_pos: " << sy2.real_pos;
+    return;
 }
 
 void StrategyUCEasy::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
 {
-    check_min_delta_limit();
+    auto& sy1 = (*make_taker)[strategyInstrument->getInstrumentID()];
+    auto sy2 = sy1.ref;
+    if (sy2 == nullptr) {
+        LOG_FATAL << "OnFilledTradingLogic sy2 nullptr: " << rtnOrder.InstrumentID;
+    }
+
     update_thresh(strategyInstrument);
+
+    if (!check_min_delta_limit(sy1, (*sy2))) return;
+
     hedge(strategyInstrument);
+
     LOG_INFO << "OnFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
         << ", symbol: " << rtnOrder.InstrumentID
         << ", delta_pos: " << delta_pos_notional
         << ", sy1.real_pos: " << sy1.real_pos
         << ", sy2.real_pos: " << sy2.real_pos;
+    return;
 }
 
 void StrategyUCEasy::OnCanceledTradingLogic(const Order &rtnOrder, StrategyInstrument *strategyInstrument)
