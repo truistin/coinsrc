@@ -12,7 +12,7 @@ namespace spot {
     namespace strategy {
 		struct order_uc {
 			public:
-				order_fr() {
+				order_uc() {
 					sy = "";
 					ref_sy = "";
 					qty = 0;
@@ -29,8 +29,8 @@ namespace spot {
 
 		struct uc_info {
 			public:
-				sy_info() {
-					memset(this, 0, sizeof(sy_info));
+				uc_info() {
+					memset(this, 0, sizeof(uc_info));
 				}
 			public:
 				char sy[40];
@@ -59,7 +59,7 @@ namespace spot {
 				double price_ratio;
 				int64_t exch_ts;
 				double real_pos;
-				sy_info* ref;
+				uc_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
 				OrderByPriceMap* buyMap;
