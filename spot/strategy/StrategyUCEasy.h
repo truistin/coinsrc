@@ -12,21 +12,25 @@ namespace spot {
     namespace strategy {
 		struct order_uc {
 			public:
-				order_uc() {
+				order_fr() {
 					sy = "";
+					ref_sy = "";
 					qty = 0;
+					ref_qty = 0;
 					borrow = 0;
 				}
 			public:
 				string sy;
+				string ref_sy;
 				double qty;
+				double ref_qty;
 				double borrow;
 		};
 
 		struct uc_info {
 			public:
-				uc_info() {
-					memset(this, 0, sizeof(uc_info));
+				sy_info() {
+					memset(this, 0, sizeof(sy_info));
 				}
 			public:
 				char sy[40];
@@ -40,30 +44,32 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
-				double fragment;
-				double min_amount; // fragment 
+				double min_amount;
+				double fragment; // fragment 
+				double force_close_amount; // adl 
 				double prc_tick_size;
 				double qty_tick_size;
 				double qty;
 				double mv_ratio;
 				double thresh; // arb close
-				double buy_thresh;
-				double sell_thresh;
+				double fr_open_thresh;
+				double fr_close_thresh;
 				int close_flag;
-				double multiple;
+				int um_leverage;
+				double price_ratio;
 				int64_t exch_ts;
 				double real_pos;
-				double pos_adj;
-				uc_info* ref;
+				sy_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
 				OrderByPriceMap* buyMap;
 			public:
-				void update(double askp, double bidp, double askv, double bidv) {
+				void update(double askp, double bidp, double askv, double bidv, int64_t ts) {
 					ask_p = askp;
 					bid_p = bidp;
 					ask_v = askv;
 					bid_v = bidv;
+					exch_ts = ts;
 					mid_p = (askp + bidp) / 2;
 				}
 		};
