@@ -51,9 +51,11 @@ namespace spot {
 				double qty_tick_size;
 				double qty;
 				double mv_ratio;
+				double step_thresh;
 				double thresh; // arb close
-				double fr_open_thresh;
-				double fr_close_thresh;
+				double buy_thresh;
+				double sell_thresh;
+				double pos_adj;
 				int close_flag;
 				int um_leverage;
 				double price_ratio;
@@ -96,6 +98,7 @@ namespace spot {
 			bool check_min_delta_limit(uc_info& sy1, uc_info& sy2);
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
+			bool vaildPrice(SyInfo& sy);
 			bool IsExistOrders(uc_info* sy, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();

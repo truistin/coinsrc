@@ -216,7 +216,7 @@ void StrategyUCEasy::init()
 }
 
 
-bool StrategyUCEasy::vaildPrice(SyInfo& sy) {
+bool StrategyUCEasy::vaildPrice(uc_info& sy) {
     if (!IS_DOUBLE_NORMAL(sy.mid_price) 
         || !IS_DOUBLE_NORMAL(sy.ask_price)
         || !IS_DOUBLE_NORMAL(sy.bid_price)) {
