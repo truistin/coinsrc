@@ -100,6 +100,7 @@ namespace spot {
             StrategyUCEasy(int strategyID, StrategyParameter *params);
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
+			bool VaildCancelTime(const Order& order, uint8_t loc);
 
 			bool IsExistOrders(uc_info* sy, double px, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
@@ -109,9 +110,10 @@ namespace spot {
 			void hedge(StrategyInstrument *strategyInstrument);
 
 			double get_usdt_equity();
-			double calc_predict_mm(uc_info& info, order_uc& order, double price_cent);
-			double calc_predict_equity(uc_info& info, order_uc& order, double price_cent);
+			double calc_predict_mm(uc_info& info, order_uc& order);
+			double calc_predict_equity(uc_info& info, order_uc& order);
 			double calc_future_uniMMR(uc_info& info, double qty);
+
 			double calc_equity();
 			double calc_mm();
 			double calc_balance();

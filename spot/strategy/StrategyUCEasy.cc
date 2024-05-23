@@ -215,6 +215,23 @@ void StrategyUCEasy::init()
     }
 }
 
+bool StrategyUCEasy::VaildCancelTime(const Order& order, uint8_t loc)
+{
+    uint64_t now_ns= CURR_NSTIME_POINT;
+    if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
+        LOG_INFO << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
+            << order.OrderRef << ", status: " << order.OrderStatus << ", loc: " << loc;
+        return false;
+    }
+    if (now_ns - order.TimeStamp < cancel_order_interval * 1e9) {
+        LOG_INFO << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
+            << ", loc: " << loc;
+        return false;
+    }
+    return true;
+}
+
+
 bool StrategyUCEasy::IsExistOrders(uc_info* sy, double px, int side)
 {
     bool flag = false;
