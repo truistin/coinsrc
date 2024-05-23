@@ -101,7 +101,6 @@ namespace spot {
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 
-			bool vaildPrice(uc_info& sy);
 			bool IsExistOrders(uc_info* sy, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();

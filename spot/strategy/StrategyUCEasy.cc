@@ -174,7 +174,7 @@ void StrategyUCEasy::init()
         if (!IS_DOUBLE_NORMAL(it.second.Thresh)) LOG_FATAL << "Thresh ERR: " << it.second.Thresh;        
         syInfo.thresh = it.second.Thresh;
         
-        if (!IS_DOUBLE_NORMAL(it.second.OpenThresh)) LOG_FATAL << "step_thresh ERR: " << it.second.step_thresh;        
+        if (!IS_DOUBLE_NORMAL(it.second.OpenThresh)) LOG_FATAL << "step_thresh ERR: " << it.second.OpenThresh;        
         syInfo.step_thresh = it.second.OpenThresh;
 
         if (!IS_DOUBLE_NORMAL(it.second.PosAdj)) LOG_FATAL << "step_thresh ERR: " << it.second.PosAdj;        
@@ -213,20 +213,6 @@ void StrategyUCEasy::init()
         ord.price_decimal = ceil(abs(log10(iter.second.prc_tick_size)));
         orderFormMap.insert({str, ord});
     }
-}
-
-
-bool StrategyUCEasy::vaildPrice(uc_info& sy) {
-    if (!IS_DOUBLE_NORMAL(sy.mid_price) 
-        || !IS_DOUBLE_NORMAL(sy.ask_price)
-        || !IS_DOUBLE_NORMAL(sy.bid_price)) {
-            LOG_ERROR << "vaildPrice mid_price: " << sy.mid_price
-                << ", ask_price: " << sy.ask_price
-                << ", bid_price: " << sy.bid_price;
-            return false;
-        }
-    return true;
-
 }
 
 bool StrategyUCEasy::IsExistOrders(uc_info* sy, double px, int side)
