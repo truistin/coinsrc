@@ -98,7 +98,10 @@ namespace spot {
 			bool check_min_delta_limit(uc_info& sy1, uc_info& sy2);
         private:
             StrategyUCEasy(int strategyID, StrategyParameter *params);
-			bool vaildPrice(SyInfo& sy);
+			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
+			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
+
+			bool vaildPrice(uc_info& sy);
 			bool IsExistOrders(uc_info* sy, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
