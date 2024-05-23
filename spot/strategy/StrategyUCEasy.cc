@@ -34,6 +34,8 @@ StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
     make_taker = new map<string, uc_info>;
     symbol_map = new map<string, string>;
 
+    cancel_order_interval = *parameters()->getInt("cancel_order_interval");
+
 }
 
 void StrategyUCEasy::qryPosition() {
@@ -179,6 +181,9 @@ void StrategyUCEasy::init()
 
         if (!IS_DOUBLE_NORMAL(it.second.PosAdj)) LOG_FATAL << "step_thresh ERR: " << it.second.PosAdj;        
         syInfo.pos_adj = it.second.PosAdj;
+
+        if (!IS_DOUBLE_NORMAL(it.second.PosAdj)) LOG_FATAL << "step_thresh ERR: " << it.second.PosAdj;        
+        syInfo.multiple = it.second.Multiplier;
 
         make_taker->insert({it.second.Symbol, syInfo});
     }
@@ -974,6 +979,18 @@ bool StrategyUCEasy::is_continue_mr(uc_info* info, double qty)
     return false;
 }
 
+bool StrategyUCEasy::vaildAllSymboPrice(int val) {
+    int64_t ts = CURR_MSTIME_POINT;
+    for (auto it : (*make_taker)) {
+        if (IS_DOUBLE_LESS_EQUAL(it.second.mid_p, 0) || (ts - it.second.exch_ts) > val) {
+            LOG_WARN << "vaildAllSymboPrice sy: " << it.second.sy << ", mid_p: " << it.second.mid_p <<
+                ", ts: " << ts << ", exch ts: " << it.second.exch_ts;
+            return false;
+        }
+    }
+    return true;
+}
+
 void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketData, StrategyInstrument *strategyInstrument)
 {
     MeasureFunc f(1);
@@ -1005,7 +1022,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     if (sy1.make_taker_flag) {
         delta_posi = sy1.real_pos * sy1.mid_p + sy2->real_pos * sy2->multiple;
         double spread_rate = (sy1.mid_p - sy2->mid_p) / sy2->mid_p;
-        LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p << ", sy1 fr_open_thresh: " << sy1.fr_open_thresh;
+        LOG_INFO << "symbol1: " << sy1.sy << ", spread_rate: " << spread_rate << "(" << sy1.mid_p << " - " << sy2->mid_p << ")" << "/" << sy2->mid_p;
     } 
     if (sy2->make_taker_flag ) {
         delta_posi = sy1.real_pos * sy1.multiple + sy2->real_pos * sy2->mid_p;

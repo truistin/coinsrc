@@ -44,6 +44,7 @@ namespace spot {
 				double avg_price;
 				int make_taker_flag; // 1 maker
 				int long_short_flag; // 1 short
+				int multiple;
 				double min_amount;
 				double fragment; // fragment 
 				double force_close_amount; // adl 
@@ -108,7 +109,7 @@ namespace spot {
 			bool is_continue_mr(uc_info*, double qty);
 			bool action_mr(double mr);
 			void hedge(StrategyInstrument *strategyInstrument);
-
+			bool vaildAllSymboPrice(int val)
 			double get_usdt_equity();
 			double calc_predict_mm(uc_info& info, order_uc& order);
 			double calc_predict_equity(uc_info& info, order_uc& order);
@@ -144,6 +145,7 @@ namespace spot {
 			double thresh_max;
 
 			atomic<bool> en_maker;
+			int	cancel_order_interval;
 		};
     }
 }
