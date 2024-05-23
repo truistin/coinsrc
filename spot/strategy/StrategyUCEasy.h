@@ -101,7 +101,7 @@ namespace spot {
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 
-			bool IsExistOrders(uc_info* sy, int side);
+			bool IsExistOrders(uc_info* sy, double px, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
 			bool is_continue_mr(uc_info*, double qty);
@@ -126,6 +126,7 @@ namespace spot {
 		private:
 			map<string, double>* margin_leverage;
 			map<double, double>* margin_mmr;
+			long long market_close_freeze_time = 0;
 
 		public:
 			map<string, double>* last_price_map;
