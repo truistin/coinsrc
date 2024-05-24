@@ -1161,7 +1161,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
     } else if (sy2->make_taker_flag == 1) { //sy2 maker
         double spread_rate = (sy2->mid_p - sy1.mid_p) / sy1.mid_p;
 
-        if (IS_DOUBLE_LESS(spread_rate, sy2->buy_sell)) {
+        if (IS_DOUBLE_LESS(spread_rate, sy2->buy_thresh)) {
             if (IsExistOrders(sy2, sy2->bid_p - sy2->prc_tick_size, INNER_DIRECTION_Buy)) return;
             if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                 LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
