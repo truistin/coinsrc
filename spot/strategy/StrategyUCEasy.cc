@@ -1477,8 +1477,7 @@ void StrategyUCEasy::update_thresh(StrategyInstrument *strategyInstrument)
     sy->sell_thresh = sell_thresh + sy->step_thresh;
 
     LOG_INFO << "update_thresh maker_threshold: " << sy->thresh 
-        << ", sy1.real_pos: " << sy1.real_pos
-        << ", sy2.real_pos: "  << sy2.real_pos
+        << ", sy.real_pos: " << sy->real_pos
         << ", pos_adj: " << pos_adj
         << ", step_thresh: " << sy->step_thresh
         << ", buy_thresh: " << buy_thresh
@@ -1507,7 +1506,7 @@ void StrategyUCEasy::OnPartiallyFilledTradingLogic(const Order &rtnOrder, Strate
     LOG_INFO << "OnPartiallyFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
         << ", sy1.real_pos: " << sy1.real_pos
-        << ", sy2.real_pos: " << sy2.real_pos;
+        << ", sy2.real_pos: " << sy2->real_pos;
     return;
 }
 
