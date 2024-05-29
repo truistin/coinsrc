@@ -99,7 +99,7 @@ namespace spot {
 			bool check_min_delta_limit(uc_info& sy1, uc_info& sy2);
         private:
 		
-			int getIocOrdPendingLen(sy_info& sy);
+			int getIocOrdPendingLen(uc_info& sy);
             StrategyUCEasy(int strategyID, StrategyParameter *params);
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
