@@ -38,6 +38,16 @@ StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
 
 }
 
+string StrategyUCEasy::GetSPOTSymbol(string inst) {
+    //btc_usdt_binance_perp --> btcusdt_perp
+    string cp = inst.substr(0, inst.find_last_of('_'));
+    cp = cp.substr(0, cp.find_last_of('_'));
+    cp = cp.substr(0, cp.find_last_of('_'));
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
+    return cp;
+}
+
+
 void StrategyUCEasy::qryPosition() {
     for (const auto& iter : strategyInstrumentList()) {
         Order order;

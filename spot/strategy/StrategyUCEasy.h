@@ -104,7 +104,7 @@ namespace spot {
 			void Mr_ClosePosition(StrategyInstrument *strategyInstrument);
 			void Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument);
 			bool VaildCancelTime(const Order& order, uint8_t loc);
-
+			string GetSPOTSymbol(string inst);
 			bool IsExistOrders(uc_info* sy, double px, int side);
 			void update_thresh(StrategyInstrument *strategyInstrument);
 			void qryPosition();
