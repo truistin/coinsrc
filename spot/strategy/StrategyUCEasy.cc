@@ -1214,7 +1214,7 @@ void StrategyUCEasy::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &mar
                 << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty
                 << ", bal: " << bal << ", spread_rate: " << spread_rate; 
 
-        } else if (IS_DOUBLE_GREATER(spread_rate, sy2->sell_thrsh)) {
+        } else if (IS_DOUBLE_GREATER(spread_rate, sy2->sell_thresh)) {
             if (IsExistOrders(sy2, sy2->ask_p + sy2->prc_tick_size, INNER_DIRECTION_Sell)) return;
             if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                 LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
@@ -1275,8 +1275,8 @@ bool StrategyUCEasy::check_min_delta_limit(uc_info& sy1, uc_info& sy2)
 {
     sy1.real_pos = sy1.inst->position().getNetPosition();
     sy2.real_pos = sy2.inst->position().getNetPosition();
-    sy2.avg_price = sy2.strategyInstrument->position().PublicPnlDaily().EntryPrice;
-    sy1.avg_price = sy1.strategyInstrument->position().PublicPnlDaily().EntryPrice;
+    sy2.avg_price = sy2.inst->position().PublicPnlDaily().EntryPrice;
+    sy1.avg_price = sy1.inst->position().PublicPnlDaily().EntryPrice;
 
     double delta_pos_notional = 0;
 
@@ -1351,7 +1351,7 @@ void StrategyUCEasy::hedge(StrategyInstrument *strategyInstrument)
     }
 
     double taker_qty = int(abs(delta_posi)/ sy1.multiple);
-    taker_qty = max(sy1.min_qty, min(taker_qty, sy1.max_qty));
+    // taker_qty = max(sy1.min_qty, min(taker_qty, sy1.max_qty));
 
     SetOrderOptions order;
     if (IS_DOUBLE_GREATER(delta_posi, 0)) {
