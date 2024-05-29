@@ -47,6 +47,14 @@ string StrategyUCEasy::GetCMSymbol(string inst) {
     return cp;
 }
 
+string StrategyUCEasy::GetUMSymbol(string inst) {
+    //btc_usdt_binance_swap --> btcusdt
+    string cp = inst.substr(0, inst.find_last_of('_'));
+    cp = cp.substr(0, cp.find_last_of('_'));
+    cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
+    return cp;
+}
 
 string StrategyUCEasy::GetSPOTSymbol(string inst) {
     //btc_usdt_binance_perp --> btcusdt_perp
@@ -711,6 +719,18 @@ double StrategyUCEasy::calc_mm()
     BnApi::CmAcc_mutex_.unlock();
     return sum_mm;
 }
+
+double StrategyUCEasy::get_usdt_equity()
+{
+    double equity = 0;
+    BnApi::BalMap_mutex_.lock();
+    equity = (BnApi::BalMap_["USDT"].crossMarginFree) + (BnApi::BalMap_["USDT"].crossMarginLocked) - (BnApi::BalMap_["USDT"].crossMarginBorrowed) - (BnApi::BalMap_["USDT"].crossMarginInterest);
+    equity += (BnApi::BalMap_["USDT"].umWalletBalance) +  (BnApi::BalMap_["USDT"].umUnrealizedPNL);
+    equity += (BnApi::BalMap_["USDT"].cmWalletBalance) + (BnApi::BalMap_["USDT"].cmUnrealizedPNL);
+    BnApi::BalMap_mutex_.unlock();
+    return equity;
+}
+
 
 double StrategyUCEasy::calc_equity()
 {
