@@ -109,7 +109,7 @@ namespace spot {
 			bool is_continue_mr(uc_info*, double qty);
 			bool action_mr(double mr);
 			void hedge(StrategyInstrument *strategyInstrument);
-			bool vaildAllSymboPrice(int val)
+			bool vaildAllSymboPrice(int val);
 			double get_usdt_equity();
 			double calc_predict_mm(uc_info& info, order_uc& order);
 			double calc_predict_equity(uc_info& info, order_uc& order);
