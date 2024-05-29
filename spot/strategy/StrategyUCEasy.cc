@@ -47,6 +47,45 @@ string StrategyUCEasy::GetSPOTSymbol(string inst) {
     return cp;
 }
 
+double StrategyUCEasy::calc_balance()
+{
+    double sum_usdt = 0;
+    // um_account
+    BnApi::UmAcc_mutex_.lock();
+    for (const auto& it : BnApi::UmAcc_->info_) {
+        string sy = it.asset;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            sum_usdt += it.crossWalletBalance + it.crossUnPnl;
+        } else {
+            sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
+        }
+    }
+    BnApi::UmAcc_mutex_.unlock();
+
+    // cm_account
+    BnApi::CmAcc_mutex_.lock();
+    for (const auto& it : BnApi::CmAcc_->info_) {
+        string sy = it.asset;
+        // if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+        //     LOG_FATAL << "";
+        // }
+        sum_usdt += (it.crossWalletBalance + it.crossUnPnl) * getSpotAssetSymbol(sy);
+    }
+    BnApi::CmAcc_mutex_.unlock();
+
+    BnApi::BalMap_mutex_.lock();
+    for (const auto& it : BnApi::BalMap_) {
+        string sy = it.second.asset;
+        if (sy == "USDT" || sy == "USDC" || sy == "BUSD") {
+            sum_usdt += it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest;
+        } else {
+            sum_usdt += (it.second.crossMarginFree + it.second.crossMarginLocked - it.second.crossMarginBorrowed - it.second.crossMarginInterest) * getSpotAssetSymbol(sy);
+        }
+
+    }
+    BnApi::BalMap_mutex_.unlock();
+    return sum_usdt;
+}
 
 void StrategyUCEasy::qryPosition() {
     for (const auto& iter : strategyInstrumentList()) {
