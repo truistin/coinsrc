@@ -47,6 +47,20 @@ string StrategyUCEasy::GetSPOTSymbol(string inst) {
     return cp;
 }
 
+double StrategyUCEasy::getSpotAssetSymbol(string asset)
+{
+    if (asset == "USDT" || asset == "USDC" || asset == "BUSD" || asset == "DAI") {
+        return 1;
+    } 
+    
+    string sy = asset + "_usdt_binance_spot";
+    transform(sy.begin(), sy.end(), sy.begin(), ::tolower);
+
+    if (make_taker->find(sy) == make_taker->end()) return 0;
+    return (*make_taker)[sy].mid_p;
+
+}
+
 double StrategyUCEasy::calc_balance()
 {
     double sum_usdt = 0;
