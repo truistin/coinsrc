@@ -37,6 +37,16 @@ StrategyUCEasy::StrategyUCEasy(int strategyID, StrategyParameter *params)
     cancel_order_interval = *parameters()->getInt("cancel_order_interval");
 
 }
+string StrategyUCEasy::GetCMSymbol(string inst) {
+    //btc_usdt_binance_perp --> btcusdt_perp
+    string cp = inst.substr(0, inst.find_last_of('_'));
+    cp = cp.substr(0, cp.find_last_of('_'));
+    cp.erase(std::remove(cp.begin(), cp.end(), '_'), cp.end());
+    cp = cp  + "_perp";
+    transform(cp.begin(), cp.end(), cp.begin(), ::toupper);
+    return cp;
+}
+
 
 string StrategyUCEasy::GetSPOTSymbol(string inst) {
     //btc_usdt_binance_perp --> btcusdt_perp
@@ -59,6 +69,27 @@ double StrategyUCEasy::getSpotAssetSymbol(string asset)
     if (make_taker->find(sy) == make_taker->end()) return 0;
     return (*make_taker)[sy].mid_p;
 
+}
+
+void StrategyUCEasy::get_cm_um_brackets(string symbol, double val, double& mmr_rate, double& mmr_num)
+{
+    bool flag = false;
+    for (const auto& it : mmr_table) {
+        if (symbol == it.table_name) {
+            double** data = it.data;
+            for (int i = 0; i < it.rows; ++i) {  
+                if (IS_DOUBLE_GREATER_EQUAL(val, data[i][0]) && IS_DOUBLE_LESS_EQUAL(val, data[i][1])) {
+                    mmr_rate = data[i][3];
+                    mmr_num = data[i][4];
+                    return;
+                }
+            }  
+        }
+    }
+
+    if (!flag) {
+        LOG_FATAL << "get_cm_um_brackets symbol not found: " << symbol << ", val: " << val << ", no bracket found";
+    }
 }
 
 double StrategyUCEasy::calc_balance()
