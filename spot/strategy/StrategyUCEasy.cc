@@ -1506,7 +1506,6 @@ void StrategyUCEasy::OnPartiallyFilledTradingLogic(const Order &rtnOrder, Strate
 
     LOG_INFO << "OnPartiallyFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
-        << ", delta_pos: " << delta_pos_notional
         << ", sy1.real_pos: " << sy1.real_pos
         << ", sy2.real_pos: " << sy2.real_pos;
     return;
@@ -1529,9 +1528,8 @@ void StrategyUCEasy::OnFilledTradingLogic(const Order &rtnOrder, StrategyInstrum
     LOG_INFO << "OnFilledTradingLogic fee: " << rtnOrder.Fee << ", f_prx: " << rtnOrder.Price << ", f_qty: " << rtnOrder.Volume
         << ", side: " << rtnOrder.Direction << ", localId: " << rtnOrder.OrderRef 
         << ", symbol: " << rtnOrder.InstrumentID
-        << ", delta_pos: " << delta_pos_notional
         << ", sy1.real_pos: " << sy1.real_pos
-        << ", sy2.real_pos: " << sy2.real_pos;
+        << ", sy2.real_pos: " << sy2->real_pos;
     return;
 }
 
