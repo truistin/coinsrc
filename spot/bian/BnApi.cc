@@ -461,7 +461,7 @@ void BnApi::GetCollateralRate()
 
 */
     for (int i = 0; i < dataNodes.Size(); i++) {
-        spotrapidjson::Value& dataNode = dataNodes[i];
+        const spotrapidjson::Value& dataNode = dataNodes[i];
         string str = dataNode["asset"].GetString();
         double d = stod(dataNode["collateralRate"].GetString());
         auto it = collateralRateMap.find(str);
