@@ -450,12 +450,7 @@ void BnApi::GetCollateralRate()
         return;
     }
 
-    spotrapidjson::Value &dataNodes = doc.GetArray();
-
-    if (!dataNodes.IsArray()) {
-        cout << "GetCollateralRate decode failed: " << endl;
-        LOG_FATAL << "GetCollateralRate decode failed: " << res;
-    }
+    const spotrapidjson::Value &dataNodes = doc.GetArray();
 
     if (dataNodes.Size() == 0) {
         cout << "GetCollateralRate decode failed: " << endl;
