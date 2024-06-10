@@ -429,8 +429,8 @@ void BnApi::GetCollateralRate()
     m_uri.protocol = HTTP_PROTOCOL_HTTPS;
     m_uri.urlprotocolstr = URL_PROTOCOL_HTTPS;
     m_uri.method = METHOD_GET;
-    m_uri.domain = "www.binancezh.info";
-    m_uri.api = "/bapi/margin/v1/public/margin/portfolio/collateral-rate";
+    m_uri.domain = "api.binance.com";
+    m_uri.api = BN_COLLATERALRATE_API;
 
     m_uri.Request();
     string &res = m_uri.result;
@@ -450,19 +450,7 @@ void BnApi::GetCollateralRate()
         return;
     }
 
-    if (doc.HasMember("code"))
-    {
-        if (doc["code"].IsString())
-        {
-            string errorCode = doc["code"].GetString();
-            if (errorCode != "000000")
-            {
-                LOG_FATAL << " BnApi::GetCollateralRate result:" << res;
-            }
-        }
-    }
-
-    spotrapidjson::Value &dataNodes = doc["data"];
+    spotrapidjson::Value &dataNodes = doc.GetArray();
 
     if (!dataNodes.IsArray()) {
         cout << "GetCollateralRate decode failed: " << endl;
