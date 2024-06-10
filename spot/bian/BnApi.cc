@@ -432,6 +432,12 @@ void BnApi::GetCollateralRate()
     m_uri.domain = "api.binance.com";
     m_uri.api = BN_COLLATERALRATE_API;
 
+    uint64_t EpochTime = CURR_MSTIME_POINT;
+
+    m_uri.AddParam(("timestamp"), std::to_string(EpochTime));
+    SetPrivateParams(HTTP_GET, m_uri);
+
+
     m_uri.Request();
     string &res = m_uri.result;
     // cout << "GetCollateralRate res: " << res;
