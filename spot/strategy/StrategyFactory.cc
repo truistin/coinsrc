@@ -1,10 +1,10 @@
 #include "spot/strategy/StrategyFactory.h"
 #include "spot/base/ParametersManager.h"
 #include "spot/strategy/Initializer.h"
-#include "spot/strategy/StrategyUCArb.h"
-#include "spot/strategy/StrategyUCArb1.h"
+// #include "spot/strategy/StrategyUCArb.h"
+// #include "spot/strategy/StrategyUCArb1.h"
 #include "spot/strategy/StrategyFR.h" 
-#include "spot/strategy/StrategyUCEasy.h" 
+// #include "spot/strategy/StrategyUCEasy.h" 
 
 
 using namespace spot;
@@ -44,8 +44,9 @@ void StrategyFactory::initStrategy()
 }
 void StrategyFactory::registerStrategys()
 {
-	registerStrategy("UCEasy", StrategyUCEasy::Create);
+	// registerStrategy("UCEasy", StrategyUCEasy::Create);
 	// registerStrategy("arb1", StrategyUCArb1::Create); 
+	registerStrategy("FR", StrategyFR::Create);
 }
 
 bool StrategyFactory::addStrategy(int strategyID, string strategyName)
