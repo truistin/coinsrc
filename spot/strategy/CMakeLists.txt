@@ -35,10 +35,10 @@ set(strategy_SRCS
 	# StrategyUCArb.h
 	# StrategyUCArb1.cc
 	# StrategyUCArb1.h
-	# StrategyFR.cc
-	# StrategyFR.h
-	StrategyUCEasy.cc
-	StrategyUCEasy.h
+	StrategyFR.cc
+	StrategyFR.h
+	# StrategyUCEasy.cc
+	# StrategyUCEasy.h
   )
 
 add_library(spot_strategy ${strategy_SRCS})
