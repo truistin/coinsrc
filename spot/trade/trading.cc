@@ -40,8 +40,8 @@ void fillTables()
 	TableInfo btcInfo("BTCUSDT", 10, 5);
 	TableInfo btcPerpInfo("BTCUSD_PERP", 10, 5);
 
-	TableInfo ethInfo("ETHUSDT", 11, 5);
-	TableInfo ethPerpInfo("ETHUSD_PERP", 11, 5);
+	TableInfo ethInfo("ETHUSDT", 10, 5);
+	TableInfo ethPerpInfo("ETHUSD_PERP", 10, 5);
 
 	TableInfo bnbInfo("BNBUSDT", 10, 5);
 	TableInfo bnbPerpInfo("BNBUSD_PERP", 9, 5);
