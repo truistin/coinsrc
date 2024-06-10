@@ -37,14 +37,20 @@ static void signalHandler( int signum )
 
 void fillTables()
 {
-	TableInfo btcInfo("BTCUSDT", 10, 5);
-	TableInfo btcPerpInfo("BTCUSD_PERP", 10, 5);
+	// TableInfo btcInfo("BTCUSDT", 10, 5);
+	// TableInfo btcPerpInfo("BTCUSD_PERP", 10, 5);
 
-	TableInfo ethInfo("ETHUSDT", 10, 5);
-	TableInfo ethPerpInfo("ETHUSD_PERP", 10, 5);
+	// TableInfo bnbInfo("BNBUSDT", 10, 5);
+	// TableInfo bnbPerpInfo("BNBUSD_PERP", 9, 5);
 
-	TableInfo bnbInfo("BNBUSDT", 10, 5);
-	TableInfo bnbPerpInfo("BNBUSD_PERP", 9, 5);
+	TableInfo ethInfo("ETHUSDT", 20, 5);
+	TableInfo ethPerpInfo("ETHUSD_PERP", 20, 5);
+
+	TableInfo btcInfo("BTCUSDT", 20, 5);
+	TableInfo btcPerpInfo("BTCUSD_PERP", 20, 5);
+
+	TableInfo bnbInfo("BNBUSDT", 20, 5);
+	TableInfo bnbPerpInfo("BNBUSD_PERP", 20, 5);
 
 	bnbInfo.data = new double*[bnbInfo.rows];
 	for (int i = 0; i < bnbInfo.rows; ++i) {  
