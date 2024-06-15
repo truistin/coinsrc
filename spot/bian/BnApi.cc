@@ -862,15 +862,15 @@ uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
     uri->AddParam(("newClientOrderId"), std::to_string(order.OrderRef));
     uri->setUriClientOrdId(order.OrderRef);
     if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_LIMIT_CROSS) {
-        uri->AddParam(("type"), ("LIMIT"));
+        uri->AddParam(("type"), ("LIMIT_MAKER"));
         uri->AddParam(("side"), ("BUY"));
         ConvertPrice(order, *(uri.get()));
-        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+        // uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
     } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_LIMIT_CROSS) {
-        uri->AddParam(("type"), ("LIMIT"));
+        uri->AddParam(("type"), ("LIMIT_MAKER"));
         uri->AddParam(("side"), ("SELL"));
         ConvertPrice(order, *(uri.get()));
-        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+        // uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
     } else if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_MARKET) {
         uri->AddParam(("type"), ("MARKET"));
         uri->AddParam(("side"), ("BUY"));
