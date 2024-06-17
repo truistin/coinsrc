@@ -1168,8 +1168,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return false;
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            string timeInForce = "GTX";
-            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            // string timeInForce = "GTX";
+            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
             if (AssetType_Spot == sy.type) {
                 string Category = LEVERAGE;
@@ -1219,8 +1219,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            string timeInForce = "GTX";
-            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            // string timeInForce = "GTX";
+            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
             if (AssetType_Spot == sy.type) {
                 string Category = LEVERAGE;
@@ -1275,8 +1275,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            string timeInForce = "GTX";
-            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            // string timeInForce = "GTX";
+            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
             if (AssetType_Spot == sy2->type) {
                 string Category = LEVERAGE;
@@ -1325,8 +1325,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             SetOrderOptions order;
             order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            string timeInForce = "GTX";
-            memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            // string timeInForce = "GTX";
+            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
             if (AssetType_Spot == sy2->type) {
                 string Category = LEVERAGE;
@@ -1540,8 +1540,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
@@ -1603,8 +1603,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
@@ -1651,8 +1651,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1714,8 +1714,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1850,8 +1850,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
@@ -1889,8 +1889,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
@@ -1929,8 +1929,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1967,8 +1967,8 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
                 order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                string timeInForce = "GTX";
-                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                // string timeInForce = "GTX";
+                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
