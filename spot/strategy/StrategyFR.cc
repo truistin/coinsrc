@@ -919,7 +919,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�7
+        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�7
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0)) {   
             if (getIocOrdPendingLen(*sy2) != 0)
                 return;       
@@ -969,7 +969,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�7
+        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�7
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -996,7 +996,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�7
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�7
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
@@ -1046,7 +1046,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�7
+        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�7
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -1516,6 +1516,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             if (IS_DOUBLE_GREATER(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
                     LOG_WARN << "MarketDataTradingLogic sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p
+                        << ", sy2 mid_p: " << sy2->mid_p << ", sy2 real_pos: " << sy2->real_pos
                         << ", mv_ratio: " << sy1.mv_ratio << ", bal: " << bal;
                     return;
                 }
@@ -1529,6 +1530,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
                     LOG_WARN << "MarketDataTradingLogic sy1 min_amount: " << sy1.min_amount << ", sy1 mid_p: " << sy1.mid_p
+                        << ", sy2 mid_p: " << sy2->mid_p << ", sy1 real_pos: " << sy1.real_pos
+                        << ", sy2 real_pos: " << sy2->real_pos
                         << ", qty: " << qty;
                     return;
                 }
@@ -1564,7 +1567,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 LOG_INFO << "MarketDataTradingLogic sy1 maker open sell: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
-                    << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy1 long_short_flag: " << sy1.long_short_flag 
+                    << ", sy1 mid_p: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy2 mid_p: " << sy2->mid_p << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
                     << marketData.AskPrice1 + sy1.prc_tick_size << ", sy1 order qty: " << qty
                     << ", bal: " << bal << ", spread_rate: " << spread_rate;    
@@ -1580,7 +1585,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             if (IS_DOUBLE_LESS(spread_rate, sy1.fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy1.real_pos) * sy1.mid_p, sy1.mv_ratio * bal)) {
                     LOG_WARN << "MarketDataTradingLogic sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p
-                        << ", mv_ratio: " << sy1.mv_ratio << ", bal: " << bal;
+                        << ", mv_ratio: " << sy1.mv_ratio << ", bal: " << bal
+                        << ", sy2 mid_p: " << sy2->mid_p << ", sy2 real_pos: " << sy2->real_pos;
                     return;
                 }
 
@@ -1593,6 +1599,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 if (IS_DOUBLE_LESS(qty * sy1.mid_p, sy1.min_amount)) {
                     LOG_WARN << "MarketDataTradingLogic sy1 min_amount: " << sy1.min_amount << ", sy1 mid_p: " << sy1.mid_p
+                        << ", sy2 mid_p: " << sy2->mid_p << ", sy2 real_pos: " << sy2->real_pos
                         << ", qty: " << qty;
                     return;
                 }
@@ -1627,7 +1634,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
                 LOG_INFO << "MarketDataTradingLogic sy1 maker open long: " << sy1.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
                     << ", sy1 maker_taker_flag: " << sy1.make_taker_flag
-                    << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy1 long_short_flag: " << sy1.long_short_flag 
+                    << ", sy1 mid_p: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
+                    << ", sy2 mid_p: " << sy2->mid_p << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy1 category: " << sy1.type << ", sy1 order price: "
                     << marketData.BidPrice1 - sy1.prc_tick_size << ", sy1 order qty: " << qty
                     << ", bal: " << bal << ", spread_rate: " << spread_rate;  
@@ -1644,8 +1653,10 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
             if (IS_DOUBLE_LESS(spread_rate, sy2->fr_open_thresh)) {
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                     LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
-                        << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
-                        <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
+                        << ", make mid px: " << sy2->mid_p << ", make real_pos: " << sy2->real_pos
+                        << ", mv_ratio: " << sy2->mv_ratio <<", bal: " << bal 
+                        << ", sy1 mid px: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
+                        << ", sy1 real_pos: " << sy1.real_pos;
                     return;
                 }
 
@@ -1692,6 +1703,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 LOG_INFO << "ClosePosition sy2 maker open long: " << sy2->sy << ", sy2 order side: " << INNER_DIRECTION_Buy
                     << ", sy2 maker_taker_flag: " << sy2->make_taker_flag
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
+                    << ", sy1 mid px: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->bid_p - sy2->prc_tick_size << ", sy2 order qty: " << qty
                     << ", bal: " << bal << ", spread_rate: " << spread_rate; 
@@ -1708,6 +1720,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 if (IS_DOUBLE_GREATER(abs(sy2->real_pos) * sy2->mid_p, sy2->mv_ratio * bal)) {
                     LOG_WARN << "MarketDataTradingLogic sy2 make symbol: " << sy2->sy
                         << ", make mid px: " << sy2->mid_p << ", mv_ratio: " << sy2->mv_ratio
+                        << ", sy1 mid px: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
                         <<", bal: " << bal << ", make real_pos: " << sy2->real_pos;
                     return;
                 }
@@ -1757,6 +1770,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                     << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                     << ", sy2 category: " << sy2->type << ", sy2 order price: "
                     << sy2->ask_p + sy2->prc_tick_size << ", sy2 order qty: " << qty
+                    << ", sy1 mid px: " << sy1.mid_p << ", sy1 real_pos: " << sy1.real_pos
                     << ", bal: " << bal << ", spread_rate: " << spread_rate; 
             }
         }
