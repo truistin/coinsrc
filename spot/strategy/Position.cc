@@ -125,7 +125,8 @@ void Position::updatePosition(const Order &rtnOrder)
 		<< ", short: " << pnlDaily_.TodayShort
 		<< ", EntryPrice: " << pnlDaily_.EntryPrice 
 		<< ", tempNet: " << tempNet
-		<< ", volume: " << rtnOrder.Volume;
+		<< ", volume: " << rtnOrder.Volume
+		<< ", price: " << rtnOrder.Price;
 }
 
 void Position::updateUPnlInfo(const Order &rtnOrder)
