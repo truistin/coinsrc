@@ -1406,7 +1406,7 @@ bool StrategyFR::IsExistOrders(sy_info* sy, double px, int side)
                 // }
                 for (const auto& iter : it.second->OrderList) {
                     flag = true;
-                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.orderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
+                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.OrderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
                         (strcmp(iter.InstrumentID, sy->sy) == 0)) {
                         LOG_INFO << "buy OrderList info: " << iter.InstrumentID << ", orderRef: " 
                             << iter.OrderRef << ", status: " << iter.OrderStatus << ", order list: " << it.second->OrderList.size();
@@ -1430,7 +1430,7 @@ bool StrategyFR::IsExistOrders(sy_info* sy, double px, int side)
                 //     continue; 
                 // }
                 for (const auto& iter : it.second->OrderList) {
-                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.orderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
+                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.OrderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
                         (strcmp(iter.InstrumentID, sy->sy) == 0)) {
                         flag = true;
                         LOG_INFO << "sell OrderList info: " << iter.InstrumentID << ", orderRef: " 
