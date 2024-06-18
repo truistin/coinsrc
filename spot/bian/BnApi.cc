@@ -865,19 +865,28 @@ uint64_t BnApi::ReqOrderInsert_lever(const Order& order) {
         uri->AddParam(("type"), ("LIMIT_MAKER"));
         uri->AddParam(("side"), ("BUY"));
         ConvertPrice(order, *(uri.get()));
-        // uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
     } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_LIMIT_CROSS) {
         uri->AddParam(("type"), ("LIMIT_MAKER"));
         uri->AddParam(("side"), ("SELL"));
         ConvertPrice(order, *(uri.get()));
-        // uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
+        uri->AddParam(("timeInForce"), (string(order.TimeInForce)));
     } else if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_MARKET) {
         uri->AddParam(("type"), ("MARKET"));
         uri->AddParam(("side"), ("BUY"));
     } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_MARKET) {
         uri->AddParam(("type"), ("MARKET"));
         uri->AddParam(("side"), ("SELL"));
+    } else if (order.Direction == INNER_DIRECTION_Buy && order.OrderType == ORDERTYPE_LIMIT_MAKER_CROSS) {
+        uri->AddParam(("type"), ("LIMIT_MAKER"));
+        uri->AddParam(("side"), ("BUY"));
+        ConvertPrice(order, *(uri.get()));
+    } else if (order.Direction == INNER_DIRECTION_Sell && order.OrderType == ORDERTYPE_LIMIT_MAKER_CROSS) {
+        uri->AddParam(("type"), ("LIMIT_MAKER"));
+        uri->AddParam(("side"), ("SELL"));
+        ConvertPrice(order, *(uri.get()));
     }
+
     uri->AddParam(("sideEffectType"), ("MARGIN_BUY"));
 
     uri->AddParam(("recvWindow"), ("3000"));

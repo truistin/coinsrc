@@ -1167,9 +1167,14 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
 
             if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return false;
             SetOrderOptions order;
-            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            // string timeInForce = "GTX";
-            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string sym = sy.sy;
+            if (sym.find("spot") != string::npos && sy.make_taker_flag == 1) {
+                order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+            } else {      
+                order.orderType = ORDERTYPE_LIMIT_CROSS;
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            }
 
             if (AssetType_Spot == sy.type) {
                 string Category = LEVERAGE;
@@ -1218,9 +1223,14 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (IS_DOUBLE_LESS(qty * sy.mid_p, sy.min_amount)) return false;
 
             SetOrderOptions order;
-            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            // string timeInForce = "GTX";
-            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string sym = sy.sy;
+            if (sym.find("spot") != string::npos && sy.make_taker_flag == 1) {
+                order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+            } else {      
+                order.orderType = ORDERTYPE_LIMIT_CROSS;
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            }
 
             if (AssetType_Spot == sy.type) {
                 string Category = LEVERAGE;
@@ -1274,9 +1284,14 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return false;
 
             SetOrderOptions order;
-            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            // string timeInForce = "GTX";
-            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string sym = sy2->sy;
+            if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+            } else {      
+                order.orderType = ORDERTYPE_LIMIT_CROSS;
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            }
 
             if (AssetType_Spot == sy2->type) {
                 string Category = LEVERAGE;
@@ -1324,9 +1339,14 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
             if (IS_DOUBLE_LESS(qty * sy2->mid_p, sy2->min_amount)) return false;
 
             SetOrderOptions order;
-            order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-            // string timeInForce = "GTX";
-            // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            string sym = sy2->sy;
+            if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+            } else {      
+                order.orderType = ORDERTYPE_LIMIT_CROSS;
+                string timeInForce = "GTX";
+                memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+            }
 
             if (AssetType_Spot == sy2->type) {
                 string Category = LEVERAGE;
@@ -1386,7 +1406,8 @@ bool StrategyFR::IsExistOrders(sy_info* sy, double px, int side)
                 // }
                 for (const auto& iter : it.second->OrderList) {
                     flag = true;
-                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.orderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
+                        (strcmp(iter.InstrumentID, sy->sy) == 0)) {
                         LOG_INFO << "buy OrderList info: " << iter.InstrumentID << ", orderRef: " 
                             << iter.OrderRef << ", status: " << iter.OrderStatus << ", order list: " << it.second->OrderList.size();
                         if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
@@ -1409,7 +1430,8 @@ bool StrategyFR::IsExistOrders(sy_info* sy, double px, int side)
                 //     continue; 
                 // }
                 for (const auto& iter : it.second->OrderList) {
-                    if (strcmp(iter.TimeInForce, "GTX") == 0 && strcmp(iter.InstrumentID, sy->sy) == 0) {
+                    if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.orderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
+                        (strcmp(iter.InstrumentID, sy->sy) == 0)) {
                         flag = true;
                         LOG_INFO << "sell OrderList info: " << iter.InstrumentID << ", orderRef: " 
                             << iter.OrderRef << ", status: " << iter.OrderStatus << ", order list: " << it.second->OrderList.size();
@@ -1542,10 +1564,15 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 //  qty = sy1.min_delta_limit;
 
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
 
+                string sym = sy1.sy;
+                if (sym.find("spot") != string::npos && sy1.make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
                 if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
                     memcpy(order.Category, Category.c_str(), min(uint16_t(CategoryLen), uint16_t(Category.size())));
@@ -1609,9 +1636,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 }
 
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy1.sy;
+                if (sym.find("spot") != string::npos && sy1.make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy1.type) {
                     string Category = LEVERAGE;
@@ -1661,9 +1693,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 }
 
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy2->sy;
+                if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1726,9 +1763,14 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
                 }
 
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy2->sy;
+                if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1863,9 +1905,14 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
 
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy.sy;
+                if (sym.find("spot") != string::npos && sy.make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
@@ -1902,9 +1949,14 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 // if (getSellPendingLen(sy) != 0) return;
                 if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy.sy;
+                if (sym.find("spot") != string::npos && sy.make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy.type) {
                     string Category = LEVERAGE;
@@ -1942,9 +1994,14 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 // if (getBuyPendingLen(*sy2) != 0) return;
                 if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy2->sy;
+                if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
@@ -1980,9 +2037,14 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
                 // if (getSellPendingLen(*sy2) != 0) return;
                 if (abs(sy2->real_pos) * sy2->mid_p < sy2->min_amount) return;
                 SetOrderOptions order;
-                order.orderType = ORDERTYPE_LIMIT_CROSS; // ?
-                // string timeInForce = "GTX";
-                // memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                string sym = sy2->sy;
+                if (sym.find("spot") != string::npos && sy2->make_taker_flag == 1) {
+                    order.orderType = ORDERTYPE_LIMIT_MAKER_CROSS;
+                } else {      
+                    order.orderType = ORDERTYPE_LIMIT_CROSS;
+                    string timeInForce = "GTX";
+                    memcpy(order.TimeInForce, timeInForce.c_str(), min(uint16_t(TimeInForceLen), uint16_t(timeInForce.size())));
+                }
 
                 if (AssetType_Spot == sy2->type) {
                     string Category = LEVERAGE;
