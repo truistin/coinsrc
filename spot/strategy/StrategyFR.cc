@@ -919,7 +919,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�7
+        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�71ￄ1�77
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0)) {   
             if (getIocOrdPendingLen(*sy2) != 0)
                 return;       
@@ -969,7 +969,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�7
+        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�71ￄ1�77
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -996,7 +996,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�7
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�71ￄ1�77
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
@@ -1046,7 +1046,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�7
+        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�71ￄ1�77
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -1102,7 +1102,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
 bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
-    if (!IS_DOUBLE_NORMAL(sy1.avg_price) && !IS_DOUBLE_NORMAL(sy2.avg_price)) return false;
+    if (!IS_DOUBLE_NORMAL(sy1.avg_price) || !IS_DOUBLE_NORMAL(sy2.avg_price)) return false;
     double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
     double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
 
