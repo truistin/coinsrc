@@ -449,13 +449,13 @@ int BianTdSpi::httpAsynCancelCallback(char * result, uint64_t clientId)
 		// orderStore_->storeHandle(std::move(rspOrder));
 		// return -1;
 	}
-	LOG_DEBUG << "BianTdSpi httpAsynCancelCallback: " << result;
+	LOG_DEBUG << "BianTdSpi httpAsynCancelCallback: " << result << ", clientId: " << clientId;
     BianRspCancelOrder rspCancleOrder;
     int ret = rspCancleOrder.decode(result);
 
 	if (ret != 0) {
-		LOG_ERROR << "BianTdSpi httpAsynCancelCallback BianRspCancelOrder decode fail" << result;
-		cout << "BianTdSpi httpAsynCancelCallback BianRspCancelOrder decode fail" << result << endl;
+		LOG_ERROR << "BianTdSpi httpAsynCancelCallback BianRspCancelOrder decode fail" << result<< ", clientId: " << clientId;
+		cout << "BianTdSpi httpAsynCancelCallback BianRspCancelOrder decode fail" << result << ", clientId: " << clientId<< endl;
 		Order rspOrder;
 		memcpy(rspOrder.CounterType, InterfaceBinance.c_str(), min(sizeof(rspOrder.CounterType) - 1, InterfaceBinance.size()));
 
