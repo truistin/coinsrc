@@ -942,12 +942,15 @@ public:
 		memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
 	
 
-		ordId = doc["i"].GetUint64();
+		// ordId = doc["i"].GetUint64();
 	
-
-		str = doc["c"].GetString();
-		memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
-	
+		if (str == "CANCELED") {
+			str = doc["C"].GetString();
+			memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
+		} else {
+			str = doc["c"].GetString();
+			memcpy(clOrdId, str.c_str(), min(sizeof(clOrdId) - 1, str.size()));
+		}
 
 		str = doc["S"].GetString();
 		memcpy(direction, str.c_str(), min(sizeof(direction) - 1, str.size()));
@@ -996,7 +999,7 @@ public:
 		memcpy(state, str.c_str(), min(sizeof(state) - 1, str.size()));
 	
 
-		ordId = dataNode["i"].GetUint64();
+		// ordId = dataNode["i"].GetUint64();
 			
 
 		str = dataNode["c"].GetString();
