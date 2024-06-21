@@ -115,6 +115,10 @@ void StrategyFR::qryPosition() {
                 iter->position().PublicPnlDaily().TodayLong = equity;
                 iter->position().PublicPnlDaily().NetPosition = equity;
             }
+            
+            sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
+            sy_info* sy2 = sy1.ref;
+            iter->position().PublicPnlDaily().EntryPrice = sy2->inst->position().PublicPnlDaily().EntryPrice;
         } else {
             LOG_FATAL << "qryPosition symbol fatal: " << iter->instrument()->getInstrumentID();
         }
@@ -1102,24 +1106,56 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 
 bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
 { 
-    if (!IS_DOUBLE_NORMAL(sy1.avg_price) || !IS_DOUBLE_NORMAL(sy2.avg_price)) return false;
-    double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
-    double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+    if (!IS_DOUBLE_NORMAL(sy1.mid_p) || !IS_DOUBLE_NORMAL(sy2.mid_p)) return false;
 
-    if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
-        LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
-            << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
-            <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
-            << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
-        return true;
+    double make_close_thresh = 0;
+    if (sy1.long_short_flag == 0) {
+        LOG_INFO << "calc_arb_by_maker long make_close_thresh: " << make_close_thresh
+        << ", long_short_flag: " <<  sy1.long_short_flag
+        << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+        << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+
+        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (IS_DOUBLE_GREATER(make_close_thresh, sy1.thresh)) return true;
+    }
+
+    if (sy1.long_short_flag == 1) {
+        LOG_INFO << "calc_arb_by_maker short make_close_thresh: " << make_close_thresh
+        << ", long_short_flag: " <<  sy1.long_short_flag
+        << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+        << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+
+        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (IS_DOUBLE_LESS(make_close_thresh, sy1.thresh)) return true;
     }
     
-    LOG_INFO << "calc_arb_by_maker no make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
+    LOG_INFO << "calc_arb_by_maker make_close_thresh: " << make_close_thresh
+    << ", long_short_flag: " <<  sy1.long_short_flag
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
-        <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
     return false;
 }
+
+// bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2) 
+// { 
+//     if (!IS_DOUBLE_NORMAL(sy1.avg_price) || !IS_DOUBLE_NORMAL(sy2.avg_price)) return false;
+//     double make_open_thresh =  (sy1.avg_price - sy2.avg_price) / sy2.avg_price;
+//     double make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+
+//     if (IS_DOUBLE_GREATER(abs(make_open_thresh - make_close_thresh), abs(sy1.fr_open_thresh - sy1.thresh))) {
+//         LOG_INFO << "calc_arb_by_maker yes make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
+//             << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+//             <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
+//             << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+//         return true;
+//     }
+    
+//     LOG_INFO << "calc_arb_by_maker no make_open_thresh: " << make_open_thresh << ", make_close_thresh: " << make_close_thresh
+//         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
+//         <<", sy1 avg_price: " << sy1.avg_price << " sy2 avg_price: " << sy2.avg_price
+//         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
+//     return false;
+// }
 
 // flag 1 arb , 0 fr
 //close arb_thresh/fr_close_thresh   maker/taker(at most larger than taker)��maker/taker(at least large than taker)
