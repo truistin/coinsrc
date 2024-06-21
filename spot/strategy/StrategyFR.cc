@@ -1110,23 +1110,23 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
 
     double make_close_thresh = 0;
     if (sy1.long_short_flag == 0) {
+        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (IS_DOUBLE_GREATER(make_close_thresh, sy1.thresh)) return true;
+
         LOG_INFO << "calc_arb_by_maker long make_close_thresh: " << make_close_thresh
         << ", long_short_flag: " <<  sy1.long_short_flag
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
-
-        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
-        if (IS_DOUBLE_GREATER(make_close_thresh, sy1.thresh)) return true;
     }
 
     if (sy1.long_short_flag == 1) {
+        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
+        if (IS_DOUBLE_LESS(make_close_thresh, sy1.thresh)) return true;
+        
         LOG_INFO << "calc_arb_by_maker short make_close_thresh: " << make_close_thresh
         << ", long_short_flag: " <<  sy1.long_short_flag
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
-
-        make_close_thresh =  (sy1.mid_p - sy2.mid_p) / sy2.mid_p;
-        if (IS_DOUBLE_LESS(make_close_thresh, sy1.thresh)) return true;
     }
     
     LOG_INFO << "calc_arb_by_maker make_close_thresh: " << make_close_thresh
