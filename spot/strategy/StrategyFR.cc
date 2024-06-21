@@ -116,7 +116,7 @@ void StrategyFR::qryPosition() {
                 iter->position().PublicPnlDaily().NetPosition = equity;
             }
             
-            sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
+            sy_info& sy1 = (*make_taker)[iter->instrument()->getInstrumentID()];
             sy_info* sy2 = sy1.ref;
             iter->position().PublicPnlDaily().EntryPrice = sy2->inst->position().PublicPnlDaily().EntryPrice;
         } else {
