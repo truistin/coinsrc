@@ -229,11 +229,12 @@ void StrategyFR::init()
             }
         }
     }
-
+    for (auto& it : (*make_taker)) {
+        it.second.ref = &(*make_taker)[it.second.ref_sy];
+    }
     qryPosition();
 
     for (auto& it : (*make_taker)) {
-        it.second.ref = &(*make_taker)[it.second.ref_sy];
         it.second.real_pos = it.second.inst->position().getNetPosition();
         LOG_INFO << "make_taker ref: " << it.second.sy << ", ref sy: " << it.second.ref_sy << ", ref: " << it.second.ref
             << ", inst: " << it.second.inst
@@ -923,7 +924,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->ask_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�71ￄ1�77
+        // sy1 maker open_long sy1.pos > 0 delta_pos > 0 sy2.open_short 弢�仄1�71ￄ1�77
         } else if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 0)) {   
             if (getIocOrdPendingLen(*sy2) != 0)
                 return;       
@@ -973,7 +974,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy1 long_short_flag: " << sy1.long_short_flag << ", sy1 real_pos: " << sy1.real_pos
                 << ", sy2 real_pos: " << sy2->real_pos << ", sy1 category: " << sy1.type << ", sy1 order price: "
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�71ￄ1�77
+        // sy2 maker open_long sy2.pos>0 delta_pos>0 sy1.open_short 弢�仄1�71ￄ1�77
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 0)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
@@ -1000,7 +1001,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << sy1.ask_p << ", sy1 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
         }
     } else if (IS_DOUBLE_LESS(delta_posi, 0)) {
-        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�71ￄ1�77
+        // sy1 maker open_short sy1.pos<0 delta_pos<0 sy2 open_long 弢�仄1�71ￄ1�77
         if ((sy1.make_taker_flag == 1) && (sy1.long_short_flag == 1)) {
             if (getIocOrdPendingLen(*sy2) != 0)
                 return; 
@@ -1050,7 +1051,7 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
                 << ", sy2 long_short_flag: " << sy2->long_short_flag << ", sy2 real_pos: " << sy2->real_pos
                 << ", sy1 real_pos: " << sy1.real_pos << ", sy2 category: " << sy2->type << ", sy2 order price: "
                 << sy2->bid_p << ", sy2 order qty: " << taker_qty << ", delta_posi: " << delta_posi;
-        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�71ￄ1�77
+        //sy2 maker open_short sy2.pos<0 delta_pos<0 sy1 open_long 弢�仄1�71ￄ1�77
         } else if ((sy2->make_taker_flag == 1) && (sy2->long_short_flag == 1)) { 
             if (getIocOrdPendingLen(sy1) != 0)
                 return; 
