@@ -781,7 +781,8 @@ double StrategyFR::calc_uniMMR()
 {
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
-    LOG_INFO << "uniAccount_equity:" << uniAccount_equity << ", uniAccount_mm:" << uniAccount_mm;
+    LOG_INFO << "uniAccount_equity:" << uniAccount_equity << ", uniAccount_mm:" << uniAccount_mm
+        << ", MR_VAL: " << (uniAccount_equity)/(uniAccount_mm);
     if (uniAccount_mm == 0) return 999;
     if (uniAccount_mm == -1) return 8;
     return (uniAccount_equity)/(uniAccount_mm);
@@ -2125,7 +2126,7 @@ void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 bool StrategyFR::make_continue_mr(double& mr)
 {
     mr = calc_uniMMR();
-    LOG_INFO << "MR_VAL: " << mr;
+    // LOG_INFO << "MR_VAL: " << mr;
     if (IS_DOUBLE_GREATER(mr, 9)) {
         return true;
     }
