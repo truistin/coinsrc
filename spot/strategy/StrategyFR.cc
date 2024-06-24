@@ -892,8 +892,8 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     } else if(sy2->make_taker_flag == 0) {
         if (IS_DOUBLE_LESS(abs(delta_posi * sy2->mid_p), sy2->min_amount)) return;
     }
-    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
-        LOG_FATAL <<  "more than 3 * fragment " << symbol << ", delta_posi: " << delta_posi;
+    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 4 * sy1.fragment)) {
+        LOG_FATAL <<  "more than 4 * fragment " << symbol << ", delta_posi: " << delta_posi;
         return;
     }
     double taker_qty = abs(delta_posi);
@@ -1185,8 +1185,8 @@ bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, i
         return false;
     }
     double delta_posi = sy.real_pos + sy2->real_pos;
-    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy.mid_p, 3 * sy.fragment)) {
-        LOG_FATAL <<  "more than 3 * fragment " << sy.sy << ", delta_posi: " << delta_posi;
+    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy.mid_p, 2 * sy.fragment)) {
+        LOG_ERROR <<  "more than 2 * fragment " << sy.sy << ", delta_posi: " << delta_posi;
         return false;
     }
     if (sy.make_taker_flag == 1) { // sy1 maker
@@ -1563,8 +1563,8 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     }
     double bal = calc_balance();
     double delta_posi = sy1.real_pos + sy2->real_pos;
-    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 3 * sy1.fragment)) {
-        LOG_FATAL <<  "more than 3 * fragment " << sy1.sy << ", delta_posi: " << delta_posi;
+    if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 2 * sy1.fragment)) {
+        LOG_ERROR <<  "more than 2 * fragment " << sy1.sy << ", delta_posi: " << delta_posi;
         return;
     }
 
