@@ -52,8 +52,8 @@ void fillTables()
 	TableInfo bnbInfo("BNBUSDT", 20, 5);
 	TableInfo bnbPerpInfo("BNBUSD_PERP", 20, 5);
 
-	TableInfo bnbInfo("SOLUSDT", 20, 5);
-	TableInfo bnbPerpInfo("SOLUSD_PERP", 20, 5);
+	TableInfo solInfo("SOLUSDT", 20, 5);
+	TableInfo solPerpInfo("SOLUSD_PERP", 20, 5);
 
 	bnbInfo.data = new double*[bnbInfo.rows];
 	for (int i = 0; i < bnbInfo.rows; ++i) {  
