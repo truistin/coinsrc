@@ -112,6 +112,8 @@ void fillTables()
 	mmr_table.push_back(btcPerpInfo);
 	mmr_table.push_back(ethInfo);
 	mmr_table.push_back(ethPerpInfo);
+	mmr_table.push_back(solInfo);
+	mmr_table.push_back(solPerpInfo);
 }
 
 int main(int argc, char* argv[])
