@@ -59,6 +59,7 @@ namespace spot {
 				double price_ratio;
 				int64_t exch_ts;
 				double real_pos;
+				long long market_close_freeze_time = 0;
 				sy_info* ref;
 				StrategyInstrument *inst;
 				OrderByPriceMap* sellMap; // pendingorders
@@ -131,7 +132,6 @@ namespace spot {
 		private:
 			map<string, double>* margin_leverage;
 			map<double, double>* margin_mmr;
-			long long market_close_freeze_time = 0;
 		public:
 			map<string, double>* last_price_map;
 

@@ -781,7 +781,7 @@ double StrategyFR::calc_uniMMR()
 {
     double uniAccount_equity = calc_equity();
     double uniAccount_mm = calc_mm();
-    LOG_INFO << "uniAccount_equity:" << uniAccount_equity << ", uniAccount_mm:" << uniAccount_mm
+    LOG_DEBUG << "uniAccount_equity:" << uniAccount_equity << ", uniAccount_mm:" << uniAccount_mm
         << ", MR_VAL: " << (uniAccount_equity)/(uniAccount_mm);
     if (uniAccount_mm == 0) return 999;
     if (uniAccount_mm == -1) return 8;
@@ -1877,11 +1877,13 @@ void StrategyFR::OnForceCloseTimerInterval()
 
 void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 {
-    LOG_INFO << "before market_close_freeze_time:" << market_close_freeze_time << ", curr_mstime_point:" << CURR_MSTIME_POINT;
-    if (market_close_freeze_time > CURR_MSTIME_POINT) return;
-    market_close_freeze_time = CURR_MSTIME_POINT + 1000;
-    LOG_INFO << "after market_close_freeze_time:" << market_close_freeze_time;
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
+
+    LOG_INFO << "before market_close_freeze_time:" << sy.market_close_freeze_time << ", curr_mstime_point:" << CURR_MSTIME_POINT;
+    if (sy.market_close_freeze_time > CURR_MSTIME_POINT) return;
+    sy.market_close_freeze_time = CURR_MSTIME_POINT + 2000;
+    LOG_INFO << "after market_close_freeze_time:" << sy.market_close_freeze_time;
+
     string stType = "Mr_Market_Close";
 
     if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
@@ -2140,8 +2142,11 @@ bool StrategyFR::action_mr(double mr)
         for (const auto& iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
         }
+        for (auto it : (*make_taker)) {
+            it.second.market_close_freeze_time = 0;
+        }
         return false;
-    } else if (IS_DOUBLE_LESS(mr, 3)) {
+    } else if (IS_DOUBLE_LESS_EQUAL(mr, 3)) {
         LOG_INFO << "start taker close";
         for (const auto& iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
