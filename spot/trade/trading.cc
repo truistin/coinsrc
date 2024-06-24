@@ -55,6 +55,19 @@ void fillTables()
 	TableInfo solInfo("SOLUSDT", 20, 5);
 	TableInfo solPerpInfo("SOLUSD_PERP", 20, 5);
 
+	solInfo.data = new double*[solInfo.rows];
+	for (int i = 0; i < solInfo.rows; ++i) {  
+		solInfo.data[i] = new double[solInfo.cols];
+		memset(solInfo.data[i], 0, sizeof(double) * solInfo.cols);  
+	}  
+ 
+
+	solPerpInfo.data = new double*[solPerpInfo.rows];
+	for (int i = 0; i < solPerpInfo.rows; ++i) {  
+		solPerpInfo.data[i] = new double[solPerpInfo.cols];
+		memset(solPerpInfo.data[i], 0, sizeof(double) * solPerpInfo.cols);  
+	} 
+
 	bnbInfo.data = new double*[bnbInfo.rows];
 	for (int i = 0; i < bnbInfo.rows; ++i) {  
 		bnbInfo.data[i] = new double[bnbInfo.cols];
