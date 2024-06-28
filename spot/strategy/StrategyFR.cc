@@ -1925,6 +1925,13 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
         setOrder(sy.inst, INNER_DIRECTION_Sell,
             sy.bid_p,
             abs(qty), order);
+        LOG_INFO << "Mr_Market_ClosePosition buy: " << sy.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+            << ", sy1 maker_taker_flag: " << sy.make_taker_flag
+            << ", sy1 long_short_flag: " << sy.long_short_flag 
+            << ", sy1 mid_p: " << sy.mid_p << ", sy1 real_pos: " << sy.real_pos
+            << ", sy1 category: " << sy.type << ", sy1 order price: "
+            << ", sy1 order qty: " << qty;
+
     } else if (IS_DOUBLE_LESS(sy.real_pos, 0) && (sy.long_short_flag == 1)) {
         double qty = std::min(abs(sy.real_pos), sy2->bid_v / 2);
         qty = std::min(qty, sy.fragment/sy.bid_p);
@@ -1934,6 +1941,12 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
         setOrder(sy.inst, INNER_DIRECTION_Buy,
             sy.ask_p,
             abs(qty), order);
+        LOG_INFO << "Mr_Market_ClosePosition buy: " << sy.sy << ", sy1 order side: " << INNER_DIRECTION_Buy
+            << ", sy1 maker_taker_flag: " << sy.make_taker_flag
+            << ", sy1 long_short_flag: " << sy.long_short_flag 
+            << ", sy1 mid_p: " << sy.mid_p << ", sy1 real_pos: " << sy.real_pos
+            << ", sy1 category: " << sy.type << ", sy1 order price: "
+            << ", sy1 order qty: " << qty;
     }
 }
 
