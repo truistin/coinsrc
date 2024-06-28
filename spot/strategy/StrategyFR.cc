@@ -1880,14 +1880,20 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
     if (sy.make_taker_flag == 0) return;
 
-    LOG_INFO << "before market_close_freeze_time:" << sy.market_close_freeze_time << ", curr_mstime_point:" << CURR_MSTIME_POINT;
-    if (sy.market_close_freeze_time > CURR_MSTIME_POINT) return;
-    sy.market_close_freeze_time = CURR_MSTIME_POINT + 2000;
-    LOG_INFO << "after market_close_freeze_time:" << sy.market_close_freeze_time;
+    int64_t t = CURR_MSTIME_POINT;
+    LOG_WARN << "Mr_Market_ClosePosition market_close_freeze_time:" << sy.market_close_freeze_time << ", curr_mstime_point:" << t
+        << ", symbol: " << sy.sy << ", real_pos: " << sy.real_pos << ", mid_p: " << sy.mid_p << ", min_amount: " << sy.min_amount;
+    if (sy.market_close_freeze_time > t) return;
+    sy.market_close_freeze_time = t + 2000;
 
     string stType = "Mr_Market_Close";
 
-    if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) return;
+    if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) {
+        LOG_WARN << "Mr_Market_ClosePosition position small: "
+            << ", symbol: " << sy.sy << ", real_pos: " << sy.real_pos << ", mid_p: " << sy.mid_p << ", min_amount: " << sy.min_amount;
+        return;
+    }
+
     sy_info* sy2 = sy.ref;
     if (sy2 == nullptr) {
         LOG_ERROR << "Mr_Market_ClosePosition sy2 nullptr: " << sy.sy;
