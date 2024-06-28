@@ -1888,7 +1888,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 
     string stType = "Mr_Market_Close";
 
-    if (abs(sy.real_pos) * sy.mid_p < sy.min_amount) {
+    if (IS_DOUBLE_LESS((sy.real_pos) * sy.mid_p, sy.min_amount)) {
         LOG_WARN << "Mr_Market_ClosePosition position small: "
             << ", symbol: " << sy.sy << ", real_pos: " << sy.real_pos << ", mid_p: " << sy.mid_p << ", min_amount: " << sy.min_amount;
         return;
