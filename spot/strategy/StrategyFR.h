@@ -140,6 +140,7 @@ namespace spot {
 			map<string, sy_info>* make_taker;
 			map<string, string>* symbol_map;
 			int	cancel_order_interval;
+			atomic<double> atomic_mr;
 		};
     }
 }
