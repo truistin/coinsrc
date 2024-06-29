@@ -1116,7 +1116,7 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
         if (IS_DOUBLE_GREATER(make_close_thresh, sy1.thresh)) {
 
         LOG_INFO << "calc_arb_by_maker long make_close_thresh: " << make_close_thresh
-        << ", long_short_flag: " <<  sy1.long_short_flag
+        << ", long_short_flag: " <<  sy1.long_short_flag << ", make symbol: " << sy1.sy
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
         return true;
@@ -1128,7 +1128,7 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
         if (IS_DOUBLE_LESS(make_close_thresh, sy1.thresh)) {
         
         LOG_INFO << "calc_arb_by_maker short make_close_thresh: " << make_close_thresh
-        << ", long_short_flag: " <<  sy1.long_short_flag
+        << ", long_short_flag: " <<  sy1.long_short_flag << ", make symbol: " << sy1.sy
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
         return true;
@@ -1136,7 +1136,7 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
     }
     
     LOG_INFO << "calc_arb_by_maker make_close_thresh: " << make_close_thresh
-    << ", long_short_flag: " <<  sy1.long_short_flag
+    << ", long_short_flag: " <<  sy1.long_short_flag << ", make symbol: " << sy1.sy
         << ", fr_open_thresh: " << sy1.fr_open_thresh << ", sy1.thresh: " << sy1.thresh 
         << ", sy1 mid_p: " << sy1.mid_p << ", sy2 mid_p: " << sy2.mid_p;
     return false;
@@ -1528,7 +1528,7 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
 
-    if (!vaildAllSymboPrice(30000)) return;
+    if (!vaildAllSymboPrice(60000)) return;
 
     // LOG_INFO << "symbol1: " << sy1.sy << ", sy1 close_flag: " << sy1.close_flag << ", sy1 maker_taker_flag: " << sy1.make_taker_flag << ", sy1 long_short_flag: " << sy1.long_short_flag
     //      << ", sy1 real_pos: " << sy1.real_pos << ", sy1 mid_p: " << sy1.mid_p;
@@ -1888,7 +1888,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 
     string stType = "Mr_Market_Close";
 
-    if (IS_DOUBLE_LESS((sy.real_pos) * sy.mid_p, sy.min_amount)) {
+    if (IS_DOUBLE_LESS(abs(sy.real_pos) * sy.mid_p, sy.min_amount)) {
         LOG_WARN << "Mr_Market_ClosePosition position small: "
             << ", symbol: " << sy.sy << ", real_pos: " << sy.real_pos << ", mid_p: " << sy.mid_p << ", min_amount: " << sy.min_amount;
         return;
@@ -1925,7 +1925,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
         setOrder(sy.inst, INNER_DIRECTION_Sell,
             sy.bid_p,
             abs(qty), order);
-        LOG_INFO << "Mr_Market_ClosePosition buy: " << sy.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
+        LOG_INFO << "Mr_Market_ClosePosition sell: " << sy.sy << ", sy1 order side: " << INNER_DIRECTION_Sell
             << ", sy1 maker_taker_flag: " << sy.make_taker_flag
             << ", sy1 long_short_flag: " << sy.long_short_flag 
             << ", sy1 mid_p: " << sy.mid_p << ", sy1 real_pos: " << sy.real_pos
@@ -2180,7 +2180,7 @@ bool StrategyFR::action_mr(double mr)
 
 void StrategyFR::OnTimerTradingLogic() 
 {
-    if (!vaildAllSymboPrice(30000)) LOG_FATAL << "no mid price or slow mid price";
+    if (!vaildAllSymboPrice(180000)) LOG_ERROR << "no mid price or slow mid price";
     double mr = calc_uniMMR();
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
