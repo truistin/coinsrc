@@ -2158,7 +2158,7 @@ bool StrategyFR::make_continue_mr(double& mr)
 bool StrategyFR::action_mr(double mr)
 {
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
-        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1.5)) {
+        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1)) {
             LOG_ERROR << "predict mr fail: " << mr << ", qry mr: " << BnApi::accInfo_->uniMMR;
             return false;
         }
@@ -2171,7 +2171,7 @@ bool StrategyFR::action_mr(double mr)
         }
         return false;
     } else if (IS_DOUBLE_LESS_EQUAL(mr, 3)) {
-        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1.5)) {
+        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1)) {
             LOG_FATAL << "predict mr fatal: " << mr << ", qry mr: " << BnApi::accInfo_->uniMMR;
         }
 
