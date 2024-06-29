@@ -1170,7 +1170,7 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
     string str (marketData.InstrumentID);
-    if (str.find("eth") != string::npos) return;
+    if (str.find("eth") != string::npos) return false;
 
     bool flag = false;
 
