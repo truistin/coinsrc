@@ -1169,6 +1169,7 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
 //close arb_thresh/fr_close_thresh   maker/taker(at most larger than taker)��maker/taker(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
+    string str (marketData.InstrumentID);
     if (str.find("eth") != string::npos) return;
 
     bool flag = false;
@@ -1962,7 +1963,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-    if (str.find("eth") != string::npos) return;
+    if (sy.sy.find("eth") != string::npos) return;
     string stType = "FrClose";
 
     sy_info* sy2 = sy.ref;
