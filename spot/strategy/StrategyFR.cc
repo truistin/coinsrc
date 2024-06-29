@@ -888,9 +888,19 @@ void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
     }
     double delta_posi = sy1.real_pos + sy2->real_pos;
     if (sy1.make_taker_flag == 0) {
-        if (IS_DOUBLE_LESS(abs(delta_posi * sy1.mid_p), sy1.min_amount)) return;
+        if (IS_DOUBLE_LESS(abs(delta_posi * sy1.mid_p), sy1.min_amount)) {
+            LOG_INFO << "hedge sy1 maker taker flag 0: " << sy1.sy << ", mid px: " << sy1.mid_p
+                << ", min amount: " << sy1.min_amount << ", delta_posi: " << delta_posi
+                << ", sy1 real pos: " << sy1.real_pos << ", sy2 real pos: " << sy2->real_pos;
+            return;
+        }
     } else if(sy2->make_taker_flag == 0) {
-        if (IS_DOUBLE_LESS(abs(delta_posi * sy2->mid_p), sy2->min_amount)) return;
+        if (IS_DOUBLE_LESS(abs(delta_posi * sy2->mid_p), sy2->min_amount)) {
+            LOG_INFO << "hedge sy2 maker taker flag 0: " << sy2->sy << ", mid px: " << sy2->mid_p
+                << ", min amount: " << sy2->min_amount << ", delta_posi: " << delta_posi
+                << ", sy1 real pos: " << sy1.real_pos << ", sy2 real pos: " << sy2->real_pos;
+            return;
+        }
     }
     if (IS_DOUBLE_GREATER(abs(delta_posi) * sy1.mid_p, 4 * sy1.fragment)) {
         LOG_FATAL <<  "more than 4 * fragment " << symbol << ", delta_posi: " << delta_posi;
