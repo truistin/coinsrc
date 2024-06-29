@@ -1560,9 +1560,6 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
 
     double mr = 0;
     if (!make_continue_mr(mr)) {
-        if (IS_DOUBLE_GREATER_EQUAL(Bnapi::accInfo_->uniMMR - mr, 2)) {
-            LOG_FATAL << "predict mr fatal: " << mr << ", qry mr: " << Bnapi::accInfo_->uniMMR;
-        }
         action_mr(mr);
         return;
     }
@@ -2169,6 +2166,9 @@ bool StrategyFR::make_continue_mr(double& mr)
 bool StrategyFR::action_mr(double mr)
 {
     if (IS_DOUBLE_GREATER(mr, 3) && IS_DOUBLE_LESS(mr, 6)) {
+        if (IS_DOUBLE_GREATER_EQUAL(Bnapi::accInfo_->uniMMR - mr, 2)) {
+            LOG_ERROR << "predict mr fail: " << mr << ", qry mr: " << Bnapi::accInfo_->uniMMR;
+        }
         LOG_INFO << "start maker close";
         for (const auto& iter : strategyInstrumentList()) {
             Mr_ClosePosition(iter);
@@ -2178,6 +2178,9 @@ bool StrategyFR::action_mr(double mr)
         }
         return false;
     } else if (IS_DOUBLE_LESS_EQUAL(mr, 3)) {
+        if (IS_DOUBLE_GREATER_EQUAL(Bnapi::accInfo_->uniMMR - mr, 2)) {
+            LOG_FATAL << "predict mr fatal: " << mr << ", qry mr: " << Bnapi::accInfo_->uniMMR;
+        }
         LOG_INFO << "start taker close";
         for (const auto& iter : strategyInstrumentList()) {
             Mr_Market_ClosePosition(iter);
@@ -2193,8 +2196,8 @@ void StrategyFR::OnTimerTradingLogic()
 {
     if (!vaildAllSymboPrice(180000)) LOG_ERROR << "no mid price or slow mid price";
     double mr = calc_uniMMR();
-    if (IS_DOUBLE_GREATER_EQUAL(abs(Bnapi::accInfo_->uniMMR - mr), 1.5)) {
-        LOG_ERROR << "predict mr failed: " << mr << ", qry mr: " << Bnapi::accInfo_->uniMMR;
+    if (IS_DOUBLE_GREATER_EQUAL(abs(Bnapi::accInfo_->uniMMR - mr), 3)) {
+        LOG_ERROR << "ontime predict mr failed: " << mr << ", qry mr: " << Bnapi::accInfo_->uniMMR;
     }
     LOG_INFO << "calc mr: " << mr << ", query mr: " << BnApi::accInfo_->uniMMR;
     // action_mr(mr);
