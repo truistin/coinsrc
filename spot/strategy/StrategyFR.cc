@@ -1963,7 +1963,8 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
-    if (sy.sy.find("eth") != string::npos) return;
+    string str(sy.sy);
+    if (str.find("eth") != string::npos) return;
     string stType = "FrClose";
 
     sy_info* sy2 = sy.ref;
