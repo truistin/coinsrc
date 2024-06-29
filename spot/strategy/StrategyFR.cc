@@ -2171,7 +2171,7 @@ bool StrategyFR::action_mr(double mr)
         }
         return false;
     } else if (IS_DOUBLE_LESS_EQUAL(mr, 3)) {
-        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1.2) {
+        if (IS_DOUBLE_GREATER_EQUAL(BnApi::accInfo_->uniMMR - mr, 1.2)) {
             LOG_FATAL << "predict mr fatal: " << mr << ", qry mr: " << BnApi::accInfo_->uniMMR;
         }
 
