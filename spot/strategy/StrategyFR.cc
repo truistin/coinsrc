@@ -879,6 +879,7 @@ int StrategyFR::getIocOrdPendingLen(sy_info& sy) {
 void StrategyFR::hedge(StrategyInstrument *strategyInstrument)
 {
     string symbol = strategyInstrument->getInstrumentID();
+    if (symbol.find("eth") != string::npos) return;
     if (make_taker->find(symbol) == make_taker->end()) return;
     sy_info& sy1 = (*make_taker)[symbol];
     sy_info* sy2 = sy1.ref;
@@ -1167,6 +1168,8 @@ bool StrategyFR::calc_arb_by_maker(sy_info& sy1, sy_info& sy2)
 //close arb_thresh/fr_close_thresh   maker/taker(at most larger than taker)��maker/taker(at least large than taker)
 bool StrategyFR::ClosePosition(const InnerMarketData &marketData, sy_info& sy, int closeflag)
 {
+    if (str.find("eth") != string::npos) return;
+
     bool flag = false;
 
     string stType = "ArbClose";
@@ -1527,6 +1530,9 @@ void StrategyFR::OnRtnInnerMarketDataTradingLogic(const InnerMarketData &marketD
     sy_info& sy1 = (*make_taker)[marketData.InstrumentID];
     sy1.update(marketData.AskPrice1, marketData.BidPrice1, marketData.AskVolume1, marketData.BidVolume1, marketData.UpdateMillisec);
     sy_info* sy2 = sy1.ref;
+
+    string str(sy1.sy);
+    if (str.find("eth") != string::npos) return;
 
     if (!vaildAllSymboPrice(60000)) return;
 
@@ -1955,6 +1961,7 @@ void StrategyFR::Mr_Market_ClosePosition(StrategyInstrument *strategyInstrument)
 void StrategyFR::Mr_ClosePosition(StrategyInstrument *strategyInstrument)
 {
     sy_info& sy = (*make_taker)[strategyInstrument->getInstrumentID()];
+    if (str.find("eth") != string::npos) return;
     string stType = "FrClose";
 
     sy_info* sy2 = sy.ref;
