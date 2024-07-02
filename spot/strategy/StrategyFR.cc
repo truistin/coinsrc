@@ -1439,12 +1439,12 @@ bool StrategyFR::VaildCancelTime(const Order& order, uint8_t loc)
 {
     uint64_t now_ns= CURR_NSTIME_POINT;
     if (order.OrderStatus == PendingCancel || order.OrderStatus == PendingNew) {
-        LOG_INFO << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
+        LOG_DEBUG << "VaildCancelTime symbol: " << order.InstrumentID << ", orderRef: "
             << order.OrderRef << ", status: " << order.OrderStatus << ", loc: " << loc;
         return false;
     }
     if (now_ns - order.TimeStamp < cancel_order_interval * 1e9) {
-        LOG_INFO << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
+        LOG_DEBUG << "VaildCancelTime now_ns: " << now_ns << ", TimeStamp: " << order.TimeStamp
             << ", loc: " << loc;
         return false;
     }
@@ -1465,10 +1465,10 @@ bool StrategyFR::IsExistOrders(sy_info* sy, double px, int side)
                     flag = true;
                     if ((strcmp(iter.TimeInForce, "GTX") == 0 || iter.OrderType == ORDERTYPE_LIMIT_MAKER_CROSS) && 
                         (strcmp(iter.InstrumentID, sy->sy) == 0)) {
-                        LOG_INFO << "buy OrderList info: " << iter.InstrumentID << ", orderRef: " 
+                        LOG_DEBUG << "buy OrderList info: " << iter.InstrumentID << ", orderRef: " 
                             << iter.OrderRef << ", status: " << iter.OrderStatus << ", order list: " << it.second->OrderList.size();
                         if (IS_DOUBLE_EQUAL(iter.LimitPrice, px)) {
-                            LOG_INFO << "buy map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
+                            LOG_DEBUG << "buy map has same px symbol: " << it.first << ", px: " << px << ", orderRef: " << iter.OrderRef
                             << ", map size: " << sy->buyMap->size()
                                 << ", order list: " << it.second->OrderList.size();
                             continue; 
