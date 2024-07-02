@@ -151,7 +151,7 @@ void BianTdSpi::com_callbak_message(const char *message)
 	BianWssRspOrder rspOrder;
 	int ret = rspOrder.decode(message);
 	if (ret == 0) {
-		LOG_INFO << "com_callbak_message BianWssRspOrder result:" << rspOrder.to_string() 
+		LOG_INFO << "com_callbak_message BianWssRspOrder result:" << message
 		// << ", message: " << message
 		<< ", ret result: " << ret;
 	} else {
